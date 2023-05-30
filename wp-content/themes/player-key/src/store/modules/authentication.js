@@ -62,11 +62,11 @@ const actions = {
             authApi
                 .registerUser(userData)
                 .then(response => {
+                    console.log('resp',response);
                     if (response.data.success) {
                         context.commit('registerSuccess', response.data)
                         resolve(response.data)
                     } else {
-                        console.log(response.data);
                         context.commit('registerFailure', response.data.data)
                     }
                 })
