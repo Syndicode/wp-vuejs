@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@roots/bud": "^6.12.3",
+    "@roots/bud-babel": "^6.12.3",
+    "@roots/bud-vue": "^6.12.3"
+  },
+  "dependencies": {
+    "@vuelidate/core": "^2.0.2",
+    "@vuelidate/validators": "^2.0.2",
+    "axios": "^1.4.0",
+    "vue-router": "^4.2.0",
+    "vuex": "^4.0.2"
+  }
+}

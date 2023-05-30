@@ -1,0 +1,33 @@
+.form {
+    display: block;
+    width: 100%;
+}
+
+.form__fieldset {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+    margin-bottom: 40px;
+}
+
+.form__fieldset-title {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    font-weight: 700;
+    text-transform: none;
+}
+
+.form__actions {
+    padding-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.form__actions-note {
+    flex-shrink: 1;
+    width: 100%;
+    padding-top: 12px;
+    text-align: center;
+    font-size: 12px;
+}

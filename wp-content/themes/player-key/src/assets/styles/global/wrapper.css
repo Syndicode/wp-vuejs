@@ -1,0 +1,31 @@
+.wrapper {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    margin: auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.wrapper--form {
+    max-width: 600px;
+}
+
+@media (min-width: 768px) {
+    .wrapper {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .wrapper {
+        max-width: 1320px;
+        padding: 0;
+    }
+
+    .wrapper--form {
+        max-width: 800px;
+    }
+}

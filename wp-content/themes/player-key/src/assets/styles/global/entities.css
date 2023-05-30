@@ -1,0 +1,120 @@
+.entities__wrapper {
+    max-width: 1000px;
+}
+
+.entities__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+}
+
+.entities__list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.entities__item {
+    display: grid;
+    padding: 8px 0;
+    font-size: 16px;
+    border-top: 1px solid #ccc;
+}
+
+.entities__item:first-child {
+    font-weight: 500;
+    border-top: none;
+}
+
+.entities__item--team {
+    grid-template-columns: 40px 1fr 1fr 2fr;
+}
+
+.entities__item:last-child {
+    border-bottom: 1px solid #ccc;
+}
+
+.entities__cell {
+    text-align: center;
+}
+
+.entities__item--team .entities__cell:nth-child(2),
+.entities__item--team .entities__cell:first-child {
+    text-align: left;
+}
+
+.entities__item--team .entities__cell:last-child {
+    text-align: right;
+}
+
+.entities__cell--actions {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 12px;
+}
+
+.entities__action {
+    -webkit-appearance: none;
+    margin: 0;
+    padding: 0 0 1px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    border: none;
+    color: #5b5b5b;
+    background-color: rgba(0, 0, 0, 0);
+    border-bottom: 1px dashed #5b5b5b;;
+    cursor: pointer;
+}
+
+.entities__action:hover {
+    color: var(--rich-black);
+    border-bottom: 1px dashed var(--rich-black);
+}
+
+.entities__layout {
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 700px;
+    height: 100vh;
+    overflow: hidden;
+    padding: 100px 40px;
+    box-sizing: border-box;
+    background-color: var(--white);
+    transform: translate(100%, 0);
+    transition: transform 0.4s ease;
+}
+
+.entities__layout-inner {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.entities__layout.active {
+    transform: translate(0, 0);
+}
+
+.entities__close-button {
+    -webkit-appearance: none;
+    position: absolute;
+    top: 28px;
+    left: 40px;
+    display: block;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    background-color: var(--white);
+    border: none;
+    cursor: pointer;
+}
+
+.entities__close-button svg{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
