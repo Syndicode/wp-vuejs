@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://127.0.0.1:3477/wp-json/pki/v1'
+axios.defaults.baseURL = 'https://playerkeyid.wpengine.com/wp-json/pki/v1'
 
 const getEntitles = (data) => {
     return axios.post(`/entities/${data.entityType}`, data)
