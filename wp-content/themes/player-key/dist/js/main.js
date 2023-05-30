@@ -23656,7 +23656,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "../node_modules/axios/lib/axios.js");
 
-axios__WEBPACK_IMPORTED_MODULE_0__["default"].defaults.baseURL = 'http://127.0.0.1:3477/wp-json/pki/v1';
+axios__WEBPACK_IMPORTED_MODULE_0__["default"].defaults.baseURL = 'https://playerkeyid.wpengine.com/wp-json/pki/v1';
 const registerUser = data => {
   return axios__WEBPACK_IMPORTED_MODULE_0__["default"].post('/users/register', data);
 };
@@ -23691,7 +23691,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "../node_modules/axios/lib/axios.js");
 
-axios__WEBPACK_IMPORTED_MODULE_0__["default"].defaults.baseURL = 'http://127.0.0.1:3477/wp-json/pki/v1';
+axios__WEBPACK_IMPORTED_MODULE_0__["default"].defaults.baseURL = 'https://playerkeyid.wpengine.com/wp-json/pki/v1';
 const getEntitles = data => {
   return axios__WEBPACK_IMPORTED_MODULE_0__["default"].post(`/entities/${data.entityType}`, data);
 };
@@ -27880,7 +27880,7 @@ function useRoute() {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("97906175277cd3f9182e")
+/******/ 		__webpack_require__.h = () => ("bf454e9b7a205434855c")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
