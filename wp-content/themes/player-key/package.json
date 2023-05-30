@@ -3,7 +3,8 @@
   "devDependencies": {
     "@roots/bud": "^6.12.3",
     "@roots/bud-babel": "^6.12.3",
-    "@roots/bud-vue": "^6.12.3"
+    "@roots/bud-vue": "^6.12.3",
+    "mini-css-extract-plugin": "^2.7.6"
   },
   "dependencies": {
     "@vuelidate/core": "^2.0.2",
