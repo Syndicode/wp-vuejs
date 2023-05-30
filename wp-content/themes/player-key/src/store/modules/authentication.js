@@ -66,10 +66,12 @@ const actions = {
                         context.commit('registerSuccess', response.data)
                         resolve(response.data)
                     } else {
+                        console.log(response.data);
                         context.commit('registerFailure', response.data.data)
                     }
                 })
                 .catch(result => {
+                    console.log(result.response);
                     context.commit('registerFailure', result.response.data.data)
                 })
         })
