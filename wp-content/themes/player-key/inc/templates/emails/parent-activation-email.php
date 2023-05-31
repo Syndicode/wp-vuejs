@@ -1,4 +1,3 @@
-<?php $site_url = 'http://127.0.0.1:3477'; ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB">
@@ -44,7 +43,7 @@
 line-height: 1.5">
                 <tr>
                     <td style="padding: 80px 16px 20px; text-align: center">
-                        <img src="<?= $site_url; ?>/wp-content/themes/player-key/src/assets/images/logo-player-key@white.svg"
+                        <img src="https://playerkeyid.wpengine.com/wp-content/themes/player-key/src/assets/images/logo-player-key@white.svg"
                              alt="Player Key ID" style="width: 300px; height: auto">
                     </td>
                 </tr>

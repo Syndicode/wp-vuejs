@@ -30,6 +30,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
+		register_rest_route( $this->namespace, "/$this->rest_base/athletes", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'get_athletes' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/create-team", [
 			[
 				'methods'  => 'POST',
@@ -42,6 +50,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'create_parent' ],
+
+			],
+		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/create-athlete", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'create_athlete' ],
 
 			],
 		] );
@@ -226,7 +242,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					$token = wp_hash( $parent_id . $data['form']['firstName'] . $data['form']['lastName'] . $data['form']['email'] );
 					add_user_meta( $parent_id, 'activation_token', $token, true );
 
-					$url     = get_site_url() . '/activation/parent' . '?id=' . $parent_id . '&token=' . $token;
+					$url     = get_site_url() . '/activation/parent/' . '?id=' . $parent_id . '&token=' . $token;
 					$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
 					$message = str_replace( array( '{{url}}', '{{coach}}' ), array(
 						$url,
@@ -264,6 +280,43 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				}
 
 				wp_send_json_error( $parent_id->get_error_message() );
+			}
+		}
+	}
+
+	function create_athlete( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
+				$team_data = [
+					'post_title'  => sanitize_text_field( $data['form']['team'] ),
+					'post_status' => 'publish',
+					'post_author' => $user_id,
+					'post_type'   => 'team'
+				];
+
+				$team_id = wp_insert_post( $team_data );
+
+				if ( ! is_wp_error( $team_id ) ) {
+					update_field( 'coach', $user_id, $team_id );
+					$teams = get_posts( [
+						'numberposts' => - 1,
+						'post_type'   => 'team',
+						'meta_query'  => [
+							[
+								'key'   => 'coach',
+								'value' => $user_id,
+							]
+						],
+					] );
+					if ( ! empty( $teams ) ) {
+						wp_send_json_success( $teams );
+					}
+				}
 			}
 		}
 	}
@@ -327,11 +380,12 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					$parents_data = [];
 					foreach ( $parents as $parent ) {
 						$parents_data[] = [
-							'ID'         => $parent->ID,
-							'first_name' => $parent->first_name,
-							'last_name'  => $parent->last_name,
-							'email'      => $parent->user_email,
-							'login'      => $parent->user_login,
+							'ID'           => $parent->ID,
+							'first_name'   => $parent->first_name,
+							'last_name'    => $parent->last_name,
+							'email'        => $parent->user_email,
+							'login'        => $parent->user_login,
+							'is_activated' => get_field( 'is_activated', 'user_' . $parent->ID ),
 						];
 					}
 
@@ -368,6 +422,46 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				}
 
 				wp_send_json_error( 'Teams not found' );
+			}
+
+			wp_send_json_error( 'There are not enough permissions to perform this action' );
+		}
+	}
+
+	function get_athletes( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
+				$athletes = get_posts( [
+					'numberposts' => - 1,
+					'post_type'   => 'athlete',
+					'meta_query'  => [
+						[
+							'key'   => 'coach',
+							'value' => $user_id,
+						]
+					],
+				] );
+				if ( ! empty( $athletes ) ) {
+					$athletes_data = [];
+
+					foreach ( $athletes as $athlete ) {
+						$athletes_data[] = [
+							'ID'         => $athlete->ID,
+							'post_title' => $athlete->post_title,
+							'team'       => get_field( 'team', $athlete->ID )->post_title,
+						];
+					}
+
+
+					wp_send_json_success( $athletes_data );
+				}
+
+				wp_send_json_error( 'Athletes not found' );
 			}
 
 			wp_send_json_error( 'There are not enough permissions to perform this action' );

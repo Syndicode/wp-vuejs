@@ -184,20 +184,25 @@ export default {
         </button>
       </div>
       <ul v-if="entities" class="entities__list">
-        <li class="entities__item entities__item--team">
+        <li class="entities__item entities__item--parent">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Name</span>
           <span class="entities__cell">Athletes</span>
+          <span class="entities__cell">Is Activated</span>
           <span class="entities__cell">Actions</span>
         </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">
+        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
           <span class="entities__cell">0</span>
-          <span class="entities__cell entities__cell--actions">
+          <div class="entities__cell">
+            <span v-if="entity.is_activated" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
+            <span v-else class="entities__cell-indicator entities__cell-indicator--false">No</span>
+          </div>
+          <div class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
-            </span>
+            </div>
         </li>
       </ul>
       <p v-else>You don't have associated parents yet</p>

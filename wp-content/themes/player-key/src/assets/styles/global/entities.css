@@ -38,19 +38,47 @@
     text-align: center;
 }
 
+.entities__item--parent .entities__cell:nth-child(2),
+.entities__item--parent .entities__cell:first-child,
 .entities__item--team .entities__cell:nth-child(2),
 .entities__item--team .entities__cell:first-child {
     text-align: left;
 }
 
+.entities__item--parent .entities__cell:last-child,
 .entities__item--team .entities__cell:last-child {
     text-align: right;
+}
+
+.entities__item--parent {
+    grid-template-columns: 40px 1fr 1fr 1fr 2fr;
 }
 
 .entities__cell--actions {
     display: flex;
     justify-content: flex-end;
     column-gap: 12px;
+}
+
+.entities__cell-indicator {
+    display: block;
+    width: 36px;
+    margin: auto;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.entities__cell-indicator--true {
+    color: green;
+    background-color: rgba(0, 183, 43, 0.22);
+}
+
+.entities__cell-indicator--false {
+    color: #9d0000;
+    background-color: rgba(255, 0, 0, 0.11);
 }
 
 .entities__action {
@@ -76,6 +104,7 @@
     position: fixed;
     top: 0;
     right: 0;
+    z-index: 2;
     display: block;
     width: 700px;
     height: 100vh;

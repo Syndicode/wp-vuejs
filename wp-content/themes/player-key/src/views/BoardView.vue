@@ -5,7 +5,6 @@ import Athletes from "../components/Athletes.vue";
 import Parents from "../components/Parents.vue";
 import Coaches from "../components/Coaches.vue";
 import Board from "../components/Board.vue";
-import entitiesApi from "../api/entities.js";
 
 export default {
   components: {

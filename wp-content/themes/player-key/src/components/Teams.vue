@@ -2,9 +2,11 @@
 import Heading from "./Heading.vue";
 import entitiesApi from "../api/entities.js";
 import FormItem from "./FormItem.vue";
+import Loader from "./Loader.vue";
 
 export default {
   components: {
+    Loader,
     FormItem,
     Heading,
   },
@@ -18,6 +20,7 @@ export default {
   },
   data() {
     return {
+      isSubmitting: false,
       editTeamId: null,
       action: '',
       isLayoutVisible: false,
@@ -40,6 +43,7 @@ export default {
       });
     },
     async formSubmit() {
+      this.isSubmitting = true;
       if (this.action === 'Create') {
         await entitiesApi.createEntity({
           entityType: 'team',
@@ -52,6 +56,7 @@ export default {
             this.isLayoutVisible = false;
             this.isFormValid = false;
           }
+          this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
         await entitiesApi.editEntity({
@@ -60,13 +65,13 @@ export default {
           teamId: this.editTeamId,
           form: this.form,
         }).then((response) => {
-          console.log(response.data);
           if (response.data.success) {
             this.entities = response.data.data;
             this.form.team = ''
             this.isLayoutVisible = false;
             this.isFormValid = false;
           }
+          this.isSubmitting = false;
         });
       }
     },
@@ -102,6 +107,7 @@ export default {
   <Heading :level="1">Teams</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
+      <Loader :class="{active: isSubmitting}"/>
       <button class="entities__close-button" @click="closeLayout">
         <svg viewBox="0 0 50 50">
           <path

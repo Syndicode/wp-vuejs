@@ -19,9 +19,19 @@ const logoutUser = (data) => {
     return axios.post('/users/logout', data);
 }
 
+const activationCheckUser = (data) => {
+    return axios.post('/users/activation-check', data);
+}
+
+const activationUser = (data) => {
+    return axios.post('/users/activation', data);
+}
+
 export default {
     registerUser,
     loginUser,
     checkUser,
     logoutUser,
+    activationCheckUser,
+    activationUser,
 }

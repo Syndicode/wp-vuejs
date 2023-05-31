@@ -20,7 +20,6 @@ export default {
     });
 
     formData.role = this.$route.params.role;
-    formData.nonce = wp.nonce;
 
     return {
       form: formData,

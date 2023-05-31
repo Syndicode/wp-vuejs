@@ -1,5 +1,7 @@
 .button {
     -webkit-appearance: none;
+    position: relative;
+    z-index: 1;
     display: inline-block;
     width: auto;
     min-width: 132px;

@@ -1,6 +1,7 @@
 import authApi, {registerUser} from '../../api/authentication.js'
 
 const state = {
+    isCheckDataReceived: false,
     isSubmitting: false,
     validationErrors: [],
     isUserLoggedIn: false,
@@ -19,6 +20,7 @@ const mutations = {
     },
 
     checkSuccess(state, payload) {
+        state.isCheckDataReceived = true;
         state.isUserLoggedIn = true;
         state.currentUser = payload;
         state.currentRole = payload.roles[0];

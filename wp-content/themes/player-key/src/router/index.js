@@ -4,6 +4,7 @@ import SignUpView from '../views/SignUpView.vue'
 import SignUpRoleView from '../views/SignUpRoleView.vue'
 import SignInView from '../views/SignInView.vue'
 import BoardView from '../views/BoardView.vue'
+import ActivationParentView from '../views/ActivationParentView.vue'
 
 
 const router = createRouter({
@@ -37,6 +38,11 @@ const router = createRouter({
             path: '/board/:entity',
             name: 'board-entity',
             component: BoardView
+        },
+        {
+            path: '/activation/parent',
+            name: 'activation-parent',
+            component: ActivationParentView
         },
     ]
 });
