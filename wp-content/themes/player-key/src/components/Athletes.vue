@@ -2,17 +2,14 @@
   import Heading from "./Heading.vue";
 
   export default {
-    name: "Players",
+    name: "Athletes",
     components: {Heading},
-    mounted() {
-      console.log('Players mounted');
-    }
   }
 </script>
 
 <template>
   <div class="wrapper">
-    <Heading :level="1">Players</Heading>
+    <Heading :level="1">Athletes</Heading>
     <ul class="entities-list">
       <li class="entities-list__item">
 

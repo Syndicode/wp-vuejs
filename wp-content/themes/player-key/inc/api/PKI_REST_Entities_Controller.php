@@ -221,6 +221,22 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 				if ( ! is_wp_error( $parent_id ) ) {
 					update_field( 'coach', $user_id, 'user_' . $parent_id );
+					update_field( 'is_activated', 'no', 'user_' . $parent_id );
+
+					$token = wp_hash( $parent_id . $data['form']['firstName'] . $data['form']['lastName'] . $data['form']['email'] );
+					add_user_meta( $parent_id, 'activation_token', $token, true );
+
+					$url     = get_site_url() . '/activation/parent' . '?id=' . $parent_id . '&token=' . $token;
+					$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
+					$message = str_replace( array( '{{url}}', '{{coach}}' ), array(
+						$url,
+						$user->first_name . ' ' . $user->last_name
+					), $message );
+
+					$is_mail_sent = wp_mail( $data['form']['email'], 'Activate your account on PlayerKey ID', $message, [
+						'content-type: text/html',
+					] );
+
 					$parents = get_users( [
 						'role'       => 'parent',
 						'meta_query' => [

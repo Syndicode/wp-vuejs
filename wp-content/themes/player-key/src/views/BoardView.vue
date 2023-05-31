@@ -1,7 +1,7 @@
 <script>
 import BoardNavigation from "../components/BoardNavgation.vue";
 import Teams from "../components/Teams.vue";
-import Players from "../components/Players.vue";
+import Athletes from "../components/Athletes.vue";
 import Parents from "../components/Parents.vue";
 import Coaches from "../components/Coaches.vue";
 import Board from "../components/Board.vue";
@@ -12,7 +12,7 @@ export default {
     Board,
     Teams,
     BoardNavigation,
-    Players,
+    Athletes,
     Parents,
     Coaches,
   },
@@ -38,16 +38,16 @@ export default {
         coach: [
           'teams',
           'parents',
-          'players'
+          'athletes'
         ],
         admin: [
           'coaches',
           'teams',
           'parents',
-          'players'
+          'athletes'
         ],
         parent: [
-          'players'
+          'athletes'
         ],
       },
     }
@@ -72,8 +72,8 @@ export default {
     <BoardNavigation :entities="entitiesScheme[currentRole]"/>
     <div v-if="entitiesScheme[currentRole].includes(this.$route.params.entity)" class="board__view">
       <Teams v-if="this.$route.params.entity === 'teams'" :user-id="this.$store.state.authentication.currentUserId"/>
-      <Players v-else-if="this.$route.params.entity === 'players'"
-               :user-id="this.$store.state.authentication.currentUserId"/>
+      <Athletes v-else-if="this.$route.params.entity === 'athletes'"
+                :user-id="this.$store.state.authentication.currentUserId"/>
       <Parents v-else-if="this.$route.params.entity === 'parents'"
                :user-id="this.$store.state.authentication.currentUserId"/>
       <Coaches v-else-if="this.$route.params.entity === 'coaches'"

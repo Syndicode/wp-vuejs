@@ -9,12 +9,24 @@ function acf_add_user_role_parent_fields(): void {
 
 	$fields->addUser( 'coach', [
 		'label'         => __( 'Coach', 'player-key' ),
-		'required'      => 1,
+		'required'      => 0,
 		'role'          => 'coach',
 		'allow_null'    => 0,
 		'multiple'      => 0,
 		'return_format' => 'id',
 	] );
+
+	$fields
+		->addSelect( 'is_activated', [
+			'label'         => __( 'Is account activated?', 'player-key' ),
+			'required'      => 0,
+			'choices'       => [
+				'yes' => __( 'Yes', 'player-key' ),
+				'no'  => __( 'No', 'player-key' ),
+			],
+			'default_value' => [ 'no' ],
+			'allow_null'    => 0,
+		] );
 
 	$fields->setLocation( 'user_role', '==', 'parent' );
 

@@ -53,7 +53,7 @@ export default {
             this.isFormValid = false;
           }
         });
-      } else if(this.action === 'Edit') {
+      } else if (this.action === 'Edit') {
         await entitiesApi.editEntity({
           entityType: 'team',
           token: this.$store.state.authentication.token,
@@ -81,6 +81,10 @@ export default {
         }
       });
     },
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form.team = '';
+    },
     edit(entity) {
       this.action = 'Edit';
       this.isLayoutVisible = true;
@@ -98,7 +102,7 @@ export default {
   <Heading :level="1">Teams</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
-      <button class="entities__close-button" @click="isLayoutVisible = false;">
+      <button class="entities__close-button" @click="closeLayout">
         <svg viewBox="0 0 50 50">
           <path
               d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z"/>
@@ -119,13 +123,15 @@ export default {
     </div>
     <div class="wrapper entities__wrapper">
       <div class="entities__actions">
-        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">Create team</button>
+        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">Create
+          team
+        </button>
       </div>
       <ul v-if="entities" class="entities__list">
         <li class="entities__item entities__item--team">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Team title</span>
-          <span class="entities__cell">Players</span>
+          <span class="entities__cell">Athletes</span>
           <span class="entities__cell">Actions</span>
         </li>
         <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">

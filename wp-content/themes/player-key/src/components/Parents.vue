@@ -3,25 +3,19 @@ import Heading from "./Heading.vue";
 import FormItem from "./FormItem.vue";
 import entitiesApi from "../api/entities.js";
 import ErrorList from "./ErrorList.vue";
+import Loader from "./Loader.vue";
 
 export default {
   name: "Parents",
   components: {
+    Loader,
     ErrorList,
     FormItem,
     Heading
   },
-  watch: {
-    form: {
-      handler() {
-        this.errors = [];
-        this.isFormValid = this.isRequiredFieldsFiled();
-      },
-      deep: true
-    }
-  },
   data() {
     return {
+      isSubmitting: false,
       errors: [],
       editParentId: null,
       action: '',
@@ -36,6 +30,15 @@ export default {
       }
     };
   },
+  watch: {
+    form: {
+      handler() {
+        this.errors = [];
+        this.isFormValid = this.isRequiredFieldsFiled();
+      },
+      deep: true
+    }
+  },
   methods: {
     async fetchData() {
       await entitiesApi.getEntitles({
@@ -48,12 +51,14 @@ export default {
       });
     },
     async formSubmit() {
+      this.isSubmitting = true;
       if (this.action === 'Add') {
         await entitiesApi.createEntity({
           entityType: 'parent',
           token: this.$store.state.authentication.token,
           form: this.form,
         }).then((response) => {
+          console.log(response);
           if (response.data.success) {
             this.entities = response.data.data;
             this.form = {
@@ -67,6 +72,7 @@ export default {
           } else {
             this.errors.push(response.data.data)
           }
+          this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
         await entitiesApi.editEntity({
@@ -82,10 +88,13 @@ export default {
               lastName: '',
               login: '',
               email: '',
-            },
+            };
             this.isLayoutVisible = false;
             this.isFormValid = false;
+          } else {
+            this.errors.push(response.data.data)
           }
+          this.isSubmitting = false;
         });
       }
     },
@@ -105,7 +114,6 @@ export default {
         token: this.$store.state.authentication.token,
         parentId: id,
       }).then((response) => {
-        console.log(response);
         if (response.data.success) {
           this.entities = this.entities.filter((entity) => entity.ID !== id)
         }
@@ -121,6 +129,15 @@ export default {
 
       return isFiled;
     },
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form = {
+        firstName: '',
+        lastName: '',
+        login: '',
+        email: '',
+      };
+    }
   },
   mounted() {
     this.fetchData()
@@ -133,7 +150,8 @@ export default {
   <Heading :level="1">Parents</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
-      <button class="entities__close-button" @click="isLayoutVisible = false;">
+      <Loader :class="{active: isSubmitting}"/>
+      <button class="entities__close-button" @click="closeLayout">
         <svg viewBox="0 0 50 50">
           <path
               d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z"/>
@@ -147,7 +165,7 @@ export default {
                     v-model="form.firstName"/>
           <FormItem :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                     v-model="form.lastName"/>
-          <FormItem :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
+          <FormItem :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" :is-disabled="action === 'Edit'"
                     v-model="form.login"/>
           <FormItem :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                     v-model="form.email"/>
@@ -169,7 +187,7 @@ export default {
         <li class="entities__item entities__item--team">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Name</span>
-          <span class="entities__cell">Players</span>
+          <span class="entities__cell">Athletes</span>
           <span class="entities__cell">Actions</span>
         </li>
         <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">

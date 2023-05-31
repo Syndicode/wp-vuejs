@@ -103,6 +103,7 @@
     position: absolute;
     top: 28px;
     left: 40px;
+    z-index: 11;
     display: block;
     width: 32px;
     height: 32px;
