@@ -12,8 +12,8 @@ function acf_add_user_role_parent_fields(): void {
 		'required'      => 0,
 		'role'          => 'coach',
 		'allow_null'    => 0,
-		'multiple'      => 0,
-		'return_format' => 'id',
+		'multiple'      => 1,
+		'return_format' => 'object',
 	] );
 
 	$fields

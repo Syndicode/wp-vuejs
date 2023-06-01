@@ -70,14 +70,18 @@ export default {
   <div v-if="isLoaded" class="board">
     <BoardNavigation :entities="entitiesScheme[currentRole]"/>
     <div v-if="entitiesScheme[currentRole].includes(this.$route.params.entity)" class="board__view">
-      <Teams v-if="this.$route.params.entity === 'teams'" :user-id="this.$store.state.authentication.currentUserId"/>
+      <Teams v-if="this.$route.params.entity === 'teams'"
+             :user-id="this.$store.state.authentication.currentUserId"
+             :current-role="currentRole"/>
       <Athletes v-else-if="this.$route.params.entity === 'athletes'"
                 :current-user-id="this.$store.state.authentication.currentUserId"
                 :current-role="currentRole"/>
       <Parents v-else-if="this.$route.params.entity === 'parents'"
-               :user-id="this.$store.state.authentication.currentUserId"/>
+               :user-id="this.$store.state.authentication.currentUserId"
+               :current-role="currentRole"/>
       <Coaches v-else-if="this.$route.params.entity === 'coaches'"
-               :user-id="this.$store.state.authentication.currentUserId"/>
+               :user-id="this.$store.state.authentication.currentUserId"
+               :current-role="currentRole"/>
     </div>
     <Board v-else/>
   </div>

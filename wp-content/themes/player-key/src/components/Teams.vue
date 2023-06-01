@@ -18,6 +18,14 @@ export default {
       deep: true
     }
   },
+  props: {
+    currentUserId: {
+      type: Number,
+    },
+    currentRole: {
+      type: Boolean,
+    }
+  },
   data() {
     return {
       isSubmitting: false,
@@ -36,6 +44,7 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'teams',
         token: this.$store.state.authentication.token,
+        currentRole: this.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data

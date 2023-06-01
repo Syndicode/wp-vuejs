@@ -426,7 +426,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						];
 					} else if ( $data['currentRole'] === 'parent' ) {
 						$team_id = $data['form']['team']['code'];
+						// Team coach
 						$coach   = get_field( 'coach', $team_id );
+
+						//Parent coaches (can be multiple)
+						$parent_coaches = get_field( 'coach', 'user_' . $user_id );
+						$parent_coaches[] = $coach;
+
+						update_field( 'coach', $parent_coaches, 'user_' . $user_id );
 						update_field( 'coach', $coach, $athlete_id );
 
 						$args['meta_query'] = [
@@ -514,6 +521,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						[
 							'key'   => 'coach',
 							'value' => $user_id,
+							'compare'   => 'LIKE'
 						]
 					],
 				] );
