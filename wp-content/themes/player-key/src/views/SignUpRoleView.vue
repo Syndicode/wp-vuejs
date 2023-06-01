@@ -1,6 +1,6 @@
 <script>
 import Heading from "../components/Heading.vue";
-import FormItem from "../components/FormItem.vue";
+import FormItemText from "../components/FormItemText.vue";
 import formFields from "./data/formFields.js"
 import ErrorList from "../components/ErrorList.vue";
 
@@ -8,7 +8,7 @@ export default {
   name: "RegisterRoleView",
   components: {
     ErrorList,
-    FormItem,
+    FormItemText,
     Heading,
   },
   data() {
@@ -90,7 +90,7 @@ export default {
           <Heading :level="3" :align="`left`" :class="`form__fieldset-title`">
             {{ `${index + 1}. ${section.title}` }}
           </Heading>
-          <FormItem v-for="formField in section.fields"
+          <FormItemText v-for="formField in section.fields"
                     :name="formField.name"
                     :is-required="formField.isRequired"
                     :label="formField.label"

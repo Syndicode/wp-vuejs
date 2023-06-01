@@ -78,6 +78,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
+		register_rest_route( $this->namespace, "/$this->rest_base/remove-athlete", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'remove_athlete' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/edit-team", [
 			[
 				'methods'  => 'POST',
@@ -90,6 +98,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'edit_parent' ],
+
+			],
+		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/edit-athlete", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'edit_athlete' ],
 
 			],
 		] );
@@ -180,6 +196,65 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		wp_send_json_error();
 	}
 
+	function edit_athlete( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+				if ( get_field( 'coach', $data['athleteId'] )->ID == $user_id ) {
+					$athlete_id = wp_update_post( wp_slash( [
+						'ID'         => $data['athleteId'],
+						'post_title' => $data['form']['firstName'] . ' ' . $data['form']['lastName'],
+					] ) );
+
+					if ( ! is_wp_error( $athlete_id ) ) {
+						update_field( 'first_name', $data['form']['firstName'], $athlete_id );
+						update_field( 'last_name', $data['form']['lastName'], $athlete_id );
+						update_field( 'birthday', $data['form']['birthday'], $athlete_id );
+						update_field( 'parent', $data['form']['parent']['code'], $athlete_id );
+						update_field( 'team', $data['form']['team']['code'], $athlete_id );
+
+						$athletes = get_posts( [
+							'numberposts' => - 1,
+							'post_type'   => 'athlete',
+							'meta_query'  => [
+								[
+									'key'   => 'coach',
+									'value' => $user_id,
+								]
+							],
+						] );
+						if ( ! empty( $athletes ) ) {
+							$athletes_data = [];
+							foreach ( $athletes as $athlete ) {
+								$parent          = get_field( 'parent', $athlete->ID );
+								$athletes_data[] = [
+									'ID'              => $athlete->ID,
+									'first_name'      => get_field( 'first_name', $athlete->ID ),
+									'last_name'       => get_field( 'last_name', $athlete->ID ),
+									'birthday'        => get_field( 'birthday', $athlete->ID ),
+									'team'            => get_field( 'team', $athlete->ID ),
+									'parent'          => $parent,
+									'parent_name'     => $parent->first_name . ' ' . $parent->last_name,
+									'parent_id'       => $parent->ID,
+									'verified_status' => '',
+								];
+							}
+
+
+							wp_send_json_success( $athletes_data );
+						}
+					}
+				}
+			}
+		}
+
+		wp_send_json_error();
+	}
+
 	function remove_team( WP_REST_Request $request ) {
 		$data    = json_decode( $request->get_body(), true );
 		$user_id = get_option( $data['token'] );
@@ -210,6 +285,23 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				if ( get_field( 'coach', 'user_' . $data['parentId'] ) == $user_id ) {
 					require_once( ABSPATH . 'wp-admin/includes/user.php' );
 					wp_delete_user( $data['parentId'] );
+					wp_send_json_success();
+				}
+			}
+		}
+		wp_send_json_error();
+	}
+
+	function remove_athlete( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+
+				if ( get_field( 'coach', $data['athleteId'] )->ID == $user_id ) {
+					wp_delete_post( $data['athleteId']  );
 					wp_send_json_success();
 				}
 			}
@@ -291,21 +383,27 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		if ( ! empty( $user_id ) ) {
 			$user = get_user_by( 'ID', $user_id );
 
-			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
-				$team_data = [
-					'post_title'  => sanitize_text_field( $data['form']['team'] ),
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+				$athlete_data = [
+					'post_title'  => sanitize_text_field( $data['form']['firstName'] . ' ' . $data['form']['lastName'] ),
 					'post_status' => 'publish',
 					'post_author' => $user_id,
-					'post_type'   => 'team'
+					'post_type'   => 'athlete'
 				];
 
-				$team_id = wp_insert_post( $team_data );
+				$athlete_id = wp_insert_post( $athlete_data );
 
-				if ( ! is_wp_error( $team_id ) ) {
-					update_field( 'coach', $user_id, $team_id );
-					$teams = get_posts( [
+				if ( ! is_wp_error( $athlete_id ) ) {
+					update_field( 'first_name', $data['form']['firstName'], $athlete_id );
+					update_field( 'last_name', $data['form']['lastName'], $athlete_id );
+					update_field( 'birthday', $data['form']['birthday'], $athlete_id );
+					update_field( 'coach', $user_id, $athlete_id );
+					update_field( 'parent', $data['form']['parent']['code'], $athlete_id );
+					update_field( 'team', $data['form']['team']['code'], $athlete_id );
+
+					$athletes = get_posts( [
 						'numberposts' => - 1,
-						'post_type'   => 'team',
+						'post_type'   => 'athlete',
 						'meta_query'  => [
 							[
 								'key'   => 'coach',
@@ -313,8 +411,19 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 							]
 						],
 					] );
-					if ( ! empty( $teams ) ) {
-						wp_send_json_success( $teams );
+					if ( ! empty( $athletes ) ) {
+						$athletes_data = [];
+						foreach ( $athletes as $athlete ) {
+							$parent          = get_field( 'parent', $athlete->ID );
+							$athletes_data[] = [
+								'ID'     => $athlete->ID,
+								'name'   => get_field( 'first_name', $athlete->ID ) . ' ' . get_field( 'last_name', $athlete->ID ),
+								'team'   => get_field( 'team', $athlete->ID )->post_title,
+								'parent' => $parent->first_name . ' ' . $parent->last_name,
+							];
+						}
+
+						wp_send_json_success( $athletes_data );
 					}
 				}
 			}
@@ -450,10 +559,17 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					$athletes_data = [];
 
 					foreach ( $athletes as $athlete ) {
+						$parent          = get_field( 'parent', $athlete->ID );
 						$athletes_data[] = [
-							'ID'         => $athlete->ID,
-							'post_title' => $athlete->post_title,
-							'team'       => get_field( 'team', $athlete->ID )->post_title,
+							'ID'              => $athlete->ID,
+							'first_name'      => get_field( 'first_name', $athlete->ID ),
+							'last_name'       => get_field( 'last_name', $athlete->ID ),
+							'birthday'        => get_field( 'birthday', $athlete->ID ),
+							'team'            => get_field( 'team', $athlete->ID ),
+							'parent'          => $parent,
+							'parent_name'     => $parent->first_name . ' ' . $parent->last_name,
+							'parent_id'       => $parent->ID,
+							'verified_status' => '',
 						];
 					}
 

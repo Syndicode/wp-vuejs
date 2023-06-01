@@ -1,13 +1,13 @@
 <script>
 import Heading from "./Heading.vue";
 import entitiesApi from "../api/entities.js";
-import FormItem from "./FormItem.vue";
+import FormItemText from "./FormItemText.vue";
 import Loader from "./Loader.vue";
 
 export default {
   components: {
     Loader,
-    FormItem,
+    FormItemText,
     Heading,
   },
   watch: {
@@ -117,7 +117,7 @@ export default {
       <div class="entities__layout-inner">
         <Heading :level="2">{{ action }} Team</Heading>
         <form @submit.prevent="formSubmit">
-          <FormItem :name="`team-name`" :label="`Team`" :input-type="`text`" :is-required="true"
+          <FormItemText :name="`team-name`" :label="`Team`" :input-type="`text`" :is-required="true"
                     v-model="form.team"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
@@ -136,7 +136,7 @@ export default {
       <ul v-if="entities" class="entities__list">
         <li class="entities__item entities__item--team">
           <span class="entities__cell">#</span>
-          <span class="entities__cell">Team title</span>
+          <span class="entities__cell">Team</span>
           <span class="entities__cell">Athletes</span>
           <span class="entities__cell">Actions</span>
         </li>

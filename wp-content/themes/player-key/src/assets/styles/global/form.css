@@ -17,6 +17,18 @@
     text-transform: none;
 }
 
+.form__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 300;
+}
+
+.form__label sup {
+    font-weight: 700;
+    color: #3a0000;
+}
+
 .form__actions {
     padding-top: 40px;
     display: flex;

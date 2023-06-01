@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: "FormItem",
+  name: "FormItemText",
   emits: ['update:modelValue'],
   props: {
     inputType: {
@@ -37,9 +37,9 @@ export default {
 </script>
 
 <template>
-  <label v-if="['text', 'email', 'password', 'date'].includes(inputType)" class="form-item"
-         :class="cssModifier ? `form-item--${cssModifier} ` : ``">
-        <span class="form-item__label">
+  <label v-if="['text', 'email', 'password', 'date'].includes(inputType)" class="form-item-text"
+         :class="cssModifier ? `form-item-text--${cssModifier} ` : ``">
+        <span class="form__label">
             {{ label }} <sup v-if="isRequired">*</sup>
         </span>
     <input :type="inputType"
@@ -49,34 +49,34 @@ export default {
            :required="isRequired"
            :disabled="isDisabled"
            @input="$emit('update:modelValue', $event.target.value)"
-           class="form-item__text-field">
+           class="form-item-text__field">
   </label>
 </template>
 
 <style scoped>
-.form-item {
+.form-item-text {
   display: block;
   margin-bottom: 20px;
 }
 
-.form-item--full {
+.form-item-text--full {
   grid-column-start: 1;
   grid-column-end: 3;
 }
 
-.form-item__label {
+.form-item-text__label {
   display: block;
   margin-bottom: 8px;
   font-size: 16px;
   font-weight: 300;
 }
 
-.form-item__label sup {
+.form-item-text__label sup {
   font-weight: 700;
   color: #3a0000;
 }
 
-.form-item__text-field {
+.form-item-text__field {
   -webkit-appearance: none;
   display: block;
   width: 100%;
@@ -94,7 +94,7 @@ export default {
   transition: border-color;
 }
 
-.form-item__text-field:focus {
+.form-item-text__field:focus {
   border-color: var(--rich-black);
 }
 </style>

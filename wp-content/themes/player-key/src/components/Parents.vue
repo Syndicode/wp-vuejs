@@ -1,6 +1,6 @@
 <script>
 import Heading from "./Heading.vue";
-import FormItem from "./FormItem.vue";
+import FormItemText from "./FormItemText.vue";
 import entitiesApi from "../api/entities.js";
 import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
@@ -10,7 +10,7 @@ export default {
   components: {
     Loader,
     ErrorList,
-    FormItem,
+    FormItemText,
     Heading
   },
   data() {
@@ -161,13 +161,13 @@ export default {
         <Heading :level="2">{{ action }} Parent</Heading>
         <ErrorList v-if="errors.length" :errors="errors"/>
         <form @submit.prevent="formSubmit">
-          <FormItem :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
+          <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                     v-model="form.firstName"/>
-          <FormItem :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
+          <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                     v-model="form.lastName"/>
-          <FormItem :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" :is-disabled="action === 'Edit'"
+          <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" :is-disabled="action === 'Edit'"
                     v-model="form.login"/>
-          <FormItem :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
+          <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                     v-model="form.email"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>

@@ -30,12 +30,30 @@
     grid-template-columns: 40px 1fr 1fr 2fr;
 }
 
+.entities__item--parent {
+    grid-template-columns: 40px 1fr 1fr 1fr 2fr;
+}
+
+.entities__item--athlete {
+    grid-template-columns: 40px 2fr 1fr 2fr 1fr 2fr;
+}
+
 .entities__item:last-child {
     border-bottom: 1px solid #ccc;
 }
 
 .entities__cell {
     text-align: center;
+}
+
+.entities__cell--actions {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 12px;
+}
+
+.entities__item--athlete .entities__cell {
+    text-align: left;
 }
 
 .entities__item--parent .entities__cell:nth-child(2),
@@ -45,19 +63,10 @@
     text-align: left;
 }
 
+.entities__item--athlete .entities__cell:last-child,
 .entities__item--parent .entities__cell:last-child,
 .entities__item--team .entities__cell:last-child {
     text-align: right;
-}
-
-.entities__item--parent {
-    grid-template-columns: 40px 1fr 1fr 1fr 2fr;
-}
-
-.entities__cell--actions {
-    display: flex;
-    justify-content: flex-end;
-    column-gap: 12px;
 }
 
 .entities__cell-indicator {

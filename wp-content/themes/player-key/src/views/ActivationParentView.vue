@@ -2,12 +2,12 @@
 import authApi from '../api/authentication.js'
 import Heading from "../components/Heading.vue";
 import ErrorList from "../components/ErrorList.vue";
-import FormItem from "../components/FormItem.vue";
+import FormItemText from "../components/FormItemText.vue";
 import Loader from "../components/Loader.vue";
 
 export default {
   name: "ActivationParentView",
-  components: {Loader, FormItem, ErrorList, Heading},
+  components: {Loader, FormItemText, ErrorList, Heading},
   watch: {
     form: {
       handler() {
@@ -94,17 +94,17 @@ export default {
     <ErrorList v-if="errors.length" :errors="errors"/>
     <form @submit.prevent="formSubmit">
       <div class="form__fieldset">
-        <FormItem :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
+        <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                   v-model="form.firstName"/>
-        <FormItem :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
+        <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                   v-model="form.lastName"/>
-        <FormItem :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
+        <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
                   v-model="form.login" :is-disabled="true"/>
-        <FormItem :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
+        <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                   v-model="form.email" :css-modifier="`full`"/>
-        <FormItem :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true"
+        <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true"
                   v-model="form.password"/>
-        <FormItem :name="`password-repeat`" :label="`Password Repeat`" :input-type="`password`" :is-required="true"
+        <FormItemText :name="`password-repeat`" :label="`Password Repeat`" :input-type="`password`" :is-required="true"
                   v-model="form.passwordRepeat"/>
       </div>
 

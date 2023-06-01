@@ -15,13 +15,20 @@ function acf_add_post_type_athlete_fields(): void {
 		'required' => 1,
 	] );
 
+	$fields->addDatePicker('birthday', [
+		'label'    => __( 'Birthday', 'player-key' ),
+		'display_format' => 'm/d/Y',
+		'return_format' => 'm/d/Y',
+		'first_day' => 1,
+	]);
+
 	$fields->addUser( 'coach', [
 		'label'         => __( 'Coach', 'player-key' ),
 		'required'      => 1,
 		'role'          => 'coach',
 		'allow_null'    => 0,
 		'multiple'      => 0,
-		'return_format' => 'id',
+		'return_format' => 'object',
 	] );
 
 	$fields->addUser( 'parent', [
@@ -30,7 +37,7 @@ function acf_add_post_type_athlete_fields(): void {
 		'role'          => 'coach',
 		'allow_null'    => 0,
 		'multiple'      => 0,
-		'return_format' => 'id',
+		'return_format' => 'object',
 	] );
 
 	$fields->addPostObject( 'team', [
