@@ -11,7 +11,7 @@ function acf_add_post_type_team_fields(): void {
 		'role'          => 'coach',
 		'allow_null'    => 0,
 		'multiple'      => 0,
-		'return_format' => 'id',
+		'return_format' => 'object',
 	] );
 
 	$fields->setLocation( 'post_type', '==', 'team' );

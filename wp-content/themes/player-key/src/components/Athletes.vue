@@ -15,6 +15,14 @@ export default {
     Heading,
     vSelect,
   },
+  props: {
+    currentUserId: {
+      type: Number,
+    },
+    currentRole: {
+      type: Boolean,
+    }
+  },
   data() {
     return {
       errors: [],
@@ -31,7 +39,7 @@ export default {
         lastName: '',
         team: '',
         parent: '',
-        birthday: '2021-08-12',
+        birthday: '',
       }
     };
   },
@@ -49,6 +57,7 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'athletes',
         token: this.$store.state.authentication.token,
+        currentRole: this.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
@@ -59,6 +68,7 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'teams',
         token: this.$store.state.authentication.token,
+        currentRole: this.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.teams = response.data.data.map((team) => {
@@ -86,7 +96,14 @@ export default {
       });
     },
     closeLayout() {
-      this.isLayoutVisible = false
+      this.isLayoutVisible = false;
+      this.form = {
+        firstName: '',
+        lastName: '',
+        team: '',
+        birthday: '',
+      }
+
     },
     async formSubmit() {
       this.isSubmitting = true;
@@ -95,6 +112,7 @@ export default {
           entityType: 'athlete',
           token: this.$store.state.authentication.token,
           form: this.form,
+          currentRole: this.currentRole
         }).then((response) => {
           if (response.data.success) {
             this.entities = response.data.data;
@@ -102,7 +120,7 @@ export default {
               firstName: '',
               lastName: '',
               team: '',
-              parent: '',
+              parent: this.currentRole === 'coach' ? '' : this.form.parent,
               birthday: '',
             }
             this.isLayoutVisible = false;
@@ -113,12 +131,12 @@ export default {
           this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
-        console.log(this.form.birthday);
         await entitiesApi.editEntity({
           entityType: 'athlete',
           token: this.$store.state.authentication.token,
           athleteId: this.editAthleteId,
           form: this.form,
+          currentRole: this.currentRole
         }).then((response) => {
           if (response.data.success) {
             this.entities = response.data.data;
@@ -126,7 +144,7 @@ export default {
               firstName: '',
               lastName: '',
               team: '',
-              parent: '',
+              parent: this.currentRole === 'coach' ? '' : this.form.parent,
               birthday: '',
             }
             this.isLayoutVisible = false;
@@ -166,7 +184,6 @@ export default {
         token: this.$store.state.authentication.token,
         athleteId: id,
       }).then((response) => {
-        console.log(response);
         if (response.data.success) {
           this.entities = this.entities.filter((entity) => entity.ID !== id)
         }
@@ -174,6 +191,12 @@ export default {
     },
   },
   mounted() {
+    if (this.currentRole === 'parent') {
+      this.form.parent = {
+        label: this.$store.state.authentication.currentUser.data.display_name,
+        code: this.$store.state.authentication.currentUser.ID
+      }
+    }
     this.fetchData();
     this.getTeams();
     this.getParents();
@@ -214,7 +237,7 @@ export default {
             <vSelect :options="parents"
                      v-model="form.parent"
                      :class="`form-item-select__field`"
-                     :required="true"/>
+                     :required="true" :disabled="currentRole === 'parent'"/>
           </label>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
@@ -251,7 +274,7 @@ export default {
             </span>
         </li>
       </ul>
-      <p v-else>You haven't created any teams yet</p>
+      <p v-else>You don't have associated athletes yet</p>
     </div>
   </div>
 </template>

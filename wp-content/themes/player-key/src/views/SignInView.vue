@@ -1,10 +1,12 @@
 <script>
 import Heading from "../components/Heading.vue";
 import FormItemText from "../components/FormItemText.vue";
+import ErrorList from "../components/ErrorList.vue";
 
 export default {
   name: "LoginView",
   components: {
+    ErrorList,
     Heading,
     FormItemText,
   },
@@ -16,6 +18,11 @@ export default {
       },
       isFormValid: false,
     };
+  },
+  computed: {
+    errors() {
+      return this.$store.state.authentication.validationErrors;
+    },
   },
   watch: {
     form: {
@@ -42,6 +49,7 @@ export default {
 <template>
   <div class="wrapper wrapper--form">
     <Heading :level="1" :class="`form-holder__heading`">Login</Heading>
+    <ErrorList v-if="errors.length" :errors="errors"/>
     <form class="form" @submit.prevent="formSubmit">
       <div class="form__fieldset">
         <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" v-model="form.login"/>

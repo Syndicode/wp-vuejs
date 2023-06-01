@@ -34,7 +34,7 @@ function acf_add_post_type_athlete_fields(): void {
 	$fields->addUser( 'parent', [
 		'label'         => __( 'Parent', 'player-key' ),
 		'required'      => 1,
-		'role'          => 'coach',
+		'role'          => 'parent',
 		'allow_null'    => 0,
 		'multiple'      => 0,
 		'return_format' => 'object',

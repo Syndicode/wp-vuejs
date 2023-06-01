@@ -168,7 +168,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 					update_field( 'state', $data['state'], 'user_' . $user_id );
 					update_field( 'zip-code', $data['zipCode'], 'user_' . $user_id );
 				} else if ( $data['role'] === 'parent' ) {
-					update_field( 'is_activated', 'no', 'user_' . $user_id );
+					update_field( 'is_activated', 'yes', 'user_' . $user_id );
 				}
 
 				wp_send_json_success( $user_id );

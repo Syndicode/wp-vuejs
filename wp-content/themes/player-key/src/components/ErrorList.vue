@@ -13,7 +13,7 @@ export default {
 <template>
   <ul class="error-list">
     <li v-for="error in errors" class="error-list__item">
-      {{ error }}
+      <div v-html="error"></div>
     </li>
   </ul>
 </template>

@@ -11,12 +11,22 @@ const state = {
 }
 
 const mutations = {
+    loginStart(state, payload) {
+        state.validationErrors = [];
+        state.isSubmitting = true;
+    },
     loginSuccess(state, payload) {
+        state.isSubmitting = true;
         state.isUserLoggedIn = true;
         state.currentUser = payload.user;
         state.token = payload.token;
         state.currentRole = payload.user.roles[0];
         localStorage.setItem('pki-auth', payload.token);
+    },
+
+    loginFailure(state, payload) {
+        state.validationErrors.push(payload);
+        state.isSubmitting = false;
     },
 
     checkSuccess(state, payload) {
@@ -64,7 +74,6 @@ const actions = {
             authApi
                 .registerUser(userData)
                 .then(response => {
-                    console.log('resp',response);
                     if (response.data.success) {
                         context.commit('registerSuccess', response.data)
                         resolve(response.data)
@@ -80,11 +89,17 @@ const actions = {
     },
     login(context, userData) {
         return new Promise((resolve) => {
+            context.commit('loginStart')
             authApi
                 .loginUser(userData)
                 .then((response) => {
-                    context.commit('loginSuccess', response.data.data)
-                    resolve(response.data.data)
+                    console.log(response);
+                    if (response.data.success) {
+                        context.commit('loginSuccess', response.data.data)
+                        resolve(response.data.data)
+                    } else {
+                        context.commit('loginFailure', response.data.data)
+                    }
                 })
         });
     },
