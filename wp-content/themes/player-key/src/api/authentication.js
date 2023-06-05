@@ -27,6 +27,10 @@ const activationUser = (data) => {
     return axios.post('/users/activation', data);
 }
 
+const resendActivationLink = (data) => {
+    return axios.post('/users/resend-activation-link', data);
+}
+
 export default {
     registerUser,
     loginUser,
@@ -34,4 +38,5 @@ export default {
     logoutUser,
     activationCheckUser,
     activationUser,
+    resendActivationLink,
 }

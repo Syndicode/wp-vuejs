@@ -8,12 +8,18 @@ const state = {
     currentUser: null,
     token: null,
     currentRole: null,
+    messages: [],
 }
 
 const mutations = {
+    activationSuccess(state) {
+        console.log('wqefqwfe');
+        state.messages.push('You have successfully activated your account!');
+    },
     loginStart(state, payload) {
         state.validationErrors = [];
         state.isSubmitting = true;
+        state.messages = [];
     },
     loginSuccess(state, payload) {
         state.isSubmitting = true;
@@ -54,12 +60,12 @@ const mutations = {
     registerStart(state) {
         state.validationErrors = [];
         state.isSubmitting = true;
+        state.messages = [];
     },
     registerSuccess(state, payload) {
-        // state.isLoggedIn = true;
-        // state.currentUser = payload;
         state.validationErrors = [];
         state.isSubmitting = false;
+        state.messages.push('You have successfully registered!');
     },
     registerFailure(state, payload) {
         state.validationErrors.push(payload);
@@ -82,7 +88,6 @@ const actions = {
                     }
                 })
                 .catch(result => {
-                    console.log(result.response);
                     context.commit('registerFailure', result.response.data.data)
                 })
         })

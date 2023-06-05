@@ -6,12 +6,23 @@ use WP_REST_Controller;
 use WP_REST_Request;
 
 class PKI_REST_Users_Controller extends WP_REST_Controller {
+
+	const WEEK_IN_SECONDS = 604800;
+	const DAY_IN_SECONDS = 86400;
+
 	function __construct() {
 		$this->namespace = 'pki/v1';
 		$this->rest_base = 'users';
 	}
 
 	public function register_routes(): void {
+
+		register_rest_route( $this->namespace, "/$this->rest_base/resend-activation-link", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'resend_activation_link' ],
+			],
+		] );
 
 		register_rest_route( $this->namespace, "/$this->rest_base/register", [
 			[
@@ -56,6 +67,40 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		] );
 	}
 
+	function resend_activation_link( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
+
+				$parent = get_user_by( 'ID', $data['parentId'] );
+				$token  = wp_hash( $parent->ID . $parent->first_name . $parent->last_name . $parent->user_email );
+
+				$url     = get_site_url() . '/activation/parent/' . '?id=' . $parent->ID . '&token=' . $token;
+				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
+				$message = str_replace( array( '{{url}}', '{{coach}}' ), array(
+					$url,
+					$user->first_name . ' ' . $user->last_name
+				), $message );
+
+				$is_mail_sent = wp_mail( $parent->user_email, 'Activate your account on PlayerKey ID', $message, [
+					'content-type: text/html',
+				] );
+
+				if ( $is_mail_sent ) {
+					add_user_meta( $parent->ID, 'activation_token', $token, true );
+					add_option( $token, time() );
+					wp_send_json_success();
+				}
+			}
+		}
+
+		wp_send_json_error();
+	}
+
 	function activation_user( WP_REST_Request $request ) {
 		$data = json_decode( $request->get_body(), true );
 		if ( $data['activation_token'] === get_user_meta( $data['parentId'], 'activation_token', true ) ) {
@@ -70,6 +115,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 			if ( ! is_wp_error( $parent_id ) ) {
 				update_field( 'is_activated', 'yes', 'user_' . $parent_id );
+				delete_user_meta( $parent_id, 'activation_token' );
 				wp_send_json_success();
 			}
 		}
@@ -79,22 +125,31 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 	function activation_check_user( WP_REST_Request $request ) {
 		$data = json_decode( $request->get_body(), true );
 		if ( $data['token'] === get_user_meta( $data['id'], 'activation_token', true ) ) {
-			$user = get_user_by( 'ID', $data['id'] );
-			if ( ! is_wp_error( $user ) && $user !== false ) {
-				$user_data = [
-					'ID'         => $user->ID,
-					'user_login' => $user->user_login,
-					'first_name' => $user->first_name,
-					'last_name'  => $user->last_name,
-					'email'      => $user->user_email,
-					'role'       => 'parent',
-				];
 
-				wp_send_json_success( $user_data );
+			if (get_field( 'is_activated', 'user_' . $data['id'] ) === 'no') {
+
+				if ( ( time() - (int) get_option( $data['token'], true ) ) < self::DAY_IN_SECONDS ) {
+					$user = get_user_by( 'ID', $data['id'] );
+					if ( ! is_wp_error( $user ) && $user !== false ) {
+						$user_data = [
+							'ID'         => $user->ID,
+							'user_login' => $user->user_login,
+							'first_name' => $user->first_name,
+							'last_name'  => $user->last_name,
+							'email'      => $user->user_email,
+							'role'       => 'parent',
+						];
+
+						wp_send_json_success( $user_data );
+					}
+				}
+				update_field( 'is_activated', 'expired', 'user_' . $data['id'] );
+				wp_send_json_error( 'Activation link has expired!' );
 			}
+			wp_send_json_error( 'Your account is already activated!' );
 		}
 
-		wp_send_json_error();
+		wp_send_json_error( 'You do not have permissions to perform this action!' );
 	}
 
 	function logout_user( WP_REST_Request $request ) {

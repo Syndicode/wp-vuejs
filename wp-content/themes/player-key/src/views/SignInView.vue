@@ -2,10 +2,12 @@
 import Heading from "../components/Heading.vue";
 import FormItemText from "../components/FormItemText.vue";
 import ErrorList from "../components/ErrorList.vue";
+import MessageList from "../components/MessageList.vue";
 
 export default {
   name: "LoginView",
   components: {
+    MessageList,
     ErrorList,
     Heading,
     FormItemText,
@@ -22,6 +24,9 @@ export default {
   computed: {
     errors() {
       return this.$store.state.authentication.validationErrors;
+    },
+    messages() {
+      return this.$store.state.authentication.messages;
     },
   },
   watch: {
@@ -48,8 +53,9 @@ export default {
 
 <template>
   <div class="wrapper wrapper--form">
-    <Heading :level="1" :class="`form-holder__heading`">Login</Heading>
+    <Heading :level="1" :class="`form-holder__heading`">Sign in</Heading>
     <ErrorList v-if="errors.length" :errors="errors"/>
+    <MessageList v-if="messages.length" :messages="messages" :type="`success`"/>
     <form class="form" @submit.prevent="formSubmit">
       <div class="form__fieldset">
         <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" v-model="form.login"/>

@@ -18,6 +18,7 @@ export default {
   },
   data() {
     return {
+      isLinkActive: true,
       isSubmitting: false,
       isFormValid: false,
       user: null,
@@ -56,6 +57,7 @@ export default {
           activation_token: this.$route.query.token,
         }).then((response) => {
           if (response.data.success) {
+            this.$store.commit('activationSuccess')
             this.$router.push({name: 'sign-in'})
           }
         });
@@ -76,7 +78,8 @@ export default {
             this.form.login = this.user.user_login;
             this.form.email = this.user.email;
           } else {
-            //TODO
+            this.isLinkActive = false;
+            this.errors.push(response.data.data)
           }
         });
       } else {
@@ -92,7 +95,7 @@ export default {
   <div class="wrapper wrapper--form">
     <Heading :level="1">Activate you account</Heading>
     <ErrorList v-if="errors.length" :errors="errors"/>
-    <form @submit.prevent="formSubmit">
+    <form v-if="isLinkActive" @submit.prevent="formSubmit">
       <div class="form__fieldset">
         <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                   v-model="form.firstName"/>

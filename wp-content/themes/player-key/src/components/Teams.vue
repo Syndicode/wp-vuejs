@@ -3,9 +3,11 @@ import Heading from "./Heading.vue";
 import entitiesApi from "../api/entities.js";
 import FormItemText from "./FormItemText.vue";
 import Loader from "./Loader.vue";
+import MessageList from "./MessageList.vue";
 
 export default {
   components: {
+    MessageList,
     Loader,
     FormItemText,
     Heading,
@@ -28,6 +30,7 @@ export default {
   },
   data() {
     return {
+      messages: [],
       isSubmitting: false,
       editTeamId: null,
       action: '',
@@ -92,6 +95,8 @@ export default {
       }).then((response) => {
         if (response.data.success) {
           this.entities = this.entities.filter((entity) => entity.ID !== id)
+        } else {
+          this.messages.push(response.data.data);
         }
       });
     },
@@ -137,6 +142,7 @@ export default {
       </div>
     </div>
     <div class="wrapper entities__wrapper">
+      <MessageList v-if="messages.length" :messages="messages" :type="`error`"/>
       <div class="entities__actions">
         <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">Create
           team
@@ -152,7 +158,7 @@ export default {
         <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.post_title }}</span>
-          <span class="entities__cell">0</span>
+          <span class="entities__cell">{{ entity.athletes }}</span>
           <span class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>

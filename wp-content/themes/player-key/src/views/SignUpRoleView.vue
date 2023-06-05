@@ -66,7 +66,6 @@ export default {
       if (this.isPasswordsMatch()) {
         this.$store.dispatch('register', this.form)
             .then(() => {
-              this.$store.commit('registerSuccess');
               this.$router.push({name: 'sign-in'});
             });
       } else {

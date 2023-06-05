@@ -2,6 +2,7 @@
 import Heading from "./Heading.vue";
 import FormItemText from "./FormItemText.vue";
 import entitiesApi from "../api/entities.js";
+import authApi from "../api/authentication.js";
 import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
 
@@ -40,6 +41,16 @@ export default {
     }
   },
   methods: {
+    async resend(id) {
+      await authApi.resendActivationLink({
+        token: this.$store.state.authentication.token,
+        parentId: id,
+      }).then((response) => {
+        if (response.data.success) {
+          console.log('yes');
+        }
+      })
+    },
     async fetchData() {
       await entitiesApi.getEntitles({
         entityType: 'parents',
@@ -162,13 +173,14 @@ export default {
         <ErrorList v-if="errors.length" :errors="errors"/>
         <form @submit.prevent="formSubmit">
           <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
-                    v-model="form.firstName"/>
+                        v-model="form.firstName"/>
           <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
-                    v-model="form.lastName"/>
-          <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" :is-disabled="action === 'Edit'"
-                    v-model="form.login"/>
+                        v-model="form.lastName"/>
+          <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
+                        :is-disabled="action === 'Edit'"
+                        v-model="form.login"/>
           <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
-                    v-model="form.email"/>
+                        v-model="form.email"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -194,15 +206,19 @@ export default {
         <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
-          <span class="entities__cell">0</span>
+          <span class="entities__cell">{{ entity.athletes }}</span>
           <div class="entities__cell">
-            <span v-if="entity.is_activated" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
-            <span v-else class="entities__cell-indicator entities__cell-indicator--false">No</span>
+            <span v-if="entity.is_activated === 'yes'" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
+            <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
+                  class="entities__cell-indicator entities__cell-indicator--false">No</span>
+            <span v-else-if="entity.is_activated === 'expired'"
+                  class="entities__cell-indicator entities__cell-indicator--expired">Expired</span>
           </div>
           <div class="entities__cell entities__cell--actions">
-              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
-            </div>
+            <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
+            <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+            <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button" class="entities__action" @click="resend(entity.ID)">Resend activation Link</button>
+          </div>
         </li>
       </ul>
       <p v-else>You don't have associated parents yet</p>

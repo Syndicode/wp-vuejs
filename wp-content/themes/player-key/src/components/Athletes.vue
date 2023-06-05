@@ -70,13 +70,15 @@ export default {
         token: this.$store.state.authentication.token,
         currentRole: this.currentRole,
       }).then((response) => {
-        if (response.data.success) {
+        if (response.data.success && response.data.data.length) {
           this.teams = response.data.data.map((team) => {
             return {
               label: team.post_title,
               code: team.ID
             };
           });
+        } else {
+          this.errors.push('No Team exists. You cannot add an athlete without a Team.')
         }
       });
     },
@@ -85,25 +87,35 @@ export default {
         entityType: 'parents',
         token: this.$store.state.authentication.token,
       }).then((response) => {
-        if (response.data.success) {
+        if (response.data.success && response.data.data.length) {
           this.parents = response.data.data.map((parent) => {
             return {
               label: `${parent.first_name} ${parent.last_name}`,
               code: parent.ID
             };
           });
+        } else {
+          if (this.currentRole === 'coach') {
+            this.errors.push('No Parents exists. You cannot add an athlete without a Parents.')
+          } else if (this.currentRole === 'parent') {
+            this.parents.push({
+              label: this.$store.state.authentication.currentUser.data.display_name,
+              code: this.$store.state.authentication.currentUser.ID
+            })
+          }
         }
       });
     },
     closeLayout() {
       this.isLayoutVisible = false;
-      this.form = {
-        firstName: '',
-        lastName: '',
-        team: '',
-        birthday: '',
-      }
+      this.form.firstName = '';
+      this.form.lastName = '';
+      this.form.team = '';
+      this.form.birthday = '';
 
+      if (this.currentRole === 'coach') {
+        this.form.parent = '';
+      }
     },
     async formSubmit() {
       this.isSubmitting = true;
@@ -218,7 +230,7 @@ export default {
       <div class="entities__layout-inner">
         <Heading :level="2">{{ action }} Athlete</Heading>
         <ErrorList v-if="errors.length" :errors="errors"/>
-        <form @submit.prevent="formSubmit">
+        <form v-if="teams.length && parents.length" @submit.prevent="formSubmit">
           <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                         v-model="form.firstName"/>
           <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
