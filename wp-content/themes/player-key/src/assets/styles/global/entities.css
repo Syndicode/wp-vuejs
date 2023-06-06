@@ -56,6 +56,10 @@
     text-align: left;
 }
 
+.entities__item--athlete .entities__cell--status {
+    text-align: center;
+}
+
 .entities__item--parent .entities__cell:nth-child(2),
 .entities__item--parent .entities__cell:first-child,
 .entities__item--team .entities__cell:nth-child(2),
@@ -94,6 +98,41 @@
     width: 72px;
     color: #262626;
     background-color: rgba(93, 93, 93, 0.11);
+}
+
+.entities__cell-status {
+    display: block;
+    width: 100px;
+    margin: auto;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+    text-align: center !important;
+    border-radius: 8px;
+}
+
+.entities__cell-status::first-letter {
+    text-transform: uppercase;
+}
+
+.entities__cell-status--incomplete {
+    color: #282828;
+    background-color: rgba(217, 217, 217, 0.22);
+}
+
+.entities__cell-status--pending {
+    color: #a26100;
+    background-color: rgba(211, 191, 0, 0.13);
+}
+
+.entities__cell-indicator--verified {
+    color: green;
+    background-color: rgba(0, 183, 43, 0.22);
+}
+
+.entities__cell-indicator--rejected {
+    color: #9d0000;
+    background-color: rgba(255, 0, 0, 0.11);
 }
 
 .entities__action {
@@ -158,7 +197,7 @@
     cursor: pointer;
 }
 
-.entities__close-button svg{
+.entities__close-button svg {
     display: block;
     width: 100%;
     height: 100%;

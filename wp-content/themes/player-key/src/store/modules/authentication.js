@@ -9,11 +9,20 @@ const state = {
     token: null,
     currentRole: null,
     messages: [],
+    athleteToken: null,
+    athleteParentId: null,
 }
 
 const mutations = {
+    setAthleteForEdit(state, payload) {
+        state.athleteToken = payload.token
+        state.athleteParentId = payload.id
+    },
+    resetAthleteForEdit(state, payload) {
+        state.athleteToken = null;
+        state.athleteParentId = null
+    },
     activationSuccess(state) {
-        console.log('wqefqwfe');
         state.messages.push('You have successfully activated your account!');
     },
     loginStart(state, payload) {
@@ -44,13 +53,14 @@ const mutations = {
     },
 
     checkFailure(state, payload) {
+        console.log('checkFailure');
         state.isUserLoggedIn = false;
         state.currentUser = null;
         state.token = null;
     },
 
     logoutSuccess(state) {
-        state.isUserLoggedIn = false;
+        state.isUserLoggedIn = null;
         state.currentUser = null;
         localStorage.removeItem('pki-auth');
     },

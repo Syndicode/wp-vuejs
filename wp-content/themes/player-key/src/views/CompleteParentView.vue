@@ -6,7 +6,7 @@ import FormItemText from "../components/FormItemText.vue";
 import Loader from "../components/Loader.vue";
 
 export default {
-  name: "ActivationParentView",
+  name: "CompleteParentView",
   components: {Loader, FormItemText, ErrorList, Heading},
   watch: {
     form: {

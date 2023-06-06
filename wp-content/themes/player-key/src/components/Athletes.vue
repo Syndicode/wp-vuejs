@@ -5,10 +5,13 @@ import FormItemText from "./FormItemText.vue";
 import entitiesApi from "../api/entities.js";
 import vSelect from 'vue-select';
 import ErrorList from "./ErrorList.vue";
+import FormItemFile from "./FormItemFile.vue";
+import {awrap} from "../../../../../wp-includes/js/dist/vendor/regenerator-runtime.js";
 
 export default {
   name: "Athletes",
   components: {
+    FormItemFile,
     ErrorList,
     FormItemText,
     Loader,
@@ -25,6 +28,7 @@ export default {
   },
   data() {
     return {
+      filePreview: '',
       errors: [],
       teams: [],
       parents: [],
@@ -40,6 +44,8 @@ export default {
         team: '',
         parent: '',
         birthday: '',
+        cardFileName: '',
+        certificateFileName: '',
       }
     };
   },
@@ -53,6 +59,22 @@ export default {
     }
   },
   methods: {
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form.firstName = '';
+      this.form.lastName = '';
+      this.form.team = '';
+      this.form.birthday = '';
+
+      if (this.currentRole === 'coach') {
+        this.form.parent = '';
+      }
+
+      if (this.currentRole === 'parent') {
+        this.form.cardFileName = '';
+        this.form.certificateFileName = '';
+      }
+    },
     async fetchData() {
       await entitiesApi.getEntitles({
         entityType: 'athletes',
@@ -106,26 +128,30 @@ export default {
         }
       });
     },
-    closeLayout() {
-      this.isLayoutVisible = false;
-      this.form.firstName = '';
-      this.form.lastName = '';
-      this.form.team = '';
-      this.form.birthday = '';
-
-      if (this.currentRole === 'coach') {
-        this.form.parent = '';
-      }
-    },
     async formSubmit() {
       this.isSubmitting = true;
+
+      const formData = new FormData();
+      formData.append('entityType', 'athlete');
+      formData.append('token', this.$store.state.authentication.token);
+      formData.append('athleteId', this.editAthleteId);
+      formData.append('currentRole', this.currentRole);
+
+      if (this.currentRole === 'parent') {
+        formData.append('card', this.form.card);
+        formData.append('certificate', this.form.certificate);
+      }
+
+      for (let field in this.form) {
+        formData.append(field, this.form[field]);
+      }
+
+      formData.set('team', this.form.team.code);
+      formData.set('parent', this.form.parent.code);
+
+
       if (this.action === 'Add') {
-        await entitiesApi.createEntity({
-          entityType: 'athlete',
-          token: this.$store.state.authentication.token,
-          form: this.form,
-          currentRole: this.currentRole
-        }).then((response) => {
+        await entitiesApi.createAthlete(formData).then((response) => {
           if (response.data.success) {
             this.entities = response.data.data;
             this.form = {
@@ -143,48 +169,67 @@ export default {
           this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
-        await entitiesApi.editEntity({
-          entityType: 'athlete',
-          token: this.$store.state.authentication.token,
-          athleteId: this.editAthleteId,
-          form: this.form,
-          currentRole: this.currentRole
-        }).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              team: '',
-              parent: this.currentRole === 'coach' ? '' : this.form.parent,
-              birthday: '',
-            }
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
+        await entitiesApi.editAthlete(formData)
+            .then((response) => {
+              if (response.data.success) {
+                this.entities = response.data.data;
+                this.form = {
+                  firstName: '',
+                  lastName: '',
+                  team: '',
+                  parent: this.currentRole === 'coach' ? '' : this.form.parent,
+                  birthday: '',
+                }
+                this.isLayoutVisible = false;
+                this.isFormValid = false;
+              } else {
+                this.errors.push(response.data.data)
+              }
+              this.isSubmitting = false;
+            });
       }
     },
     isRequiredFieldsFiled() {
+      console.log('weqfqw');
+      const requiredFields = {
+        coach: [
+          'firstName',
+          'lastName',
+          'team',
+          'parent',
+          'birthday',
+        ],
+        parent: [
+          'firstName',
+          'lastName',
+          'team',
+          'parent',
+          'birthday',
+          'cardFileName',
+          'certificateFileName',
+        ],
+      }
+
       let isFiled = true;
-      for (let field in this.form) {
-        if (this.form[field] === '') {
+
+      requiredFields[this.currentRole].forEach((fieldName) => {
+        if (this.form[fieldName] === '') {
           isFiled = false;
         }
-      }
+      });
 
       return isFiled;
     },
     edit(entity) {
+      console.log('this.edit');
       this.action = 'Edit';
       this.isLayoutVisible = true;
       this.form.firstName = entity.first_name;
       this.form.lastName = entity.last_name;
       this.form.team = {label: entity.team.post_title, code: entity.team.ID};
       this.form.parent = {label: entity.parent_name, code: entity.parent.ID};
+      this.form.cardFileName = entity.card_file_name;
+      this.form.certificateFileName = entity.certificate_file_name;
       this.editAthleteId = entity.ID;
 
       let birthday = new Date(entity.birthday);
@@ -201,6 +246,14 @@ export default {
         }
       });
     },
+    uploadCard(file) {
+      this.form.card = file;
+      this.form.cardFileName = file.name;
+    },
+    uploadCertificate(file) {
+      this.form.certificate = file;
+      this.form.certificateFileName = file.name;
+    },
   },
   mounted() {
     if (this.currentRole === 'parent') {
@@ -212,6 +265,17 @@ export default {
     this.fetchData();
     this.getTeams();
     this.getParents();
+    if (this.$store.state.authentication.athleteToken !== null) {
+      entitiesApi.getAthlete({
+        token: this.$store.state.authentication.token,
+        athlete_token: this.$store.state.authentication.athleteToken,
+      }).then((response) => {
+        if (response.data.success) {
+          this.edit(response.data.data);
+          this.$store.commit('resetAthleteForEdit');
+        }
+      });
+    }
   }
 }
 </script>
@@ -251,6 +315,22 @@ export default {
                      :class="`form-item-select__field`"
                      :required="true" :disabled="currentRole === 'parent'"/>
           </label>
+          <div v-if="currentRole === 'parent'" class="form-item-file">
+            <span class="form__label">Report Card <sup>*</sup></span>
+            <FormItemFile @file-updated="uploadCard"
+                          :input-id="`report-card`"
+                          :file-title="`Card`"
+                          :file-name="this.form.cardFileName"
+                          :required="true"/>
+          </div>
+          <div v-if="currentRole === 'parent'" class="form-item-file">
+            <span class="form__label">Birth certificate/ID <sup>*</sup></span>
+            <FormItemFile @file-updated="uploadCertificate"
+                          :input-id="`certificate`"
+                          :file-title="`Certificate/ID`"
+                          :file-name="this.form.certificateFileName"
+                          :required="true"/>
+          </div>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -271,15 +351,17 @@ export default {
           <span class="entities__cell">Athlete</span>
           <span class="entities__cell">Team</span>
           <span class="entities__cell">Parent</span>
-          <span class="entities__cell">Verified status</span>
+          <span class="entities__cell entities__cell--status">Status</span>
           <span class="entities__cell">Actions</span>
         </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--athlete">
+        <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
+            class="entities__item entities__item--athlete">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
           <span class="entities__cell">{{ entity.team.post_title }}</span>
           <span class="entities__cell">{{ entity.parent_name }}</span>
-          <span class="entities__cell"></span>
+          <span class="entities__cell entities__cell-status"
+                :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
           <span class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
@@ -292,6 +374,7 @@ export default {
 </template>
 
 <style>
+.form-item-file,
 .form-item-select {
   display: block;
   margin-bottom: 20px;

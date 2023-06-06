@@ -44,7 +44,16 @@ export default {
     async formSubmit() {
       this.$store.dispatch('login', this.form)
           .then((data) => {
-            this.$router.push({name: 'board'})
+            if (this.$store.state.authentication.athleteToken) {
+              this.$router.push({
+                name: 'board-entity',
+                params: {
+                  entity: 'athletes'
+                },
+              })
+            } else {
+              this.$router.push({name: 'board'})
+            }
           });
     }
   }

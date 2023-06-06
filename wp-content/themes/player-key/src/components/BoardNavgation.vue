@@ -5,14 +5,25 @@ export default {
     entities: {
       type: Array,
       required: true,
+    },
+    user: {
+      type: Object,
+      required: true,
     }
+  },
+  mounted() {
+    console.log(this.user.data.display_name);
   }
 }
 </script>
 
 <template>
   <div class="board-navigation">
-    <div class="wrapper">
+    <div class="wrapper board-navigation__wrapper">
+      <div class="board-navigation__user">
+        {{ this.user.data.display_name }}
+        <span class="board-navigation__user-role">{{ this.user.roles[0] }}</span>
+      </div>
       <ul class="board-navigation__list">
         <li v-for="entity in entities" class="board-navigation__item">
           <RouterLink :to="{name: 'board-entity', params: {entity: entity}}" :class="`board-navigation__link`">{{ entity }}</RouterLink>
@@ -27,6 +38,29 @@ export default {
   position: relative;
   top: -100px;
   background-color: var(--rich-black);
+}
+
+.board-navigation__wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-navigation__user {
+  position: relative;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.board-navigation__user-role {
+  position: absolute;
+  top: -28px;
+  left: 90%;
+  text-transform: uppercase;
+  font-size: 64px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.2);
 }
 
 .board-navigation__list {

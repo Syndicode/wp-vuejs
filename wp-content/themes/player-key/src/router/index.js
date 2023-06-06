@@ -4,7 +4,9 @@ import SignUpView from '../views/SignUpView.vue'
 import SignUpRoleView from '../views/SignUpRoleView.vue'
 import SignInView from '../views/SignInView.vue'
 import BoardView from '../views/BoardView.vue'
-import ActivationParentView from '../views/ActivationParentView.vue'
+import CompleteParentView from '../views/CompleteParentView.vue'
+import CompleteAthleteView from '../views/CompleteAthleteView.vue'
+import store from '../store/index.js'
 
 
 const router = createRouter({
@@ -40,9 +42,14 @@ const router = createRouter({
             component: BoardView
         },
         {
-            path: '/activation/parent',
-            name: 'activation-parent',
-            component: ActivationParentView
+            path: '/complete/parent',
+            name: 'complete-parent',
+            component: CompleteParentView
+        },
+        {
+            path: '/complete/athlete',
+            name: 'complete-athlete',
+            component: CompleteAthleteView
         },
     ]
 });

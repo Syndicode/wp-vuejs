@@ -11,17 +11,41 @@ const createEntity = (data) => {
     return axios.post(`/entities/create-${data.entityType}`, data)
 }
 
+const createAthlete = (data) => {
+    return axios.post(`/entities/create-athlete`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
+
 const removeEntity = (data) => {
     return axios.post(`/entities/remove-${data.entityType}`, data)
+}
+
+const editAthlete = (data) => {
+    return axios.post(`/entities/edit-athlete`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
 }
 
 const editEntity = (data) => {
     return axios.post(`/entities/edit-${data.entityType}`, data)
 }
 
+const getAthlete = (data) => {
+    return axios.post(`/entities/get-athlete`, data)
+}
+
+
 export default {
     getEntitles,
     createEntity,
     removeEntity,
     editEntity,
+    editAthlete,
+    createAthlete,
+    getAthlete,
 }

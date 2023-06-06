@@ -37,16 +37,18 @@ export default {
         coach: [
           'teams',
           'parents',
-          'athletes'
+          'athletes',
+          'payments',
         ],
         admin: [
           'coaches',
           'teams',
           'parents',
-          'athletes'
+          'athletes',
         ],
         parent: [
-          'athletes'
+          'athletes',
+          'payments',
         ],
       },
     }
@@ -68,7 +70,7 @@ export default {
 
 <template>
   <div v-if="isLoaded" class="board">
-    <BoardNavigation :entities="entitiesScheme[currentRole]"/>
+    <BoardNavigation :user="this.$store.state.authentication.currentUser" :entities="entitiesScheme[currentRole]"/>
     <div v-if="entitiesScheme[currentRole].includes(this.$route.params.entity)" class="board__view">
       <Teams v-if="this.$route.params.entity === 'teams'"
              :user-id="this.$store.state.authentication.currentUserId"

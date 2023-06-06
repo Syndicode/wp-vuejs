@@ -79,7 +79,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				$parent = get_user_by( 'ID', $data['parentId'] );
 				$token  = wp_hash( $parent->ID . $parent->first_name . $parent->last_name . $parent->user_email );
 
-				$url     = get_site_url() . '/activation/parent/' . '?id=' . $parent->ID . '&token=' . $token;
+				$url     = get_site_url() . '/complete/parent/' . '?id=' . $parent->ID . '&token=' . $token;
 				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
 				$message = str_replace( array( '{{url}}', '{{coach}}' ), array(
 					$url,
@@ -116,6 +116,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			if ( ! is_wp_error( $parent_id ) ) {
 				update_field( 'is_activated', 'yes', 'user_' . $parent_id );
 				delete_user_meta( $parent_id, 'activation_token' );
+				delete_option( $data['activation_token'] );
 				wp_send_json_success();
 			}
 		}
@@ -126,7 +127,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		$data = json_decode( $request->get_body(), true );
 		if ( $data['token'] === get_user_meta( $data['id'], 'activation_token', true ) ) {
 
-			if (get_field( 'is_activated', 'user_' . $data['id'] ) === 'no') {
+			if ( get_field( 'is_activated', 'user_' . $data['id'] ) === 'no' ) {
 
 				if ( ( time() - (int) get_option( $data['token'], true ) ) < self::DAY_IN_SECONDS ) {
 					$user = get_user_by( 'ID', $data['id'] );
