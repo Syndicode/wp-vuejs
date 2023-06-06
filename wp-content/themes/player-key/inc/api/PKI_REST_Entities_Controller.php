@@ -450,7 +450,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 							$data['firstName'] . ' ' . $data['lastName']
 						], $message );
 
-						wp_mail( $parent->user_email, 'Activate your account on PlayerKey ID', $message, [
+						wp_mail( $parent->user_email, 'Complete Athlete data on PlayerKey ID', $message, [
 							'content-type: text/html',
 						] );
 
