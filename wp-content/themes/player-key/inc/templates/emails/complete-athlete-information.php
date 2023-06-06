@@ -49,9 +49,8 @@ line-height: 1.5">
 				</tr>
 				<tr>
 					<td style="padding: 20px 16px; text-align: center; font-weight: 400; font-size: 20px">
-						The Coach {{coach}} has created an account for you. Please follow the link below to reset your
-						password and activate your account.<br>
-						Are waiting for you!
+                        The Coach {{coach}} has added an athlete ({{athlete}}) and listed you as a parent. <br>
+                        Please follow the link to add information about the athlete. Thank you!
 					</td>
 				</tr>
 				<tr>

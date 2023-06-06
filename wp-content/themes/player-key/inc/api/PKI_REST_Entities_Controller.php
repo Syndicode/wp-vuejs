@@ -382,7 +382,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 					$activation_token = wp_hash( $parent_id . $data['form']['firstName'] . $data['form']['lastName'] . $data['form']['email'] );
 					$url              = get_site_url() . '/complete/parent/' . '?id=' . $parent_id . '&token=' . $activation_token;
-					$message          = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
+					$message          = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/complete-parent-information.php' );
 					$message          = str_replace( [ '{{url}}', '{{coach}}' ], [
 						$url,
 						$coach->first_name . ' ' . $coach->last_name
@@ -442,7 +442,15 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						$parent  = get_user_by( 'ID', $data['parent'] );
 						$url     = get_site_url() . '/complete/athlete/' . '?id=' . $parent->ID . '&token=' . $athlete_token;
 						$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/complete-athlete-information.php' );
-						$message = str_replace( '{{url}}', $url, $message );
+						$message = str_replace( [
+							'{{url}}',
+							'{{coach}}',
+							'{{athlete}}',
+						], [
+							$url,
+							$user->first_name . ' ' . $user->last_name,
+							$data['firstName'] . ' ' . $data['lastName']
+						], $message );
 
 						wp_mail( $parent->user_email, 'Activate your account on PlayerKey ID', $message, [
 							'content-type: text/html',
