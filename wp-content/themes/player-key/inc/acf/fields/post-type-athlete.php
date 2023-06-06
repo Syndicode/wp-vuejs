@@ -72,6 +72,16 @@ function acf_add_post_type_athlete_fields(): void {
 		'default_value' => 'incomplete',
 	] );
 
+	$fields->addSelect( 'payment_status', [
+		'label'         => __( 'Payment status', 'player-key' ),
+		'required'      => 1,
+		'choices'       => [
+			'paid'   => __( 'Paid', 'player-key' ),
+			'unpaid' => __( 'Unpaid', 'player-key' ),
+		],
+		'default_value' => 'unpaid',
+	] );
+
 	$fields->setLocation( 'post_type', '==', 'athlete' );
 
 	acf_add_local_field_group( $fields->build() );

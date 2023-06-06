@@ -45,7 +45,7 @@ return [
 		'capability_type'     => 'page',
 		'map_meta_cap'        => true,
 		'hierarchical'        => false,
-		'supports'            => [],
+		'supports'            => ['title'],
 		'taxonomies'          => [],
 		'has_archive'         => false,
 		'query_var'           => true,

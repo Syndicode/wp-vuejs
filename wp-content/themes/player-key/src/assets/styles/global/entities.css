@@ -38,6 +38,10 @@
     grid-template-columns: 40px 2fr 1fr 2fr 1fr 2fr;
 }
 
+.entities__item--payment {
+    grid-template-columns: 40px 1fr 1fr 1fr 1fr;
+}
+
 .entities__item:last-child {
     border-bottom: 1px solid #ccc;
 }
@@ -102,13 +106,13 @@
 
 .entities__cell-status {
     display: block;
-    width: 100px;
+    width: 92px;
     margin: auto;
-    padding: 4px 8px;
+    padding: 6px 8px;
     box-sizing: border-box;
     font-size: 14px;
     text-align: center !important;
-    border-radius: 8px;
+    border-radius: 50px;
 }
 
 .entities__cell-status::first-letter {
@@ -116,23 +120,23 @@
 }
 
 .entities__cell-status--incomplete {
-    color: #282828;
-    background-color: rgba(217, 217, 217, 0.22);
+    color: #000000;
+    background-color: rgba(217, 217, 217, 0.3);
 }
 
 .entities__cell-status--pending {
-    color: #a26100;
-    background-color: rgba(211, 191, 0, 0.13);
+    color: rgba(0, 25, 35, 0.8);
+    background-color: rgba(200, 250, 0, 0.3);
 }
 
-.entities__cell-indicator--verified {
-    color: green;
-    background-color: rgba(0, 183, 43, 0.22);
+.entities__cell-status--verified {
+    color: var(--rich-black);
+    background-color: var(--fresh-lime);
 }
 
-.entities__cell-indicator--rejected {
-    color: #9d0000;
-    background-color: rgba(255, 0, 0, 0.11);
+.entities__cell-status--rejected {
+    color: var(--white);
+    background-color: var(--rich-black);
 }
 
 .entities__action {

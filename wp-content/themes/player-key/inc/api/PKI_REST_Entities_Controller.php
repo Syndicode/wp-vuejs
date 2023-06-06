@@ -2,8 +2,6 @@
 
 namespace api;
 
-use Cassandra\Numeric;
-use Couchbase\User;
 use WP_REST_Controller;
 use WP_REST_Request;
 
@@ -693,6 +691,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					'parent_name'           => $parent->first_name . ' ' . $parent->last_name,
 					'parent_id'             => $parent->ID,
 					'status'                => get_field( 'status', $athlete->ID ),
+					'payment_status'        => get_field( 'payment_status', $athlete->ID ),
 					'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
 					'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),
 					'photo_file_name'       => get_post_meta( $athlete->ID, 'photo_filename', true ),
@@ -747,6 +746,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						'parent_name'           => $parent->first_name . ' ' . $parent->last_name,
 						'parent_id'             => $parent->ID,
 						'status'                => get_field( 'status', $athlete->ID ),
+						'payment_status'        => get_field( 'payment_status', $athlete->ID ),
 						'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
 						'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),
 						'photo_file_name'       => get_post_meta( $athlete->ID, 'photo_filename', true ),

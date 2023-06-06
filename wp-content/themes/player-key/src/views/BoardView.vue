@@ -5,9 +5,11 @@ import Athletes from "../components/Athletes.vue";
 import Parents from "../components/Parents.vue";
 import Coaches from "../components/Coaches.vue";
 import Board from "../components/Board.vue";
+import Payments from "../components/Payments.vue";
 
 export default {
   components: {
+    Payments,
     Board,
     Teams,
     BoardNavigation,
@@ -84,6 +86,9 @@ export default {
       <Coaches v-else-if="this.$route.params.entity === 'coaches'"
                :user-id="this.$store.state.authentication.currentUserId"
                :current-role="currentRole"/>
+      <Payments v-else-if="this.$route.params.entity === 'payments'"
+                :user-id="this.$store.state.authentication.currentUserId"
+                :current-role="currentRole"/>
     </div>
     <Board v-else/>
   </div>

@@ -3,10 +3,11 @@ import Heading from "./Heading.vue";
 import Loader from "./Loader.vue";
 import FormItemText from "./FormItemText.vue";
 import entitiesApi from "../api/entities.js";
+import paymentsApi from "../api/payments.js";
 import vSelect from 'vue-select';
 import ErrorList from "./ErrorList.vue";
 import FormItemFile from "./FormItemFile.vue";
-import {awrap} from "../../../../../wp-includes/js/dist/vendor/regenerator-runtime.js";
+import {Stripe} from "stripe";
 
 export default {
   name: "Athletes",
@@ -254,6 +255,37 @@ export default {
       this.form.certificate = file;
       this.form.certificateFileName = file.name;
     },
+    async pay(entity) {
+      await paymentsApi.getPaymentToken({
+        token: this.$store.state.authentication.token,
+        athleteId: entity.ID,
+      }).then(async (response) => {
+        if (response.data.success) {
+          const {payment_token, payment_id} = response.data.data;
+          const stripe = new Stripe('sk_test_51NG36WBzoUf1yOLYT2qvqraB03EckqbnmwAMomfMPKcscQphI0SDWtUCzoy3UVcCRV0McQYtdL0lZDbk2SghIvDO00NhBcaDge');
+          const session = await stripe.checkout.sessions.create({
+            mode: 'payment',
+            payment_method_types: ['card'],
+            line_items: [
+              {
+                price_data: {
+                  product_data: {
+                    name: `${entity.first_name} ${entity.last_name}`,
+                  },
+                  unit_amount: 10000,
+                  currency: 'usd',
+                },
+                quantity: 1,
+              },
+            ],
+            success_url: `${window.location.origin}${this.$route.path}/?token=${payment_token}&payment_id=${payment_id}`,
+            cancel_url: `${window.location.origin}${this.$route.path}`,
+          });
+
+          window.location.href = session.url
+        }
+      });
+    }
   },
   mounted() {
     if (this.currentRole === 'parent') {
@@ -262,9 +294,10 @@ export default {
         code: this.$store.state.authentication.currentUser.ID
       }
     }
-    this.fetchData();
+
     this.getTeams();
     this.getParents();
+
     if (this.$store.state.authentication.athleteToken !== null) {
       entitiesApi.getAthlete({
         token: this.$store.state.authentication.token,
@@ -276,6 +309,21 @@ export default {
         }
       });
     }
+
+    console.log(this.$route.query);
+    if (this.$route.query.token && this.$route.query.payment_id) {
+      paymentsApi.checkPayment({
+        payment_token: this.$route.query.token,
+        payment_id: this.$route.query.payment_id,
+        token: this.$store.state.authentication.token,
+      }).then((response) => {
+        if (response.data.success) {
+          this.fetchData();
+        }
+      })
+    }
+
+    this.fetchData();
   }
 }
 </script>
@@ -363,6 +411,9 @@ export default {
           <span class="entities__cell entities__cell-status"
                 :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
           <span class="entities__cell entities__cell--actions">
+
+              <button v-if="entity.payment_status === 'unpaid' && entity.status === 'pending'" type="button"
+                      class="entities__action" @click="pay(entity)">Pay</button>
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
             </span>
