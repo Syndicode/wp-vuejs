@@ -19,6 +19,7 @@
     padding: 8px 0;
     font-size: 16px;
     border-top: 1px solid #ccc;
+    align-items: center;
 }
 
 .entities__item:first-child {
@@ -104,6 +105,7 @@
     background-color: rgba(93, 93, 93, 0.11);
 }
 
+.entities__payment-status,
 .entities__cell-status {
     display: block;
     width: 92px;
@@ -115,25 +117,35 @@
     border-radius: 50px;
 }
 
+.entities__payment-status {
+    width: 80px;
+}
+
+.entities__payment-status::first-letter,
 .entities__cell-status::first-letter {
     text-transform: uppercase;
 }
 
+.entities__payment-status--unpaid,
 .entities__cell-status--incomplete {
     color: #000000;
     background-color: rgba(217, 217, 217, 0.3);
 }
 
+.entities__payment-status--pending,
 .entities__cell-status--pending {
     color: rgba(0, 25, 35, 0.8);
     background-color: rgba(200, 250, 0, 0.3);
 }
 
+.entities__payment-status--paid,
 .entities__cell-status--verified {
     color: var(--rich-black);
     background-color: var(--fresh-lime);
 }
 
+
+.entities__payment-status--canceled,
 .entities__cell-status--rejected {
     color: var(--white);
     background-color: var(--rich-black);

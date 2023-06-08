@@ -11,9 +11,6 @@ export default {
       required: true,
     }
   },
-  mounted() {
-    console.log(this.user.data.display_name);
-  }
 }
 </script>
 

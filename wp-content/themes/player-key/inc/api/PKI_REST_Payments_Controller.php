@@ -96,8 +96,8 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 						$payments_data[] = [
 							'ID'      => $payment->post_title,
 							'athlete' => $athlete->first_name . ' ' . $athlete->last_name,
-							'date' => $payment->post_date,
-							'status' => get_field('payment_status', $payment->ID)
+							'date'    => $payment->post_date,
+							'status'  => get_field( 'payment_status', $payment->ID )
 						];
 					}
 
@@ -138,10 +138,19 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 					add_post_meta( $payment_id, 'payment_token', $payment_token );
 					add_post_meta( $payment_id, 'token_timestamp', $token_timestamp );
 
-					wp_send_json_success( [
-						'payment_token' => $payment_token,
-						'payment_id'    => $payment_id,
-					] );
+					$secret_key = get_field( 'secret_key', 'option' );
+					$cost       = get_field( 'cost', 'option' );
+
+					if ( ! empty( $secret_key ) ) {
+						wp_send_json_success( [
+							'payment_token' => $payment_token,
+							'payment_id'    => $payment_id,
+							'secret_key'    => $secret_key,
+							'cost'          => $cost ?? 0,
+						] );
+					}
+
+					wp_send_json_error( 'The Public key is not specified!' );
 				}
 			}
 		}

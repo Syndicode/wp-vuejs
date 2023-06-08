@@ -37,7 +37,10 @@ const editEntity = (data) => {
 
 const getAthlete = (data) => {
     return axios.post(`/entities/get-athlete`, data)
+}
 
+const getRoleStatistics = (data) => {
+    return axios.post(`/entities/get-role-statistics`, data)
 }
 export default {
     getEntitles,
@@ -47,4 +50,5 @@ export default {
     editAthlete,
     createAthlete,
     getAthlete,
+    getRoleStatistics,
 }

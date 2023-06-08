@@ -8,11 +8,6 @@ export default {
     Header,
     Footer,
   },
-  created() {
-    if (!this.$store.state.authentication.isUserLoggedIn && localStorage.getItem('pki-auth')) {
-      this.$store.dispatch('check', localStorage.getItem('pki-auth'));
-    }
-  }
 };
 </script>
 

@@ -54,4 +54,12 @@ const router = createRouter({
     ]
 });
 
+router.beforeEach(async (to, from) => {
+    if (!store.state.authentication.isUserLoggedIn && localStorage.getItem('pki-auth')) {
+        await store.dispatch('check', localStorage.getItem('pki-auth')). then(() => {
+            return store.state.authentication.isUserLoggedIn;
+        });
+    }
+})
+
 export default router

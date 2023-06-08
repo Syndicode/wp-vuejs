@@ -44,6 +44,8 @@ export default {
     async formSubmit() {
       this.$store.dispatch('login', this.form)
           .then((data) => {
+
+            // If the Parent came from a link from an email
             if (this.$store.state.authentication.athleteToken) {
               this.$router.push({
                 name: 'board-entity',

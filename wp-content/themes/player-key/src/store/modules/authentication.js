@@ -53,7 +53,6 @@ const mutations = {
     },
 
     checkFailure(state, payload) {
-        console.log('checkFailure');
         state.isUserLoggedIn = false;
         state.currentUser = null;
         state.token = null;

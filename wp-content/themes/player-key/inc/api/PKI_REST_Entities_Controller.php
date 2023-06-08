@@ -48,6 +48,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
+		register_rest_route( $this->namespace, "/$this->rest_base/get-role-statistics", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'get_role_statistics' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/create-team", [
 			[
 				'methods'  => 'POST',
@@ -759,6 +767,65 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				wp_send_json_error( 'Athletes not found' );
 			}
 		}
+		wp_send_json_error( 'There are not enough permissions to perform this action' );
+	}
+
+	function get_role_statistics( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+				$athletes = get_posts( [
+					'numberposts' => - 1,
+					'post_type'   => 'athlete',
+					'meta_query'  => [
+						[
+							'key'   => $user->roles[0],
+							'value' => $user_id,
+						]
+					],
+				] );
+
+				if ( $user->roles[0] === 'coach' ) {
+					$parents = get_users( [
+						'role'       => 'parent',
+						'orderby'    => 'display_name',
+						'meta_query' => [
+							[
+								'key'     => 'coaches',
+								'value'   => $user_id,
+								'compare' => 'LIKE'
+							]
+						],
+					] );
+
+					$teams = get_posts( [
+						'numberposts' => - 1,
+						'post_type'   => 'team',
+						'meta_query'  => [
+							[
+								'key'   => 'coach',
+								'value' => $user_id,
+							]
+						],
+					] );
+
+					wp_send_json_success( [
+						'teams'    => count( $teams ),
+						'parents'  => count( $parents ),
+						'athletes' => count( $athletes ),
+					] );
+				}
+
+				wp_send_json_success( [
+					'athletes' => count( $athletes ),
+				] );
+			}
+		}
+
 		wp_send_json_error( 'There are not enough permissions to perform this action' );
 	}
 }

@@ -12,11 +12,11 @@ import {Stripe} from "stripe";
 export default {
   name: "Athletes",
   components: {
-    FormItemFile,
     ErrorList,
+    FormItemFile,
     FormItemText,
-    Loader,
     Heading,
+    Loader,
     vSelect,
   },
   props: {
@@ -29,16 +29,11 @@ export default {
   },
   data() {
     return {
-      filePreview: '',
-      errors: [],
-      teams: [],
-      parents: [],
-      isSubmitting: false,
-      editAthleteId: null,
       action: '',
-      isLayoutVisible: false,
+      editAthleteId: null,
       entities: null,
-      isFormValid: false,
+      errors: [],
+      filePreview: '',
       form: {
         firstName: '',
         lastName: '',
@@ -47,7 +42,12 @@ export default {
         birthday: '',
         cardFileName: '',
         certificateFileName: '',
-      }
+      },
+      isSubmitting: false,
+      isLayoutVisible: false,
+      isFormValid: false,
+      parents: [],
+      teams: [],
     };
   },
   watch: {
@@ -191,7 +191,6 @@ export default {
       }
     },
     isRequiredFieldsFiled() {
-      console.log('weqfqw');
       const requiredFields = {
         coach: [
           'firstName',
@@ -222,7 +221,6 @@ export default {
       return isFiled;
     },
     edit(entity) {
-      console.log('this.edit');
       this.action = 'Edit';
       this.isLayoutVisible = true;
       this.form.firstName = entity.first_name;
@@ -261,8 +259,8 @@ export default {
         athleteId: entity.ID,
       }).then(async (response) => {
         if (response.data.success) {
-          const {payment_token, payment_id} = response.data.data;
-          const stripe = new Stripe('sk_test_51NG36WBzoUf1yOLYT2qvqraB03EckqbnmwAMomfMPKcscQphI0SDWtUCzoy3UVcCRV0McQYtdL0lZDbk2SghIvDO00NhBcaDge');
+          const {payment_token, payment_id, secret_key, cost} = response.data.data;
+          const stripe = new Stripe(secret_key);
           const session = await stripe.checkout.sessions.create({
             mode: 'payment',
             payment_method_types: ['card'],
@@ -272,14 +270,14 @@ export default {
                   product_data: {
                     name: `${entity.first_name} ${entity.last_name}`,
                   },
-                  unit_amount: 10000,
+                  unit_amount: cost * 100,
                   currency: 'usd',
                 },
                 quantity: 1,
               },
             ],
             success_url: `${window.location.origin}${this.$route.path}/?token=${payment_token}&payment_id=${payment_id}`,
-            cancel_url: `${window.location.origin}${this.$route.path}`,
+            cancel_url: `${window.location.origin}${this.$route.path}/?payment_id=${payment_id}&cancellation_token=aB03Eckqbnwdfqwe233214mwAMomfMewe332`,
           });
 
           window.location.href = session.url
@@ -310,7 +308,6 @@ export default {
       });
     }
 
-    console.log(this.$route.query);
     if (this.$route.query.token && this.$route.query.payment_id) {
       paymentsApi.checkPayment({
         payment_token: this.$route.query.token,

@@ -186,12 +186,16 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		$user = wp_authenticate( $data['login'], $data['password'] );
 
 		if ( ! is_wp_error( $user ) ) {
-			$token = wp_hash( $user->ID . $user->user_login . date( 'now' ) );
-			add_option( $token, $user->ID );
-			wp_send_json_success( [
-				'token' => $token,
-				'user'  => $user,
-			] );
+			if ( in_array( $user->roles[0], [ 'coach', 'parent' ] ) ) {
+				$token = wp_hash( $user->ID . $user->user_login . date( 'now' ) );
+				add_option( $token, $user->ID );
+				wp_send_json_success( [
+					'token' => $token,
+					'user'  => $user,
+				] );
+			} else if ( $user->roles[0] === 'admin' ) {
+				wp_send_json_error( 'Your account has not been activated yet. Please wait for the account to be activated. You will be notified about this to the email you specified.' );
+			}
 		}
 
 		wp_send_json_error( $user->get_error_message() );

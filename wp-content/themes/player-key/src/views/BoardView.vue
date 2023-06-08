@@ -6,9 +6,11 @@ import Parents from "../components/Parents.vue";
 import Coaches from "../components/Coaches.vue";
 import Board from "../components/Board.vue";
 import Payments from "../components/Payments.vue";
+import Loader from "../components/Loader.vue";
 
 export default {
   components: {
+    Loader,
     Payments,
     Board,
     Teams,
@@ -18,12 +20,12 @@ export default {
     Coaches,
   },
   computed: {
-    isLoaded() {
-      return this.$store.state.authentication.isUserLoggedIn
-    },
-    currentRole() {
-      return this.$store.state.authentication.currentRole
-    },
+    // isLoaded() {
+    //   return this.$store.state.authentication.isUserLoggedIn
+    // },
+    // currentRole() {
+    //   return this.$store.state.authentication.currentRole
+    // },
   },
   // async beforeRouteUpdate(to, from) {
   //   this.currentEntity = to.params.entity;
@@ -31,8 +33,8 @@ export default {
   // },
   data() {
     return {
-      // isLoaded: this.$store.state.authentication.isUserLoggedIn,
-      // currentRole: this.$store.state.authentication.currentRole,
+      isLoaded: this.$store.state.authentication.isUserLoggedIn,
+      currentRole: this.$store.state.authentication.currentRole,
       currentEntity: this.$route.params.entity,
       entities: null,
       entitiesScheme: {
@@ -55,9 +57,11 @@ export default {
       },
     }
   },
-  // mounted() {
-  //   this.
-  // },
+  mounted() {
+    if (!this.$store.state.authentication.isUserLoggedIn) {
+      this.$router.push({name: 'sign-in'});
+    }
+  },
   methods: {
     // async fetchData() {
     //   this.entities = await entitiesApi.getEntitles({
@@ -71,7 +75,8 @@ export default {
 </script>
 
 <template>
-  <div v-if="isLoaded" class="board">
+  <Loader :class="{active: !this.$store.state.authentication.isUserLoggedIn}"/>
+  <div v-if="this.$store.state.authentication.isUserLoggedIn" class="board">
     <BoardNavigation :user="this.$store.state.authentication.currentUser" :entities="entitiesScheme[currentRole]"/>
     <div v-if="entitiesScheme[currentRole].includes(this.$route.params.entity)" class="board__view">
       <Teams v-if="this.$route.params.entity === 'teams'"
@@ -90,7 +95,9 @@ export default {
                 :user-id="this.$store.state.authentication.currentUserId"
                 :current-role="currentRole"/>
     </div>
-    <Board v-else/>
+    <Board v-else
+           :user="this.$store.state.authentication.currentUser"
+           :current-role="currentRole"/>
   </div>
 </template>
 

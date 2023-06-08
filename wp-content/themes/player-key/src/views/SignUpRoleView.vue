@@ -3,10 +3,12 @@ import Heading from "../components/Heading.vue";
 import FormItemText from "../components/FormItemText.vue";
 import formFields from "./data/formFields.js"
 import ErrorList from "../components/ErrorList.vue";
+import MessageList from "../components/MessageList.vue";
 
 export default {
   name: "RegisterRoleView",
   components: {
+    MessageList,
     ErrorList,
     FormItemText,
     Heading,
@@ -22,6 +24,7 @@ export default {
     formData.role = this.$route.params.role;
 
     return {
+      messages: [],
       form: formData,
       formFields: formFields,
       isFormValid: false,
@@ -62,11 +65,15 @@ export default {
       return this.form.password === this.form.passwordRepeat
     },
     async formSubmit() {
-
       if (this.isPasswordsMatch()) {
         this.$store.dispatch('register', this.form)
             .then(() => {
-              this.$router.push({name: 'sign-in'});
+              if (this.$route.params.role !== 'admin') {
+                this.$router.push({name: 'sign-in'});
+              } else {
+                this.messages.push('You have successfully registered. After the approval of your account, you will receive a message to your email.');
+              }
+
             });
       } else {
         this.$store.commit('registerStart')
@@ -84,18 +91,19 @@ export default {
       <Heading :level="1" :class="`form-holder__heading`">{{ `Sign Up as ` }} <span
           class="form-holder__heading-role">{{ $route.params.role }}</span></Heading>
       <ErrorList v-if="errors.length > 0" :errors="errors"/>
+      <MessageList v-if="messages.length > 0" :messages="messages" :type="`success`"/>
       <form class="form" @submit.prevent="formSubmit">
         <div v-for="(section, index) in formFields[this.$route.params.role]" class="form__fieldset">
           <Heading :level="3" :align="`left`" :class="`form__fieldset-title`">
             {{ `${index + 1}. ${section.title}` }}
           </Heading>
           <FormItemText v-for="formField in section.fields"
-                    :name="formField.name"
-                    :is-required="formField.isRequired"
-                    :label="formField.label"
-                    :input-type="formField.type"
-                    :css-modifier="formField.cssModifier ?? formField.cssModifier"
-                    v-model="form[formField.model]"/>
+                        :name="formField.name"
+                        :is-required="formField.isRequired"
+                        :label="formField.label"
+                        :input-type="formField.type"
+                        :css-modifier="formField.cssModifier ?? formField.cssModifier"
+                        v-model="form[formField.model]"/>
         </div>
         <div class="form__actions">
           <button type="submit" class="button button--lime" :disabled="!isFormValid || isSubmitting">Submit</button>

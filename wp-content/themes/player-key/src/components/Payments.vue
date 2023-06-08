@@ -54,7 +54,7 @@ export default {
           <span class="entities__cell">{{ entity.ID }}</span>
           <span class="entities__cell">{{ entity.athlete }}</span>
           <span class="entities__cell">{{ entity.date }}</span>
-          <span class="entities__cell">{{ entity.status }}</span>
+          <span class="entities__cell entities__payment-status" :class="`entities__payment-status--${entity.status}`">{{ entity.status }}</span>
         </li>
       </ul>
       <p v-else>You haven't created any payments yet</p>
