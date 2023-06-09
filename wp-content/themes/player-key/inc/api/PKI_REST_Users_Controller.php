@@ -55,7 +55,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		register_rest_route( $this->namespace, "/$this->rest_base/activation-check", [
 			[
 				'methods'  => 'POST',
-				'callback' => [ $this, 'activation_check_user' ],
+				'callback' => [ $this, 'activation_check' ],
 			],
 		] );
 
@@ -81,10 +81,13 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 				$url     = get_site_url() . '/complete/parent/' . '?id=' . $parent->ID . '&token=' . $token;
 				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
-				$message = str_replace( array( '{{url}}', '{{coach}}' ), array(
-					$url,
-					$user->first_name . ' ' . $user->last_name
-				), $message );
+				$message = str_replace( [
+					'{{url}}',
+					'{{coach}}'
+				], [
+						$url,
+						$user->first_name . ' ' . $user->last_name
+					], $message );
 
 				$is_mail_sent = wp_mail( $parent->user_email, 'Activate your account on PlayerKey ID', $message, [
 					'content-type: text/html',
@@ -123,7 +126,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		wp_send_json_error();
 	}
 
-	function activation_check_user( WP_REST_Request $request ) {
+	function activation_check( WP_REST_Request $request ) {
 		$data = json_decode( $request->get_body(), true );
 		if ( $data['token'] === get_user_meta( $data['id'], 'activation_token', true ) ) {
 

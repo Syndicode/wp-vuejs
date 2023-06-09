@@ -68,7 +68,7 @@ line-height: 1.5">
 						<w:anchorlock/>
 						<center>
 						<![endif]-->
-						<a href="{{url}}}"
+						<a href="{{url}}"
 						   style="display: inline-block;
 									   width: 100%;
 									   box-sizing: border-box;

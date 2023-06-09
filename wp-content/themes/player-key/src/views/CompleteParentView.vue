@@ -67,7 +67,7 @@ export default {
   mounted() {
     authApi.checkUser(localStorage.getItem('pki-auth')).then((response) => {
       if (!response.data.success) {
-        authApi.activationCheckUser({
+        authApi.activationCheck({
           id: this.$route.query.id,
           token: this.$route.query.token,
         }).then((response) => {
@@ -83,7 +83,7 @@ export default {
           }
         });
       } else {
-        this.$router.push('board');
+        this.$router.push({name: 'board'});
       }
     });
   }
@@ -98,17 +98,17 @@ export default {
     <form v-if="isLinkActive" @submit.prevent="formSubmit">
       <div class="form__fieldset">
         <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
-                  v-model="form.firstName"/>
+                      v-model="form.firstName"/>
         <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
-                  v-model="form.lastName"/>
+                      v-model="form.lastName"/>
         <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
-                  v-model="form.login" :is-disabled="true"/>
+                      v-model="form.login" :is-disabled="true"/>
         <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
-                  v-model="form.email" :css-modifier="`full`"/>
+                      v-model="form.email" :css-modifier="`full`"/>
         <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true"
-                  v-model="form.password"/>
+                      v-model="form.password"/>
         <FormItemText :name="`password-repeat`" :label="`Password Repeat`" :input-type="`password`" :is-required="true"
-                  v-model="form.passwordRepeat"/>
+                      v-model="form.passwordRepeat"/>
       </div>
 
       <div class="form__actions">

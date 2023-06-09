@@ -321,16 +321,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					$key = array_search( $coach_id, $parent_coaches );
 					unset( $parent_coaches[ $key ] );
 					update_field( 'coaches', $parent_coaches, 'user_' . $parent_id );
-
-//					if ( count( $parent_coaches ) === 1 && get_user_meta( $parent_id, 'initial_coach', true ) === $coach_id ) {
-//						require_once( ABSPATH . 'wp-admin/includes/user.php' );
-//						wp_delete_user( $data['parentId'] );
-//					} else {
-//						if ( ( $key = array_search( $coach_id, $parent_coaches ) ) !== false ) {
-//							unset( $parent_coaches[ $key ] );
-//							update_field('coaches', $parent_coaches, 'user_' . $parent_id);
-//						}
-//					}
 					wp_send_json_success();
 				}
 			}

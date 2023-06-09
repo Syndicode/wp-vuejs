@@ -19,7 +19,7 @@ const logoutUser = (data) => {
     return axios.post('/users/logout', data);
 }
 
-const activationCheckUser = (data) => {
+const activationCheck = (data) => {
     return axios.post('/users/activation-check', data);
 }
 
@@ -36,7 +36,7 @@ export default {
     loginUser,
     checkUser,
     logoutUser,
-    activationCheckUser,
+    activationCheck,
     activationUser,
     resendActivationLink,
 }
