@@ -23,7 +23,8 @@ const router = createRouter({
             component: SignUpView
         },
         {
-            path: '/register/:role',
+            path: '/sign-up/:role',
+            name: 'sign-up-role',
             component: SignUpRoleView
         },
         {
