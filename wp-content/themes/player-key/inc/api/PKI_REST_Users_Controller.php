@@ -279,7 +279,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			wp_send_json_error( '<strong>Error:</strong> The password you entered for the User <strong>' . $data['login'] . '</strong> is incorrect.' );
 		}
 
-		wp_send_json_error( '$user->get_error_message()' );
+		wp_send_json_error( $user->get_error_message() );
 	}
 
 	function register_user( WP_REST_Request $request ) {
