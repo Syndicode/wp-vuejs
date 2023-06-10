@@ -31,7 +31,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/login", [
+		register_rest_route( $this->namespace, "/$this->rest_base/loginx", [
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'login_user' ],

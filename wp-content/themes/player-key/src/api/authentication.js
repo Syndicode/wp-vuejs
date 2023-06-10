@@ -8,7 +8,7 @@ const registerUser = (data) => {
 }
 
 const loginUser = (data) => {
-    return axios.post('/users/login', data)
+    return axios.post('/users/loginx', data)
 }
 
 const checkUser = (data) => {
