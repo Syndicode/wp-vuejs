@@ -18,7 +18,7 @@ export default {
   </ul>
 </template>
 
-<style scoped>
+<style>
   .error-list {
     list-style-type: none;
     margin: 0 0 40px;
@@ -33,5 +33,9 @@ export default {
 
   .error-list__item:last-child {
     margin-bottom: 0;
+  }
+
+  .error-list__item a {
+    color: #770000!important;
   }
 </style>

@@ -6,6 +6,7 @@ import SignInView from '../views/SignInView.vue'
 import BoardView from '../views/BoardView.vue'
 import CompleteParentView from '../views/CompleteParentView.vue'
 import CompleteAthleteView from '../views/CompleteAthleteView.vue'
+import PasswordResetView from '../views/PasswordResetView.vue'
 import store from '../store/index.js'
 
 
@@ -21,6 +22,11 @@ const router = createRouter({
             path: '/sign-up',
             name: 'sign-up',
             component: SignUpView
+        },
+        {
+            path: '/password-reset',
+            name: 'password-reset',
+            component: PasswordResetView
         },
         {
             path: '/sign-up/:role',

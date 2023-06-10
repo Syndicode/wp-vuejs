@@ -49,8 +49,9 @@ line-height: 1.5">
 				</tr>
 				<tr>
 					<td style="padding: 20px 16px; text-align: center; font-weight: 400; font-size: 20px">
-                        The Coach {{coach}} has added an athlete ({{athlete}}) and listed you as a parent. <br>
-                        Please follow the link to add information about the athlete. Thank you!
+						Someone has requested a password reset for the following account: <strong>{{account}}</strong>
+						If this was a mistake, ignore this email and nothing will happen.
+						To reset your password, visit the following link:
 					</td>
 				</tr>
 				<tr>
@@ -82,7 +83,7 @@ line-height: 1.5">
 									   text-align: center;
 									   color: #001923;
 									   border-radius: 450px;
-									   background-color: #C8FA00;">Complete data</a>
+									   background-color: #C8FA00;">Reset password</a>
 						<!--[if mso]>
 						</center>
 						</v:roundrect>

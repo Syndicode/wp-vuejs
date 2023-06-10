@@ -11,7 +11,12 @@ export default {
       this.chosenRole = roleTitle;
     },
     goTo() {
-      this.$router.push(`/register/${this.chosenRole.toLowerCase()}`);
+      this.$router.push({
+        name: 'sign-up-role',
+        params: {
+          role: this.chosenRole.toLowerCase(),
+        }
+      });
     }
   },
   data() {
@@ -61,6 +66,9 @@ export default {
           <li v-for="benefit in role.benefits" class="register-roles__benefit">{{ benefit }}</li>
         </ul>
       </div>
+    </div>
+    <div class="register-roles__links">
+      <RouterLink :to="{name: 'sign-in'}">Already Registered?</RouterLink>
     </div>
     <div class="register-roles__actions">
       <button class="button button--lime"
@@ -170,5 +178,16 @@ export default {
 .register-roles__actions {
   display: flex;
   justify-content: center;
+}
+
+.register-roles__links {
+  width: 900px;
+  margin: auto;
+  text-align: right;
+  font-size: 14px;
+}
+
+.register-roles__links a {
+  color: var(--rich-black)
 }
 </style>

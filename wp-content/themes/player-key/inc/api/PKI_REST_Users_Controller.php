@@ -65,6 +65,80 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				'callback' => [ $this, 'activation_user' ],
 			],
 		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/reset-password-request", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'reset_password_request' ],
+			],
+		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/reset-password", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'reset_password' ],
+			],
+		] );
+	}
+
+	function reset_password( WP_REST_Request $request ) {
+		$data = json_decode( $request->get_body(), true );
+		if ( isset( $data['login'] ) && ! empty( $data['login'] )
+		     && isset( $data['token'] ) && ! empty( $data['token'] )
+		     && isset( $data['password'] ) && ! empty( $data['password'] )
+		     && isset( $data['passwordRepeat'] ) && ! empty( $data['passwordRepeat'] )
+		     && $data['password'] === $data['passwordRepeat'] ) {
+
+			$user_id = is_email( $data['login'] ) ? email_exists( $data['login'] ) : username_exists( $data['login'] );
+			if ( $user_id ) {
+				$token_timestamp      = get_user_meta( $user_id, 'token_timestamp', true );
+				$reset_password_token = get_user_meta( $user_id, 'reset_password_token', true );
+
+				if ( $data['token'] === $reset_password_token ) {
+					wp_set_password( $data['password'], $user_id );
+					delete_user_meta( $user_id, 'token_timestamp' );
+					delete_user_meta( $user_id, 'reset_password_token' );
+					wp_send_json_success( 'Your password has been successfully changed! <a href="/sign-in/">Sign in</a>' );
+				}
+
+				wp_send_json_error( 'Your link is expired or you are not authorized to perform this action. Try requesting a <a href="/password-reset/">password reset</a> again.' );
+			}
+
+			wp_send_json_error( 'User <strong>' . $data['login'] . '</strong> not found!' );
+		}
+	}
+
+	function reset_password_request( WP_REST_Request $request ) {
+		$data = json_decode( $request->get_body(), true );
+		if ( isset( $data['login'] ) && ! empty( $data['login'] ) && validate_username( $data['login'] ) ) {
+			$user_id = is_email( $data['login'] ) ? email_exists( $data['login'] ) : username_exists( $data['login'] );
+
+			if ( $user_id ) {
+				$user = get_user_by( 'ID', $user_id );
+
+				$token_timestamp      = time();
+				$reset_password_token = wp_hash( $user->first_name . $user->last_name . $token_timestamp );
+				$url                  = get_site_url() . '/password-reset/' . '?login=' . urlencode( $data['login'] ) . '&token=' . $reset_password_token;
+				$message              = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/reset-password-request.php' );
+				$message              = str_replace( [ '{{url}}', '{{account}}' ], [
+					$url,
+					$data['login']
+				], $message );
+
+				wp_mail( $data['form']['email'], 'Password Reset on PlayerKey ID', $message, [
+					'content-type: text/html',
+				] );
+
+				update_user_meta( $user_id, 'reset_password_token', $reset_password_token );
+				update_user_meta( $user_id, 'token_timestamp', $token_timestamp );
+
+				wp_send_json_success( 'Check your email for the confirmation link!' );
+			}
+
+			wp_send_json_error( 'User <strong>' . $data['login'] . '</strong> not found!' );
+		}
+
+		wp_send_json_error( 'There are not enough permissions to perform this action' );
 	}
 
 	function resend_activation_link( WP_REST_Request $request ) {
@@ -85,9 +159,9 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 					'{{url}}',
 					'{{coach}}'
 				], [
-						$url,
-						$user->first_name . ' ' . $user->last_name
-					], $message );
+					$url,
+					$user->first_name . ' ' . $user->last_name
+				], $message );
 
 				$is_mail_sent = wp_mail( $parent->user_email, 'Activate your account on PlayerKey ID', $message, [
 					'content-type: text/html',
@@ -199,6 +273,10 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			} else if ( $user->roles[0] === 'admin' ) {
 				wp_send_json_error( 'Your account has not been activated yet. Please wait for the account to be activated. You will be notified about this to the email you specified.' );
 			}
+		}
+
+		if ( isset( $user->errors['incorrect_password'] ) ) {
+			wp_send_json_error( '<strong>Error:</strong> The password you entered for the User <strong>' . $data['login'] . '</strong> is incorrect.' );
 		}
 
 		wp_send_json_error( $user->get_error_message() );

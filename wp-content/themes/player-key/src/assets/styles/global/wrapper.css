@@ -12,6 +12,10 @@
     max-width: 600px;
 }
 
+.wrapper--form-short {
+    max-width: 500px;
+}
+
 @media (min-width: 768px) {
     .wrapper {
         padding-left: 24px;
@@ -27,5 +31,9 @@
 
     .wrapper--form {
         max-width: 800px;
+    }
+
+    .wrapper--form-short {
+        max-width: 700px;
     }
 }

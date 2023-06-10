@@ -72,6 +72,10 @@ export default {
         <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" v-model="form.login"/>
         <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true" v-model="form.password"/>
       </div>
+      <div class="form__links">
+        <RouterLink :to="{name: 'sign-up'}">Not registered?</RouterLink>
+        <RouterLink :to="{name: 'password-reset'}">Lost your password?</RouterLink>
+      </div>
       <div class="form__actions">
         <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
         <span v-if="!isFormValid" class="form__actions-note">Please fill in all required <sup>(*)</sup> fields</span>

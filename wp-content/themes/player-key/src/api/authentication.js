@@ -31,6 +31,14 @@ const resendActivationLink = (data) => {
     return axios.post('/users/resend-activation-link', data);
 }
 
+const resetPasswordRequest = (data) => {
+    return axios.post('/users/reset-password-request', data);
+}
+
+const resetPassword = (data) => {
+    return axios.post('/users/reset-password', data);
+}
+
 export default {
     registerUser,
     loginUser,
@@ -39,4 +47,6 @@ export default {
     activationCheck,
     activationUser,
     resendActivationLink,
+    resetPasswordRequest,
+    resetPassword,
 }
