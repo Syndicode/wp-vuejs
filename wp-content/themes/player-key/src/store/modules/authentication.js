@@ -116,8 +116,7 @@ const actions = {
                     }
                 })
                 .catch(result => {
-                    console.log(result);
-                    // context.commit('registerFailure', result.response.data.data)
+                    context.commit('loginFailure', result.response.data.data)
                 })
         });
     },
@@ -133,7 +132,10 @@ const actions = {
                         } else {
                             context.commit('checkFailure')
                         }
-                    });
+                    })
+                    .catch(() => {
+                        context.commit('checkFailure')
+                    })
             } else {
                 context.commit('checkFailure');
             }
