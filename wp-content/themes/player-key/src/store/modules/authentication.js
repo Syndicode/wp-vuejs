@@ -115,6 +115,10 @@ const actions = {
                         context.commit('loginFailure', response.data.data)
                     }
                 })
+                .catch(result => {
+                    console.log(result);
+                    // context.commit('registerFailure', result.response.data.data)
+                })
         });
     },
     check(context, token) {
