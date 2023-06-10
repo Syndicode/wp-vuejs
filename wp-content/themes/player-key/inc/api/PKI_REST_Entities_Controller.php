@@ -465,6 +465,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						update_field( 'coaches', $parent_coaches, 'user_' . $user->ID );
 						update_field( 'coach', $coach, $athlete_id );
 						update_field( 'status', 'pending', $athlete_id );
+						update_field( 'payment_status', 'unpaid', $athlete_id );
 
 						require_once( ABSPATH . 'wp-admin/includes/image.php' );
 						require_once( ABSPATH . 'wp-admin/includes/file.php' );

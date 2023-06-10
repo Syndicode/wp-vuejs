@@ -1,0 +1,70 @@
+.column-payment_status,
+#payment_status.column-payment_status {
+    text-align: center;
+}
+
+td.column-payment_status {
+    vertical-align: middle;
+}
+
+.entity-status {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+.entity-status--payment-status.unpaid {
+    color: rgba(0, 0, 0, 0.71);
+    background-color: rgba(239, 239, 239, 0.8);
+}
+
+.entity-status--payment-status.paid {
+    color: #004600;
+    background-color: rgba(0, 187, 0, 0.3);
+}
+
+.entity-status--payment-status.pending {
+    color: #b26000;
+    background-color: rgba(255, 137, 0, 0.12);
+}
+
+.entity-status--payment-status.canceled {
+    color: #8c8c8c;
+    background-color: #fff;
+    border: 1px solid rgba(140, 140, 140, 0.22);
+}
+
+
+.entity-status--payment-status.error {
+    color: #960000;
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+.column-status,
+#status.column-status {
+    text-align: center;
+}
+
+td.column-status {
+    vertical-align: middle;
+}
+
+.entity-status--status.incomplete {
+    color: rgba(0, 0, 0, 0.71);
+    background-color: rgba(239, 239, 239, 0.8);
+}
+
+.entity-status--status.verified {
+    color: #004600;
+    background-color: rgba(0, 187, 0, 0.3);
+}
+
+.entity-status--status.pending {
+    color: #b26000;
+    background-color: rgba(255, 137, 0, 0.12);
+}
+
+.entity-status--status.rejected {
+    color: #960000;
+    background-color: rgba(255, 0, 0, 0.2);
+}

@@ -8,6 +8,11 @@ define( 'TEMPLATE_DIR_URI', get_template_directory_uri() );
 require_once TEMPLATE_DIR . '/vendor/autoload.php';
 
 /**
+ * Template function.
+ */
+require TEMPLATE_DIR . '/inc/template-functions.php';
+
+/**
  * Register new custom taxonomies
  */
 require_once TEMPLATE_DIR . '/inc/register-taxonomies.php';
