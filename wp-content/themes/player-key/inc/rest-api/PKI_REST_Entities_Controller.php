@@ -140,7 +140,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 				$parent_id = wp_update_user( [
 					'ID'         => $data['parentId'],
-					'user_login' => $data['form']['login'],
 					'user_email' => $data['form']['email'],
 					'first_name' => $data['form']['firstName'],
 					'last_name'  => $data['form']['lastName'],
@@ -363,7 +362,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			if ( ! is_wp_error( $coach ) && $coach !== false && user_can( $coach_id, 'create_team' ) ) {
 
 				$parent_id = wp_insert_user( [
-					'user_login' => $data['form']['login'],
+					'user_login' => $data['form']['email'],
 					'user_pass'  => wp_generate_password(),
 					'user_email' => $data['form']['email'],
 					'first_name' => $data['form']['firstName'],

@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       form: {
-        login: '',
+        email: '',
         password: '',
       },
       isFormValid: false,
@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     isRequiredFieldsFiled() {
-      return this.form.login !== '' && this.form.password !== '';
+      return this.form.email !== '' && this.form.password !== '';
     },
     async formSubmit() {
       this.$store.dispatch('login', this.form)
@@ -69,7 +69,7 @@ export default {
     <MessageList v-if="messages.length" :messages="messages" :type="`success`"/>
     <form class="form" @submit.prevent="formSubmit">
       <div class="form__fieldset">
-        <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true" v-model="form.login"/>
+        <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true" v-model="form.email"/>
         <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true" v-model="form.password"/>
       </div>
       <div class="form__links">

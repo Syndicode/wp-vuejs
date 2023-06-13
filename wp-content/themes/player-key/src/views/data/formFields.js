@@ -58,13 +58,6 @@ const coach = [
         title: 'Login information',
         fields: [
             {
-                type: 'text',
-                label: 'Login',
-                name: 'login',
-                isRequired: true,
-                model: 'login',
-            },
-            {
                 type: 'email',
                 label: 'Email',
                 name: 'email',
@@ -114,13 +107,6 @@ const parent = [
         title: 'Login information',
         fields: [
             {
-                type: 'text',
-                label: 'Login',
-                name: 'login',
-                isRequired: true,
-                model: 'login',
-            },
-            {
                 type: 'email',
                 label: 'Email',
                 name: 'email',
@@ -151,18 +137,12 @@ const admin = [
         title: 'Login information',
         fields: [
             {
-                type: 'text',
-                label: 'Login',
-                name: 'login',
-                isRequired: true,
-                model: 'login',
-            },
-            {
                 type: 'email',
                 label: 'Email',
                 name: 'email',
                 isRequired: true,
-                model: 'email'
+                model: 'email',
+                cssModifier: 'full'
             },
             {
                 type: 'password',

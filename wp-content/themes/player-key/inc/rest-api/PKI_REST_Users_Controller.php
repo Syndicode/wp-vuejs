@@ -183,7 +183,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		if ( $data['activation_token'] === get_user_meta( $data['parentId'], 'activation_token', true ) ) {
 			$parent_id = wp_update_user( [
 				'ID'         => $data['parentId'],
-				'user_login' => $data['form']['login'],
+				'user_login' => $data['form']['email'],
 				'user_email' => $data['form']['email'],
 				'first_name' => $data['form']['firstName'],
 				'last_name'  => $data['form']['lastName'],
@@ -260,7 +260,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 	function login_user( WP_REST_Request $request ) {
 		$data = json_decode( $request->get_body(), true );
-		$user = wp_authenticate( $data['login'], $data['password'] );
+		$user = wp_authenticate( $data['email'], $data['password'] );
 
 		if ( ! is_wp_error( $user ) ) {
 			if ( in_array( $user->roles[0], [ 'coach', 'parent' ] ) ) {
@@ -293,7 +293,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			}
 
 			$user_id = wp_insert_user( [
-				'user_login' => $data['login'],
+				'user_login' => $data['email'],
 				'user_pass'  => $data['password'],
 				'user_email' => $data['email'],
 				'first_name' => $data['firstName'] ?? '',

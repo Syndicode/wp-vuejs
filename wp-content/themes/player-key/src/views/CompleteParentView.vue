@@ -26,7 +26,6 @@ export default {
       form: {
         firstName: '',
         lastName: '',
-        login: '',
         email: '',
         password: '',
         passwordRepeat: ''
@@ -75,7 +74,6 @@ export default {
             this.user = response.data.data;
             this.form.firstName = this.user.first_name;
             this.form.lastName = this.user.last_name;
-            this.form.login = this.user.user_login;
             this.form.email = this.user.email;
           } else {
             this.isLinkActive = false;
@@ -101,8 +99,6 @@ export default {
                       v-model="form.firstName"/>
         <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                       v-model="form.lastName"/>
-        <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
-                      v-model="form.login" :is-disabled="true"/>
         <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                       v-model="form.email" :css-modifier="`full`"/>
         <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true"

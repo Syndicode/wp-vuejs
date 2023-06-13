@@ -26,7 +26,6 @@ export default {
       form: {
         firstName: '',
         lastName: '',
-        login: '',
         email: '',
       }
     };
@@ -69,13 +68,11 @@ export default {
           token: this.$store.state.authentication.token,
           form: this.form,
         }).then((response) => {
-          console.log(response);
           if (response.data.success) {
             this.entities = response.data.data;
             this.form = {
               firstName: '',
               lastName: '',
-              login: '',
               email: '',
             }
             this.isLayoutVisible = false;
@@ -97,7 +94,6 @@ export default {
             this.form = {
               firstName: '',
               lastName: '',
-              login: '',
               email: '',
             };
             this.isLayoutVisible = false;
@@ -115,7 +111,6 @@ export default {
       this.form.firstName = entity.first_name;
       this.form.lastName = entity.last_name;
       this.form.email = entity.email;
-      this.form.login = entity.login;
       this.editParentId = entity.ID;
       this.isFormValid = true;
     },
@@ -145,7 +140,6 @@ export default {
       this.form = {
         firstName: '',
         lastName: '',
-        login: '',
         email: '',
       };
     }
@@ -176,9 +170,6 @@ export default {
                         v-model="form.firstName"/>
           <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                         v-model="form.lastName"/>
-          <FormItemText :name="`login`" :label="`Login`" :input-type="`text`" :is-required="true"
-                        :is-disabled="action === 'Edit'"
-                        v-model="form.login"/>
           <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                         v-model="form.email"/>
           <div class="form__actions">
