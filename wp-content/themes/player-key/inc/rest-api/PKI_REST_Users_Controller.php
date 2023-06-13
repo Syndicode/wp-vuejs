@@ -264,7 +264,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 		if ( ! is_wp_error( $user ) ) {
 			if ( in_array( $user->roles[0], [ 'coach', 'parent' ] ) ) {
-				$token = wp_hash( $user->ID . $user->user_login . date( 'now' ) );
+				$token = wp_hash( $user->ID . $user->user_login . time() );
 				add_option( $token, $user->ID );
 				wp_send_json_success( [
 					'token' => $token,

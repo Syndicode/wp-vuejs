@@ -23,7 +23,7 @@ export default {
   </ul>
 </template>
 
-<style>
+<style scoped>
 .message-list {
   list-style-type: none;
   margin: 0 0 40px;
@@ -48,7 +48,7 @@ export default {
   margin-bottom: 0;
 }
 
-.message-list__item a{
+.message-list__item /deep/ a{
   color: inherit
 }
 </style>

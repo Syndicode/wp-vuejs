@@ -2,7 +2,7 @@
 import wordpressApi from "../api/wordpress.js"
 
 export default {
-  name: "MainNavigation",
+  name: "FooterNavigation",
   data() {
     return {
       navigationItems: [],
@@ -10,7 +10,7 @@ export default {
   },
   methods: {
     async fetchData() {
-      await wordpressApi.getNavMenu(2)
+      await wordpressApi.getNavMenu(3)
           .then((response) => {
             if (response.data.success) {
               this.navigationItems = response.data.data;
@@ -25,45 +25,31 @@ export default {
 </script>
 
 <template>
-  <nav class="main-navigation">
-    <ul class="main-navigation__list">
+  <nav class="footer-navigation">
+    <ul class="footer-navigation__list">
       <li v-for="navigationItem in navigationItems" :key="navigationItem.url">
-        <RouterLink :to="{path: navigationItem.url}" class="main-navigation__link">{{ navigationItem.title }}</RouterLink>
+        <RouterLink :to="{path: navigationItem.url}" class="footer-navigation__link">{{ navigationItem.title }}</RouterLink>
       </li>
     </ul>
   </nav>
 </template>
 
 <style scoped>
-.main-navigation {
+.footer-navigation {
   display: block;
-  margin-left: auto;
-  margin-right: 40px;
 }
 
-.main-navigation__list {
+.footer-navigation__list {
   list-style-type: none;
   display: flex;
-  align-items: center;
+  justify-content: center;
   column-gap: 20px;
   margin: 0;
   padding: 0;
 }
 
-.main-navigation__link {
-  position: relative;
-  color: var(--rich-black);
-  font-size: 17px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: opacity 0.3s ease;
-}
-
-.main-navigation__link:hover {
-  opacity: 0.6;
-}
-
-.main-navigation__link.router-link-active {
-  text-decoration: underline;
+.footer-navigation__link {
+  color: var(--white);
+  font-size: 12px;
 }
 </style>

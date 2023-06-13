@@ -7,6 +7,8 @@ import BoardView from '../views/BoardView.vue'
 import CompleteParentView from '../views/CompleteParentView.vue'
 import CompleteAthleteView from '../views/CompleteAthleteView.vue'
 import PasswordResetView from '../views/PasswordResetView.vue'
+import AthleteView from '../views/AthleteView.vue'
+import PageView from '../views/PageView.vue'
 import store from '../store/index.js'
 
 const SITE_TITLE = 'Player Key ID';
@@ -84,6 +86,26 @@ const router = createRouter({
             meta: {
                 title: `Complete Athlete information - ${SITE_TITLE}`
             },
+        },
+        {
+            path: '/complete/athlete',
+            name: 'complete-athlete',
+            component: CompleteAthleteView,
+            meta: {
+                title: `Complete Athlete information - ${SITE_TITLE}`
+            },
+        },
+        {
+            path: '/athlete/:slug',
+            name: 'athlete',
+            component: AthleteView,
+            meta: {
+                title: `Board - ${SITE_TITLE}`
+            },
+        },
+        {
+            path: '/:slug',
+            component: PageView,
         },
     ]
 });

@@ -33,7 +33,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/wp-content/themes/player-key/src/assets/favicon/favicon-16x16.png">
     <link rel="manifest" href="/wp-content/themes/player-key/src/assets/favicon/manifest.json">
     <meta name="theme-color" content="#ffffff">
-
     <!-- Favicon end -->
 </head>
 <body>
