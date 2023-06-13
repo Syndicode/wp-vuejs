@@ -19,18 +19,6 @@ export default {
     Parents,
     Coaches,
   },
-  computed: {
-    // isLoaded() {
-    //   return this.$store.state.authentication.isUserLoggedIn
-    // },
-    // currentRole() {
-    //   return this.$store.state.authentication.currentRole
-    // },
-  },
-  // async beforeRouteUpdate(to, from) {
-  //   this.currentEntity = to.params.entity;
-  //   this.fetchData();
-  // },
   data() {
     return {
       isLoaded: this.$store.state.authentication.isUserLoggedIn,
@@ -44,11 +32,11 @@ export default {
           'athletes',
           'payments',
         ],
-        admin: [
-          'coaches',
+        administrator: [
           'teams',
           'parents',
           'athletes',
+          'payments',
         ],
         parent: [
           'athletes',
@@ -61,15 +49,6 @@ export default {
     if (!this.$store.state.authentication.isUserLoggedIn) {
       this.$router.push({name: 'sign-in'});
     }
-  },
-  methods: {
-    // async fetchData() {
-    //   this.entities = await entitiesApi.getEntitles({
-    //     entityType: this.currentEntity,
-    //     token: this.$store.state.authentication.token,
-    //   })
-    //   console.log(this.entities);
-    // },
   },
 }
 </script>
