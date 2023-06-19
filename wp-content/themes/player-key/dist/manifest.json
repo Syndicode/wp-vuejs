@@ -1,5 +1,7 @@
 {
   "main.css": "css/main.css",
   "main.js": "js/main.js",
-  "assets/images/logo-player-key.svg": "assets/images/logo-player-key.svg"
+  "admin.js": "js/admin.js",
+  "assets/images/logo-player-key.svg": "assets/images/logo-player-key.svg",
+  "assets/images/logo-stripe.svg": "assets/images/logo-stripe.svg"
 }

@@ -30,6 +30,13 @@ export default {
   data() {
     return {
       action: '',
+      cost: 0,
+      coupon: '',
+      couponResponse: {
+        success: null,
+        message: null,
+      },
+      currentEntity: null,
       editAthleteId: null,
       entities: null,
       errors: [],
@@ -47,6 +54,7 @@ export default {
       isLayoutVisible: false,
       isFormValid: false,
       parents: [],
+      paidAthlete: null,
       teams: [],
     };
   },
@@ -84,48 +92,6 @@ export default {
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
-        }
-      });
-    },
-    async getTeams() {
-      await entitiesApi.getEntitles({
-        entityType: 'teams',
-        token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
-      }).then((response) => {
-        if (response.data.success && response.data.data.length) {
-          this.teams = response.data.data.map((team) => {
-            return {
-              label: team.post_title,
-              code: team.ID
-            };
-          });
-        } else {
-          this.errors.push('No Team exists. You cannot add an athlete without a Team.')
-        }
-      });
-    },
-    async getParents() {
-      await entitiesApi.getEntitles({
-        entityType: 'parents',
-        token: this.$store.state.authentication.token,
-      }).then((response) => {
-        if (response.data.success && response.data.data.length) {
-          this.parents = response.data.data.map((parent) => {
-            return {
-              label: `${parent.first_name} ${parent.last_name}`,
-              code: parent.ID
-            };
-          });
-        } else {
-          if (this.currentRole === 'coach') {
-            this.errors.push('No Parents exists. You cannot add an athlete without a Parents.')
-          } else if (this.currentRole === 'parent') {
-            this.parents.push({
-              label: this.$store.state.authentication.currentUser.data.display_name,
-              code: this.$store.state.authentication.currentUser.ID
-            })
-          }
         }
       });
     },
@@ -190,6 +156,55 @@ export default {
             });
       }
     },
+    async getCost() {
+      await paymentsApi.getCost().then((response) => {
+        if (response.data.success) {
+          this.cost = parseFloat(response.data.data);
+        }
+      })
+    },
+    async getTeams() {
+      await entitiesApi.getEntitles({
+        entityType: 'teams',
+        token: this.$store.state.authentication.token,
+        currentRole: this.currentRole,
+      }).then((response) => {
+        if (response.data.success && response.data.data.length) {
+          this.teams = response.data.data.map((team) => {
+            return {
+              label: team.post_title,
+              code: team.ID
+            };
+          });
+        } else {
+          this.errors.push('No Team exists. You cannot add an athlete without a Team.')
+        }
+      });
+    },
+    async getParents() {
+      await entitiesApi.getEntitles({
+        entityType: 'parents',
+        token: this.$store.state.authentication.token,
+      }).then((response) => {
+        if (response.data.success && response.data.data.length) {
+          this.parents = response.data.data.map((parent) => {
+            return {
+              label: `${parent.first_name} ${parent.last_name}`,
+              code: parent.ID
+            };
+          });
+        } else {
+          if (this.currentRole === 'coach') {
+            this.errors.push('No Parents exists. You cannot add an athlete without a Parents.')
+          } else if (this.currentRole === 'parent') {
+            this.parents.push({
+              label: this.$store.state.authentication.currentUser.data.display_name,
+              code: this.$store.state.authentication.currentUser.ID
+            })
+          }
+        }
+      });
+    },
     isRequiredFieldsFiled() {
       const requiredFields = {
         coach: [
@@ -245,21 +260,13 @@ export default {
         }
       });
     },
-    uploadCard(file) {
-      this.form.card = file;
-      this.form.cardFileName = file.name;
-    },
-    uploadCertificate(file) {
-      this.form.certificate = file;
-      this.form.certificateFileName = file.name;
-    },
-    async pay(entity) {
+    async pay() {
       await paymentsApi.getPaymentToken({
         token: this.$store.state.authentication.token,
-        athleteId: entity.ID,
+        athleteId: this.paidAthlete.ID,
       }).then(async (response) => {
         if (response.data.success) {
-          const {payment_token, payment_id, secret_key, cost} = response.data.data;
+          const {payment_token, payment_id, secret_key} = response.data.data;
           const stripe = new Stripe(secret_key);
           const session = await stripe.checkout.sessions.create({
             mode: 'payment',
@@ -268,9 +275,9 @@ export default {
               {
                 price_data: {
                   product_data: {
-                    name: `${entity.first_name} ${entity.last_name}`,
+                    name: `${this.paidAthlete.first_name} ${this.paidAthlete.last_name}`,
                   },
-                  unit_amount: cost * 100,
+                  unit_amount: this.cost * 100,
                   currency: 'usd',
                 },
                 quantity: 1,
@@ -282,6 +289,43 @@ export default {
 
           window.location.href = session.url
         }
+      });
+    },
+    async setupPayment(entity) {
+      this.action = 'Pay for an ';
+      this.isLayoutVisible = true;
+      this.paidAthlete = entity;
+    },
+    uploadCard(file) {
+      this.form.card = file;
+      this.form.cardFileName = file.name;
+    },
+    uploadCertificate(file) {
+      this.form.certificate = file;
+      this.form.certificateFileName = file.name;
+    },
+    async useCoupon() {
+      this.isSubmitting = true;
+      this.couponResponse.success = null;
+      this.couponResponse.message = null;
+
+      await paymentsApi.useCoupon({
+        coupon: this.coupon,
+        token: this.$store.state.authentication.token,
+      }).then((response) => {
+        if (response.data.success) {
+          this.cost = response.data.data;
+          this.couponResponse.success = true
+          this.isSubmitting = false;
+        } else {
+          this.couponResponse.success = false;
+          this.couponResponse.message = response.data.data;
+          this.isSubmitting = false;
+        }
+      }).catch((result) => {
+        this.couponResponse.success = false;
+        this.couponResponse.message = result.response.data.data;
+        this.isSubmitting = false;
       });
     }
   },
@@ -295,6 +339,7 @@ export default {
 
     this.getTeams();
     this.getParents();
+    this.getCost();
 
     if (this.$store.state.authentication.athleteToken !== null) {
       entitiesApi.getAthlete({
@@ -320,6 +365,18 @@ export default {
       })
     }
 
+    if (this.$route.query.cancellation_token && this.$route.query.cancellation_token === 'aB03Eckqbnwdfqwe233214mwAMomfMewe332' && this.$route.query.payment_id) {
+      paymentsApi.cancelPayment({
+        token: this.$store.state.authentication.token,
+        cancellationToken: this.$route.query.cancellation_token,
+        payment_id: this.$route.query.payment_id,
+      }).then((response) => {
+        if (response.data.success) {
+          this.fetchData();
+        }
+      });
+    }
+
     this.fetchData();
   }
 }
@@ -339,7 +396,8 @@ export default {
       <div class="entities__layout-inner">
         <Heading :level="2">{{ action }} Athlete</Heading>
         <ErrorList v-if="errors.length" :errors="errors"/>
-        <form v-if="teams.length && parents.length" @submit.prevent="formSubmit">
+        <form v-if="teams.length && parents.length && (action === 'Edit' || action === 'Add')"
+              @submit.prevent="formSubmit">
           <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                         v-model="form.firstName"/>
           <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
@@ -382,6 +440,24 @@ export default {
                   class="form__actions-note">Please fill in all required <sup>(*)</sup> fields</span>
           </div>
         </form>
+        <div v-else class="payment-info">
+          <p class="payment-info__caption">Pay <strong>${{ cost }}</strong> through <img
+              src="../assets/images/logo-stripe.svg"
+              class="payment-info__stripe-logo" alt="Stripe"></p>
+          <button class="button button--lime" @click="pay">Pay</button>
+          <div class="payment-info__discount">
+            <span class="payment-info__discount-note">Do you have a discount coupon?</span>
+            <div class="payment-info__discount-form">
+              <input type="text" v-model="coupon" class="payment-info__discount-input"
+                     :class="{success: couponResponse.success, error: couponResponse.success === false}">
+              <button class="button button--black payment-info__discount-cta" @click="useCoupon">Use coupon</button>
+              <p v-if="couponResponse.success !== null" class="payment-info__discount-response"
+                 :class="{success: couponResponse.success, error: !couponResponse.success}">
+                {{ couponResponse.message || 'Discount successfully applied!' }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="wrapper entities__wrapper">
@@ -396,7 +472,8 @@ export default {
           <span class="entities__cell">Athlete</span>
           <span class="entities__cell">Team</span>
           <span class="entities__cell">Parent</span>
-          <span class="entities__cell entities__cell--status">Status</span>
+          <span class="entities__cell entities__cell--status">Verified Status</span>
+          <span class="entities__cell entities__cell--status">Payment status</span>
           <span class="entities__cell">Actions</span>
         </li>
         <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
@@ -407,10 +484,11 @@ export default {
           <span class="entities__cell">{{ entity.parent_name }}</span>
           <span class="entities__cell entities__cell-status"
                 :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
+          <span class="entities__cell entities__cell-status"
+                :class="`entities__cell-status--${entity.payment_status}`">{{ entity.payment_status }}</span>
           <span class="entities__cell entities__cell--actions">
-
               <button v-if="entity.payment_status === 'unpaid' && entity.status === 'pending'" type="button"
-                      class="entities__action" @click="pay(entity)">Pay</button>
+                      class="entities__action" @click="setupPayment(entity)">Pay</button>
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
             </span>
@@ -440,5 +518,89 @@ export default {
 
 .form-item-select .vs__search {
   line-height: 2;
+}
+
+.payment-info {
+  padding-top: 20px;
+  text-align: center;
+}
+
+.payment-info__stripe-logo {
+  position: relative;
+  top: 13px;
+  display: inline-block;
+  margin-left: 4px;
+  width: 120px;
+}
+
+.payment-info__caption {
+  margin: 0 0 28px;
+  font-size: 20px;
+}
+
+.payment-info__discount {
+  padding-top: 40px;
+}
+
+.payment-info__discount-note {
+  font-size: 16px;
+}
+
+.payment-info__discount-form {
+  display: flex;
+  width: 70%;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 20px;
+  margin: auto;
+  padding-top: 12px;
+}
+
+.payment-info__discount-input {
+  -webkit-appearance: none;
+  flex-grow: 1;
+  display: block;
+  height: auto;
+  margin: 0;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: normal;
+  border: 1px solid #a8a8a8;
+  outline: none;
+  transition: border-color;
+}
+
+.payment-info__discount-input.success {
+  background-color: rgba(26, 255, 0, 0.1);
+}
+
+.payment-info__discount-input.error {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.payment-info__discount-cta {
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+.payment-info__discount-response {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.payment-info__discount-response.success {
+  color: #167700;
+}
+
+.payment-info__discount-response.error {
+  color: #770000;
 }
 </style>

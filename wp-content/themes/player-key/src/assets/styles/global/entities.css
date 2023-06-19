@@ -36,7 +36,7 @@
 }
 
 .entities__item--athlete {
-    grid-template-columns: 40px 2fr 1fr 2fr 1fr 2fr;
+    grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr 2fr;
 }
 
 .entities__item--payment {
@@ -139,6 +139,7 @@
 }
 
 .entities__payment-status--paid,
+.entities__cell-status--paid,
 .entities__cell-status--verified {
     color: var(--rich-black);
     background-color: var(--fresh-lime);

@@ -15,6 +15,14 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 
 	public function register_routes(): void {
 
+		register_rest_route( $this->namespace, "/$this->rest_base/get-cost", [
+			[
+				'methods'  => 'GET',
+				'callback' => [ $this, 'get_cost' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/get-payment-token", [
 			[
 				'methods'  => 'POST',
@@ -38,6 +46,47 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 
 			],
 		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/cancel-payment", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'cancel_payment' ],
+
+			],
+		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/use-coupon", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'use_coupon' ],
+
+			],
+		] );
+	}
+
+	function get_cost( WP_REST_Request $request ) {
+		wp_send_json_success( get_field( 'cost', 'option' ) );
+	}
+
+	function cancel_payment( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( $user !== false && ! is_wp_error( $user ) && user_can( $user_id, 'create_athlete' ) ) {
+				if ($data['cancellationToken'] === 'aB03Eckqbnwdfqwe233214mwAMomfMewe332') {
+					$payment_id    = $data['payment_id'];
+
+					update_field( 'payment_status', 'canceled', $payment_id );
+
+					delete_post_meta( $payment_id, 'payment_token' );
+					delete_post_meta( $payment_id, 'token_timestamp' );
+				}
+
+				wp_send_json_error('');
+			}
+		}
 	}
 
 	function check_payment( WP_REST_Request $request ) {
@@ -146,7 +195,6 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 							'payment_token' => $payment_token,
 							'payment_id'    => $payment_id,
 							'secret_key'    => $secret_key,
-							'cost'          => $cost ?? 0,
 						] );
 					}
 
@@ -156,5 +204,53 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 		}
 
 		wp_send_json_error();
+	}
+
+	function use_coupon( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( $user !== false && ! is_wp_error( $user ) && user_can( $user_id, 'create_athlete' ) ) {
+				$coupon = get_posts( [
+					'numberposts' => - 1,
+					'post_type'   => 'coupon',
+					'title'       => $data['coupon'],
+				] );
+
+				if ( ! empty( $coupon ) ) {
+					if ( count( $coupon ) > 1 ) {
+						wp_send_json_error( 'An error has occurred, contact your administrator' );
+					}
+
+					$coupon = $coupon[0];
+
+					$cost               = get_field( 'cost', 'option' );
+					$coupon_type        = get_field( 'type', $coupon->ID );
+					$coupon_discount    = get_field( 'discount', $coupon->ID );
+					$is_coupon_reusable = get_field( 'reusable', $coupon->ID );
+					$coupon_destination = get_field( 'destination', $coupon->ID );
+
+					if ( ! empty( $coupon_destination ) && $user->ID !== $coupon_destination->ID ) {
+						wp_send_json_error( 'You cannot use this coupon' );
+					}
+
+					if ( $is_coupon_reusable === 'no' && get_post_meta( $coupon->ID, 'uses_number', true ) ) {
+						wp_send_json_error( 'You cannot use this coupon more than once' );
+					}
+
+					if ( $coupon_type === 'fixed' ) {
+						wp_send_json_success( $cost - $coupon_discount );
+					}
+
+					if ( $coupon_type === 'percentage' ) {
+						wp_send_json_success( $cost - ( ( $coupon_discount / 100 ) * $cost ) );
+					}
+				}
+
+				wp_send_json_error( 'Coupon not found' );
+			}
+		}
 	}
 }
