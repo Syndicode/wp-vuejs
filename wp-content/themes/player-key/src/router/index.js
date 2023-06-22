@@ -121,9 +121,11 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
     if (!store.state.authentication.isUserLoggedIn && localStorage.getItem('pki-auth')) {
-        await store.dispatch('check', localStorage.getItem('pki-auth')). then(() => {
+        await store.dispatch('check', localStorage.getItem('pki-auth')).then(() => {
             return store.state.authentication.isUserLoggedIn;
         });
+    } else {
+        store.commit('checkFailure');
     }
 })
 
