@@ -45,6 +45,8 @@ export default {
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
+        } else {
+          this.entities = [];
         }
       });
     },
@@ -142,11 +144,11 @@ export default {
     <div class="wrapper entities__wrapper">
       <MessageList v-if="messages.length" :messages="messages" :type="`error`"/>
       <div class="entities__actions">
-        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">Create
-          team
+        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">
+          Create team
         </button>
       </div>
-      <ul v-if="entities" class="entities__list">
+      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
         <li class="entities__item entities__item--team">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Team</span>

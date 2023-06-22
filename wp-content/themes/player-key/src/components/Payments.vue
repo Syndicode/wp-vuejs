@@ -22,6 +22,8 @@ export default {
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
+        } else {
+          this.entities = [];
         }
       });
     },
@@ -37,7 +39,7 @@ export default {
   <Heading :level="1">Payments</Heading>
   <div class="entities">
     <div class="wrapper entities__wrapper">
-      <ul v-if="entities" class="entities__list">
+      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
         <li class="entities__item entities__item--payment">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Payment ID</span>
