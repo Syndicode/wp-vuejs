@@ -394,7 +394,7 @@ export default {
       <div class="entities__layout-inner">
         <Heading :level="2">{{ action }} Athlete</Heading>
         <ErrorList v-if="errors.length" :errors="errors"/>
-        <form v-if="teams.length && parents.length && (action === 'Edit' || action === 'Add')"
+        <form v-if="teams.length > 0 && parents.length > 0 && (action === 'Edit' || action === 'Add')"
               @submit.prevent="formSubmit">
           <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                         v-model="form.firstName"/>
@@ -438,7 +438,7 @@ export default {
                   class="form__actions-note">Please fill in all required <sup>(*)</sup> fields</span>
           </div>
         </form>
-        <div v-else class="payment-info">
+        <div v-if="action === 'Pay for an '" class="payment-info">
           <p class="payment-info__caption">Pay <strong>${{ cost }}</strong> through <img
               src="../assets/images/logo-stripe.svg"
               class="payment-info__stripe-logo" alt="Stripe"></p>
@@ -460,7 +460,7 @@ export default {
     </div>
     <div class="wrapper entities__wrapper">
       <div class="entities__actions">
-        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Add'">
+        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Add';">
           Add Athlete
         </button>
       </div>
