@@ -4,7 +4,7 @@ const state = {
     isCheckDataReceived: false,
     isSubmitting: false,
     validationErrors: [],
-    isUserLoggedIn: false,
+    isUserLoggedIn: null,
     currentUser: null,
     token: null,
     currentRole: null,
@@ -14,6 +14,17 @@ const state = {
 }
 
 const mutations = {
+    editUserSuccess(state, payload) {
+        state.currentUser = payload;
+        state.currentRole = payload.current_role;
+    },
+    changeCurrentUserRoleSuccess(state, payload) {
+        state.validationErrors = [];
+        state.currentRole = payload.current_role;
+    },
+    changeCurrentUserRoleFailure(state, payload) {
+        state.validationErrors.push(payload);
+    },
     setAthleteForEdit(state, payload) {
         state.athleteToken = payload.token
         state.athleteParentId = payload.id
@@ -35,31 +46,28 @@ const mutations = {
         state.isUserLoggedIn = true;
         state.currentUser = payload.user;
         state.token = payload.token;
-        state.currentRole = payload.user.roles[0];
+        state.currentRole = payload.user.current_role;
         localStorage.setItem('pki-auth', payload.token);
     },
-
     loginFailure(state, payload) {
         state.validationErrors.push(payload);
         state.isSubmitting = false;
     },
-
     checkSuccess(state, payload) {
         state.isCheckDataReceived = true;
         state.isUserLoggedIn = true;
         state.currentUser = payload;
-        state.currentRole = payload.roles[0];
+        state.currentRole = payload.current_role;
         state.token = localStorage.getItem('pki-auth')
     },
-
     checkFailure(state, payload) {
         state.isUserLoggedIn = false;
         state.currentUser = null;
+        state.currentRole = null;
         state.token = null;
     },
-
     logoutSuccess(state) {
-        state.isUserLoggedIn = null;
+        state.isUserLoggedIn = false;
         state.currentUser = null;
         localStorage.removeItem('pki-auth');
     },
@@ -146,11 +154,28 @@ const actions = {
             authApi
                 .logoutUser(token)
                 .then((response) => {
-                    context.commit('logoutSuccess', response.data.data)
-                    resolve(response.data.data)
+                    context.commit('logoutSuccess', response.data.data);
+                    resolve(response.data.data);
                 })
         });
-    }
+    },
+    changeUserRole(context, data) {
+        return new Promise((resolve) => {
+            authApi
+                .changeUserRole(data)
+                .then((response) => {
+                    if (response.data.success) {
+                        context.commit('changeCurrentUserRoleSuccess', response.data.data);
+                        resolve(response.data.data);
+                    } else {
+                        context.commit('changeCurrentUserRoleFailure', response.data.data);
+                    }
+                })
+                .catch((result) => {
+                    context.commit('changeCurrentUserRoleFailure', result.response.data.data);
+                })
+        });
+    },
 }
 
 export default {

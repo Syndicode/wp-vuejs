@@ -6,10 +6,6 @@ export default {
       type: Array,
       required: true,
     },
-    user: {
-      type: Object,
-      required: true,
-    }
   },
 }
 </script>
@@ -18,8 +14,8 @@ export default {
   <div class="board-navigation">
     <div class="wrapper board-navigation__wrapper">
       <div class="board-navigation__user">
-        {{ this.user.data.display_name }}
-        <span class="board-navigation__user-role">{{ this.user.roles[0] }}</span>
+        {{ this.$store.state.authentication.currentUser.display_name }}
+        <span class="board-navigation__user-role">{{ this.$store.state.authentication.currentRole }}</span>
       </div>
       <ul class="board-navigation__list">
         <li v-for="entity in entities" class="board-navigation__item">

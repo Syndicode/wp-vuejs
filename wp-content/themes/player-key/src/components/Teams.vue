@@ -6,6 +6,7 @@ import Loader from "./Loader.vue";
 import MessageList from "./MessageList.vue";
 
 export default {
+  name: 'Teams',
   components: {
     MessageList,
     Loader,
@@ -20,26 +21,19 @@ export default {
       deep: true
     }
   },
-  props: {
-    currentUserId: {
-      type: Number,
-    },
-    currentRole: {
-      type: Boolean,
-    }
-  },
   data() {
     return {
-      messages: [],
-      isSubmitting: false,
-      editTeamId: null,
       action: '',
-      isLayoutVisible: false,
       entities: null,
-      isFormValid: false,
+      editTeamId: null,
       form: {
         team: ''
-      }
+      },
+      isFormValid: false,
+      isLayoutVisible: false,
+      isLoading: false,
+      isSubmitting: false,
+      messages: [],
     };
   },
   methods: {
@@ -47,12 +41,18 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'teams',
         token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
+        currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
         }
       });
+    },
+    onFormSubmitSuccess(data) {
+      this.entities = data;
+      this.form.team = ''
+      this.isLayoutVisible = false;
+      this.isFormValid = false;
     },
     async formSubmit() {
       this.isSubmitting = true;
@@ -63,10 +63,7 @@ export default {
           form: this.form,
         }).then((response) => {
           if (response.data.success) {
-            this.entities = response.data.data;
-            this.form.team = ''
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
+            this.onFormSubmitSuccess(response.data.data);
           }
           this.isSubmitting = false;
         });
@@ -78,16 +75,14 @@ export default {
           form: this.form,
         }).then((response) => {
           if (response.data.success) {
-            this.entities = response.data.data;
-            this.form.team = ''
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
+            this.onFormSubmitSuccess(response.data.data);
           }
           this.isSubmitting = false;
         });
       }
     },
     async remove(id) {
+      this.isLoading = true;
       await entitiesApi.removeEntity({
         entityType: 'team',
         token: this.$store.state.authentication.token,
@@ -98,6 +93,8 @@ export default {
         } else {
           this.messages.push(response.data.data);
         }
+
+        this.isLoading = false;
       });
     },
     closeLayout() {
@@ -112,12 +109,13 @@ export default {
     }
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   }
 }
 </script>
 
 <template>
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Teams</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
@@ -132,7 +130,7 @@ export default {
         <Heading :level="2">{{ action }} Team</Heading>
         <form @submit.prevent="formSubmit">
           <FormItemText :name="`team-name`" :label="`Team`" :input-type="`text`" :is-required="true"
-                    v-model="form.team"/>
+                        v-model="form.team"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -165,7 +163,7 @@ export default {
             </span>
         </li>
       </ul>
-      <p v-else>You haven't created any teams yet</p>
+      <p v-else-if="entities !== null && entities.length === 0">You haven't created any teams yet</p>
     </div>
   </div>
 </template>

@@ -28,13 +28,13 @@ export default {
       </RouterLink>
       <MainNavigation/>
       <div class="header__actions">
-        <div v-if="!this.$store.state.authentication.isUserLoggedIn" class="header__actions">
+        <div v-if="this.$store.state.authentication.isUserLoggedIn !== null && this.$store.state.authentication.isUserLoggedIn === false" class="header__actions">
           <ButtonLink :href="{name: 'sign-in'}" :button-title="`Sign In`"
                       :button-style="`black`" :class="`header__cta`"/>
           <ButtonLink :href="{name: 'sign-up'}" :button-title="`Sign Up`" :button-style="`white`"
                       :class="`header__cta`"/>
         </div>
-        <div v-else class="header__actions">
+        <div v-else-if="this.$store.state.authentication.isUserLoggedIn !== null && this.$store.state.authentication.isUserLoggedIn" class="header__actions">
           <ButtonLink :href="{name: 'board'}" :button-title="`Board`"
                       :button-style="`black`" :class="`header__cta`"/>
           <button @click="this.logout" class="header__action-logout">Logout</button>
@@ -73,6 +73,7 @@ export default {
   display: flex;
   align-items: center;
   column-gap: 12px;
+  min-width: 192px;
 }
 
 .header__action-logout {

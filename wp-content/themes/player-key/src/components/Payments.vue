@@ -1,18 +1,13 @@
 <script>
 import Heading from "./Heading.vue";
 import paymentsApi from "../api/payments.js";
+import Loader from "./Loader.vue";
 
 export default {
+  name: 'Payments',
   components: {
+    Loader,
     Heading,
-  },
-  props: {
-    currentUserId: {
-      type: Number,
-    },
-    currentRole: {
-      type: Boolean,
-    }
   },
   data() {
     return {
@@ -23,7 +18,7 @@ export default {
     async fetchData() {
       await paymentsApi.getPayments({
         token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
+        currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
@@ -32,12 +27,13 @@ export default {
     },
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   }
 }
 </script>
 
 <template>
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Payments</Heading>
   <div class="entities">
     <div class="wrapper entities__wrapper">
@@ -54,14 +50,11 @@ export default {
           <span class="entities__cell">{{ entity.ID }}</span>
           <span class="entities__cell">{{ entity.athlete }}</span>
           <span class="entities__cell">{{ entity.date }}</span>
-          <span class="entities__cell entities__payment-status" :class="`entities__payment-status--${entity.status}`">{{ entity.status }}</span>
+          <span class="entities__cell entities__payment-status"
+                :class="`entities__payment-status--${entity.status}`">{{ entity.status }}</span>
         </li>
       </ul>
-      <p v-else>You haven't created any payments yet</p>
+      <p v-else-if="entities !== null && entities.length === 0">You haven't created any payments yet</p>
     </div>
   </div>
 </template>
-
-<style>
-
-</style>

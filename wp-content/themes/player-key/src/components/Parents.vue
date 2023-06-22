@@ -7,7 +7,7 @@ import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
 
 export default {
-  name: "Parents",
+  name: 'Parents',
   components: {
     Loader,
     ErrorList,
@@ -16,18 +16,19 @@ export default {
   },
   data() {
     return {
-      isSubmitting: false,
-      errors: [],
-      editParentId: null,
       action: '',
-      isLayoutVisible: false,
+      editParentId: null,
       entities: null,
-      isFormValid: false,
+      errors: [],
       form: {
         firstName: '',
         lastName: '',
         email: '',
-      }
+      },
+      isLoading: false,
+      isLayoutVisible: false,
+      isSubmitting: false,
+      isFormValid: false,
     };
   },
   watch: {
@@ -60,6 +61,21 @@ export default {
         }
       });
     },
+    onFormSubmit(response) {
+      if (response.data.success) {
+        this.entities = response.data.data;
+        this.form = {
+          firstName: '',
+          lastName: '',
+          email: '',
+        }
+        this.isLayoutVisible = false;
+        this.isFormValid = false;
+      } else {
+        this.errors.push(response.data.data)
+      }
+      this.isSubmitting = false;
+    },
     async formSubmit() {
       this.isSubmitting = true;
       if (this.action === 'Add') {
@@ -67,42 +83,14 @@ export default {
           entityType: 'parent',
           token: this.$store.state.authentication.token,
           form: this.form,
-        }).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              email: '',
-            }
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
+        }).then(this.onFormSubmit);
       } else if (this.action === 'Edit') {
         await entitiesApi.editEntity({
           entityType: 'parent',
           token: this.$store.state.authentication.token,
           parentId: this.editParentId,
           form: this.form,
-        }).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              email: '',
-            };
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
+        }).then(this.onFormSubmit);
       }
     },
     edit(entity) {
@@ -115,6 +103,7 @@ export default {
       this.isFormValid = true;
     },
     async remove(id) {
+      this.isLoading = true;
       await entitiesApi.removeEntity({
         entityType: 'parent',
         token: this.$store.state.authentication.token,
@@ -123,6 +112,7 @@ export default {
         if (response.data.success) {
           this.entities = this.entities.filter((entity) => entity.ID !== id)
         }
+        this.isLoading = false;
       });
     },
     isRequiredFieldsFiled() {
@@ -145,13 +135,13 @@ export default {
     }
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   }
 }
 </script>
 
 <template>
-
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Parents</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
@@ -212,7 +202,7 @@ export default {
           </div>
         </li>
       </ul>
-      <p v-else>You don't have associated parents yet</p>
+      <p v-else-if="entities !== null && entities.length === 0">You don't have associated parents yet</p>
     </div>
   </div>
 

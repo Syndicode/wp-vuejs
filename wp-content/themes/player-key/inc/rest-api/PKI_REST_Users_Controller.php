@@ -17,6 +17,13 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 	public function register_routes(): void {
 
+		register_rest_route( $this->namespace, "/$this->rest_base/edit-user", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'edit_user' ],
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/resend-activation-link", [
 			[
 				'methods'  => 'POST',
@@ -35,6 +42,13 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'login_user' ],
+			],
+		] );
+
+		register_rest_route( $this->namespace, "/$this->rest_base/change-user-role", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'change_user_role' ],
 			],
 		] );
 
@@ -79,6 +93,121 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				'callback' => [ $this, 'reset_password' ],
 			],
 		] );
+	}
+
+	function change_user_role( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( $user !== false ) {
+
+				if ( ! in_array( $data['role'], $user->roles ) ) {
+					wp_send_json_error( 'You can not use this role!' );
+				}
+
+				if ( $data['role'] === 'parent' && get_field( 'is_activated', 'user_' . $user_id ) === null ) {
+					add_user_meta( $user_id, 'initial_coach', $user_id );
+					update_field( 'coaches', [ $user_id ], 'user_' . $user_id );
+					update_field( 'is_activated', 'yes', 'user_' . $user_id );
+				}
+
+				update_user_meta( $user->ID, 'current-role', $data['role'] );
+				wp_send_json_success( $this->get_user_data( $user->ID ) );
+			}
+		}
+		wp_send_json_error( 'User not found!' );
+	}
+
+	function edit_user( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( $user !== false && ! is_wp_error( $user ) && ( user_can( $user_id, 'create_team' ) || user_can( $user_id, 'create_athlete' ) ) ) {
+
+				$user_data = [
+					'ID'           => $user_id,
+					'first_name'   => $data['form']['firstName'],
+					'last_name'    => $data['form']['lastName'],
+					'display_name' => $data['form']['firstName'] . ' ' . $data['form']['lastName'],
+					'user_email'   => $data['form']['email'],
+				];
+
+				if ( isset( $data['form']['password'] )
+				     && ! empty( $data['form']['password'] )
+				     && isset( $data['form']['passwordRepeat'] )
+				     && $data['form']['password'] === $data['form']['passwordRepeat'] ) {
+					$user_data['user_pass'] = $data['form']['password'];
+				}
+
+				$user_id = wp_update_user( $user_data );
+
+				if ( ! is_wp_error( $user_id ) ) {
+
+					if ( isset( $data['form']['multipleRoles'] )
+					     && $data['form']['multipleRoles']
+					     && isset( $data['form']['roles'] )
+					     && count( $data['form']['roles'] ) > 1 ) {
+						$new_roles = array_diff( $data['form']['roles'], $user->roles );
+						foreach ( $new_roles as $new_role ) {
+							$user->add_role( $new_role );
+						}
+					} else if ( isset( $data['form']['multipleRoles'] ) && ! $data['form']['multipleRoles'] ) {
+						$initial_role = get_user_meta( $user_id, 'initial-role', true );
+						$user->set_role( $initial_role );
+						update_user_meta( $user->ID, 'current-role', $initial_role );
+					}
+
+					if ( $data['currentRole'] === 'coach' ) {
+						update_field( 'birthday', $data['form']['birthday'], 'user_' . $user_id );
+						update_field( 'address', $data['form']['address'], 'user_' . $user_id );
+						update_field( 'town', $data['form']['town'], 'user_' . $user_id );
+						update_field( 'state', $data['form']['state'], 'user_' . $user_id );
+						update_field( 'zip-code', $data['form']['zipCode'], 'user_' . $user_id );
+					}
+
+					wp_send_json_success( $this->get_user_data( $user_id ) );
+				}
+
+				wp_send_json_error();
+			}
+		}
+	}
+
+	/**
+	 * @param int $user_id
+	 *
+	 * @return array
+	 */
+	private function get_user_data( int $user_id ): array {
+		$user_data = [];
+		$user      = get_user_by( 'ID', $user_id );
+
+		if ( $user !== false && ! is_wp_error( $user ) && ( user_can( $user_id, 'create_team' ) || user_can( $user_id, 'create_athlete' ) ) ) {
+			$user_data = [
+				'ID'           => $user->ID,
+				'first_name'   => $user->first_name,
+				'last_name'    => $user->last_name,
+				'display_name' => $user->display_name,
+				'email'        => $user->user_email,
+				'user_login'   => $user->user_login,
+				'initial_role' => get_user_meta( $user->ID, 'initial-role', true ),
+				'current_role' => get_user_meta( $user->ID, 'current-role', true ),
+				'roles'        => $user->roles,
+				'birthday'     => get_field( 'birthday', 'user_' . $user->ID ),
+				'address'      => get_field( 'address', 'user_' . $user->ID ),
+				'town'         => get_field( 'town', 'user_' . $user->ID ),
+				'state'        => get_field( 'state', 'user_' . $user->ID ),
+				'zip_code'     => get_field( 'zip-code', 'user_' . $user->ID ),
+			];
+		}
+
+		return $user_data;
 	}
 
 	function reset_password( WP_REST_Request $request ) {
@@ -245,10 +374,10 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			$user_id = get_option( $token );
 
 			if ( ! empty( $user_id ) ) {
-				$user = get_user_by( 'ID', $user_id );
+				$user_data = $this->get_user_data( $user_id );
 
-				if ( ! is_wp_error( $user ) && $user !== false ) {
-					wp_send_json_success( $user );
+				if ( ! empty( $user_data ) ) {
+					wp_send_json_success( $user_data );
 				}
 
 				wp_send_json_error( 'User not found' );
@@ -263,12 +392,23 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		$user = wp_authenticate( $data['email'], $data['password'] );
 
 		if ( ! is_wp_error( $user ) ) {
+
+			if ( ! get_user_meta( $user->ID, 'initial-role', true ) ) {
+				update_user_meta( $user->ID, 'initial-role', $user->roles[0] );
+			}
+
 			if ( in_array( $user->roles[0], [ 'coach', 'parent' ] ) ) {
 				$token = wp_hash( $user->ID . $user->user_login . time() );
 				add_option( $token, $user->ID );
+
+				if ( ! get_user_meta( $user->ID, 'current-role', true ) ) {
+					add_user_meta( $user->ID, 'current-role', $user->roles[0] );
+				}
+
+				$user_data = $this->get_user_data( $user->ID );
 				wp_send_json_success( [
 					'token' => $token,
-					'user'  => $user,
+					'user'  => $user_data,
 				] );
 			} else if ( $user->roles[0] === 'admin' ) {
 				wp_send_json_error( 'Your account has not been activated yet. Please wait for the account to be activated. You will be notified about this to the email you specified.' );
@@ -302,6 +442,8 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			] );
 
 			if ( ! is_wp_error( $user_id ) ) {
+				update_user_meta( $user_id, 'initial-role', $data['role'] );
+
 				if ( $data['role'] === 'coach' ) {
 					update_field( 'birthday', $data['birthday'], 'user_' . $user_id );
 					update_field( 'address', $data['address'], 'user_' . $user_id );

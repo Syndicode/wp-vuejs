@@ -1,10 +1,6 @@
 <script>
 export default {
-  // data() {
-  //   return {
-  //     fileName: '',
-  //   };
-  // },
+  name: 'FormItemFile',
   props: {
     fileName: {
       type: String,

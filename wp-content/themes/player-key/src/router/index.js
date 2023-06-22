@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import ChoiceRoleView from '../views/ChoiceRoleView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import SignUpRoleView from '../views/SignUpRoleView.vue'
 import SignInView from '../views/SignInView.vue'
@@ -93,6 +94,14 @@ const router = createRouter({
             component: CompleteAthleteView,
             meta: {
                 title: `Complete Athlete information - ${SITE_TITLE}`
+            },
+        },
+        {
+            path: '/choice-role',
+            name: 'choice-role',
+            component: ChoiceRoleView,
+            meta: {
+                title: `Choice of Role - ${SITE_TITLE}`
             },
         },
         {

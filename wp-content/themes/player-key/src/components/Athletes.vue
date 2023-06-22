@@ -10,7 +10,7 @@ import FormItemFile from "./FormItemFile.vue";
 import {Stripe} from "stripe";
 
 export default {
-  name: "Athletes",
+  name: 'Athletes',
   components: {
     ErrorList,
     FormItemFile,
@@ -18,14 +18,6 @@ export default {
     Heading,
     Loader,
     vSelect,
-  },
-  props: {
-    currentUserId: {
-      type: Number,
-    },
-    currentRole: {
-      type: Boolean,
-    }
   },
   data() {
     return {
@@ -50,6 +42,7 @@ export default {
         cardFileName: '',
         certificateFileName: '',
       },
+      isLoading: false,
       isSubmitting: false,
       isLayoutVisible: false,
       isFormValid: false,
@@ -75,11 +68,11 @@ export default {
       this.form.team = '';
       this.form.birthday = '';
 
-      if (this.currentRole === 'coach') {
+      if (this.$store.state.authentication.currentRole === 'coach') {
         this.form.parent = '';
       }
 
-      if (this.currentRole === 'parent') {
+      if (this.$store.state.authentication.currentRole === 'parent') {
         this.form.cardFileName = '';
         this.form.certificateFileName = '';
       }
@@ -88,10 +81,12 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'athletes',
         token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
+        currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
         if (response.data.success) {
-          this.entities = response.data.data
+          this.entities = response.data.data;
+        } else {
+          this.entities = [];
         }
       });
     },
@@ -102,9 +97,9 @@ export default {
       formData.append('entityType', 'athlete');
       formData.append('token', this.$store.state.authentication.token);
       formData.append('athleteId', this.editAthleteId);
-      formData.append('currentRole', this.currentRole);
+      formData.append('currentRole', this.$store.state.authentication.currentRole);
 
-      if (this.currentRole === 'parent') {
+      if (this.$store.state.authentication.currentRole === 'parent') {
         formData.append('card', this.form.card);
         formData.append('certificate', this.form.certificate);
       }
@@ -125,7 +120,7 @@ export default {
               firstName: '',
               lastName: '',
               team: '',
-              parent: this.currentRole === 'coach' ? '' : this.form.parent,
+              parent: this.$store.state.authentication.currentRole === 'coach' ? '' : this.form.parent,
               birthday: '',
             }
             this.isLayoutVisible = false;
@@ -144,7 +139,7 @@ export default {
                   firstName: '',
                   lastName: '',
                   team: '',
-                  parent: this.currentRole === 'coach' ? '' : this.form.parent,
+                  parent: this.$store.state.authentication.currentRole === 'coach' ? '' : this.form.parent,
                   birthday: '',
                 }
                 this.isLayoutVisible = false;
@@ -167,7 +162,7 @@ export default {
       await entitiesApi.getEntitles({
         entityType: 'teams',
         token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
+        currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
         if (response.data.success && response.data.data.length) {
           this.teams = response.data.data.map((team) => {
@@ -194,11 +189,11 @@ export default {
             };
           });
         } else {
-          if (this.currentRole === 'coach') {
+          if (this.$store.state.authentication.currentRole === 'coach') {
             this.errors.push('No Parents exists. You cannot add an athlete without a Parents.')
-          } else if (this.currentRole === 'parent') {
+          } else if (this.$store.state.authentication.currentRole === 'parent') {
             this.parents.push({
-              label: this.$store.state.authentication.currentUser.data.display_name,
+              label: this.$store.state.authentication.currentUser.display_name,
               code: this.$store.state.authentication.currentUser.ID
             })
           }
@@ -227,7 +222,7 @@ export default {
 
       let isFiled = true;
 
-      requiredFields[this.currentRole].forEach((fieldName) => {
+      requiredFields[this.$store.state.authentication.currentRole].forEach((fieldName) => {
         if (this.form[fieldName] === '') {
           isFiled = false;
         }
@@ -250,14 +245,16 @@ export default {
       this.form.birthday = `${birthday.getFullYear()}-${birthday.getMonth() < 10 ? '0' + (birthday.getMonth() + 1) : birthday.getMonth() + 1}-${birthday.getDate()}`;
     },
     async remove(id) {
+      this.isLoading = true;
       await entitiesApi.removeEntity({
         entityType: 'athlete',
         token: this.$store.state.authentication.token,
         athleteId: id,
       }).then((response) => {
         if (response.data.success) {
-          this.entities = this.entities.filter((entity) => entity.ID !== id)
+          this.entities = this.entities.filter((entity) => entity.ID !== id);
         }
+        this.isLoading = false;
       });
     },
     async pay() {
@@ -330,16 +327,14 @@ export default {
     }
   },
   mounted() {
-    if (this.currentRole === 'parent') {
+    this.fetchData();
+
+    if (this.$store.state.authentication.currentRole === 'parent') {
       this.form.parent = {
-        label: this.$store.state.authentication.currentUser.data.display_name,
+        label: this.$store.state.authentication.currentUser.display_name,
         code: this.$store.state.authentication.currentUser.ID
       }
     }
-
-    this.getTeams();
-    this.getParents();
-    this.getCost();
 
     if (this.$store.state.authentication.athleteToken !== null) {
       entitiesApi.getAthlete({
@@ -377,12 +372,15 @@ export default {
       });
     }
 
-    this.fetchData();
+    this.getTeams();
+    this.getParents();
+    this.getCost();
   }
 }
 </script>
 
 <template>
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Athletes</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
@@ -416,9 +414,9 @@ export default {
             <vSelect :options="parents"
                      v-model="form.parent"
                      :class="`form-item-select__field`"
-                     :required="true" :disabled="currentRole === 'parent'"/>
+                     :required="true" :disabled="this.$store.state.authentication.currentRole === 'parent'"/>
           </label>
-          <div v-if="currentRole === 'parent'" class="form-item-file">
+          <div v-if="this.$store.state.authentication.currentRole === 'parent'" class="form-item-file">
             <span class="form__label">Report Card <sup>*</sup></span>
             <FormItemFile @file-updated="uploadCard"
                           :input-id="`report-card`"
@@ -426,7 +424,7 @@ export default {
                           :file-name="this.form.cardFileName"
                           :required="true"/>
           </div>
-          <div v-if="currentRole === 'parent'" class="form-item-file">
+          <div v-if="this.$store.state.authentication.currentRole === 'parent'" class="form-item-file">
             <span class="form__label">Birth certificate/ID <sup>*</sup></span>
             <FormItemFile @file-updated="uploadCertificate"
                           :input-id="`certificate`"
@@ -466,7 +464,7 @@ export default {
           Add Athlete
         </button>
       </div>
-      <ul v-if="entities" class="entities__list">
+      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
         <li class="entities__item entities__item--athlete">
           <span class="entities__cell">#</span>
           <span class="entities__cell">Athlete</span>
@@ -494,7 +492,7 @@ export default {
             </span>
         </li>
       </ul>
-      <p v-else>You don't have associated athletes yet</p>
+      <p v-else-if="entities !== null && entities.length === 0">You don't have associated athletes yet</p>
     </div>
   </div>
 </template>

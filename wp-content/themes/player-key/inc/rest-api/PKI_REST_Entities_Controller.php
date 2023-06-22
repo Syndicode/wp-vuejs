@@ -184,7 +184,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 							],
 						] );
 						if ( ! empty( $teams ) ) {
-							wp_send_json_success( $teams );
+							wp_send_json_success( $this->get_teams_data( $teams ) );
 						}
 					}
 				}
@@ -265,13 +265,12 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 				if ( get_field( 'coach', $data['teamId'] )->ID == $user_id ) {
 
-					$athletes = $this->get_athletes_list( 'coach', $user_id );
-					if ( count( $athletes ) === 0 ) {
+					if ( $this->get_athletes_count_by_team( $data['teamId'] ) === 0 ) {
 						wp_delete_post( $data['teamId'] );
 						wp_send_json_success();
-					} else {
-						wp_send_json_error( 'You cannot delete a team while it has athletes.' );
 					}
+
+					wp_send_json_error( 'You cannot delete a team while it has athletes.' );
 				}
 			}
 		}
@@ -521,8 +520,9 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 							]
 						],
 					] );
+
 					if ( ! empty( $teams ) ) {
-						wp_send_json_success( $teams );
+						wp_send_json_success( $this->get_teams_data( $teams ) );
 					}
 				}
 			}
@@ -572,45 +572,80 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 		if ( ! empty( $parents ) ) {
 			foreach ( $parents as $parent ) {
-				$is_activated = get_field( 'is_activated', 'user_' . $parent->ID );
-				if ( $is_activated === 'no' ) {
-					$activation_token = get_user_meta( $parent->ID, 'activation_token', true );
+				if ( $parent->ID !== $coach_id ) {
+					$is_activated = get_field( 'is_activated', 'user_' . $parent->ID );
+					if ( $is_activated === 'no' ) {
+						$activation_token = get_user_meta( $parent->ID, 'activation_token', true );
 
-					if ( ! empty( $activation_token ) && time() - (int) get_option( $activation_token, true ) > self::DAY_IN_SECONDS ) {
-						$is_activated = 'expired';
-						update_field( 'is_activated', $is_activated, 'user_' . $parent->ID );
+						if ( ! empty( $activation_token ) && time() - (int) get_option( $activation_token, true ) > self::DAY_IN_SECONDS ) {
+							$is_activated = 'expired';
+							update_field( 'is_activated', $is_activated, 'user_' . $parent->ID );
+						}
 					}
-				}
 
-				$athletes = get_posts( [
-					'numberposts' => - 1,
-					'post_type'   => 'athlete',
-					'meta_query'  => [
-						'relation' => 'AND',
-						[
-							'key'   => 'coach',
-							'value' => $coach_id,
-						],
-						[
-							'key'   => 'parent',
-							'value' => $parent->ID,
+					$athletes = get_posts( [
+						'numberposts' => - 1,
+						'post_type'   => 'athlete',
+						'meta_query'  => [
+							'relation' => 'AND',
+							[
+								'key'   => 'coach',
+								'value' => $coach_id,
+							],
+							[
+								'key'   => 'parent',
+								'value' => $parent->ID,
+							]
 						]
-					]
-				] );
+					] );
 
-				$parents_data[] = [
-					'ID'           => $parent->ID,
-					'first_name'   => $parent->first_name,
-					'last_name'    => $parent->last_name,
-					'email'        => $parent->user_email,
-					'login'        => $parent->user_login,
-					'is_activated' => $is_activated,
-					'athletes'     => count( $athletes ),
-				];
+					$parents_data[] = [
+						'ID'           => $parent->ID,
+						'first_name'   => $parent->first_name,
+						'last_name'    => $parent->last_name,
+						'email'        => $parent->user_email,
+						'login'        => $parent->user_login,
+						'is_activated' => $is_activated,
+						'athletes'     => count( $athletes ),
+					];
+				}
 			}
 		}
 
 		return $parents_data;
+	}
+
+	private function get_athletes_count_by_team( int $team_id ): int {
+		$athletes = get_posts( [
+			'numberposts' => - 1,
+			'post_type'   => 'athlete',
+			'meta_query'  => [
+				[
+					[
+						'key'   => 'team',
+						'value' => $team_id
+					]
+				],
+			],
+		] );
+
+		return count( $athletes );
+	}
+
+	private function get_teams_data( array $teams ): array {
+		$teams_data = [];
+
+		foreach ( $teams as $team ) {
+			$athletes_count = $this->get_athletes_count_by_team( $team->ID );
+
+			$teams_data[] = [
+				'ID'         => $team->ID,
+				'post_title' => $team->post_title,
+				'athletes'   => $athletes_count,
+			];
+		}
+
+		return $teams_data;
 	}
 
 	function get_teams( WP_REST_Request $request ) {
@@ -637,16 +672,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 				$teams = get_posts( $args );
 				if ( ! empty( $teams ) ) {
-					$teams_data = [];
-					foreach ( $teams as $team ) {
-						$athletes     = $this->get_athletes_list( 'coach', $user_id );
-						$teams_data[] = [
-							'ID'         => $team->ID,
-							'post_title' => $team->post_title,
-							'athletes'   => count( $athletes ),
-						];
-					}
-					wp_send_json_success( $teams_data );
+					wp_send_json_success( $this->get_teams_data( $teams ) );
 				}
 
 				wp_send_json_error( 'Teams not found' );
@@ -709,7 +735,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 			if ( ! is_wp_error( $user ) && $user !== false && ( user_can( $user_id, 'create_team' ) || user_can( $user_id, 'create_athlete' ) ) ) {
 
-				$athletes = $this->get_athletes_list( $user->roles[0], $user_id );
+				$athletes = $this->get_athletes_list( get_user_meta( $user_id, 'current-role', true ), $user_id );
 				if ( ! empty( $athletes ) ) {
 					wp_send_json_success( $athletes );
 				}
@@ -773,13 +799,13 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					'post_type'   => 'athlete',
 					'meta_query'  => [
 						[
-							'key'   => $user->roles[0],
+							'key'   => $data['currentRole'],
 							'value' => $user_id,
 						]
 					],
 				] );
 
-				if ( $user->roles[0] === 'coach' ) {
+				if ( $data['currentRole'] === 'coach' ) {
 					$parents = get_users( [
 						'role'       => 'parent',
 						'orderby'    => 'display_name',

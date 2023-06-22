@@ -31,6 +31,9 @@ export default {
     },
     isDisabled: {
       type: Boolean,
+    },
+    note: {
+      type: String,
     }
   }
 }
@@ -50,6 +53,7 @@ export default {
            :disabled="isDisabled"
            @input="$emit('update:modelValue', $event.target.value)"
            class="form-item-text__field">
+    <span v-if="note !== ''" class="form-item-text__note">{{note}}</span>
   </label>
 </template>
 
@@ -96,5 +100,12 @@ export default {
 
 .form-item-text__field:focus {
   border-color: var(--rich-black);
+}
+
+.form-item-text__note {
+  display: block;
+  padding-top: 4px;
+  font-size: 14px;
+  color: #737373
 }
 </style>
