@@ -9,7 +9,7 @@ export default {
   },
   data() {
     return {
-      isLoaded: false;
+      isLoaded: false,
     };
   },
   methods: {
