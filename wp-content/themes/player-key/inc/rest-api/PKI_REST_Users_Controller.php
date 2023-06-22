@@ -254,7 +254,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 					$data['login']
 				], $message );
 
-				wp_mail( $data['form']['email'], 'Password Reset on PlayerKey ID', $message, [
+				wp_mail( $data['login'], 'Password Reset on PlayerKey ID', $message, [
 					'content-type: text/html',
 				] );
 
