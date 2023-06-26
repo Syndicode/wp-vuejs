@@ -3,5 +3,7 @@
   "main.js": "js/main.js",
   "admin.js": "js/admin.js",
   "assets/images/logo-player-key.svg": "assets/images/logo-player-key.svg",
-  "assets/images/logo-stripe.svg": "assets/images/logo-stripe.svg"
+  "assets/images/logo-stripe.svg": "assets/images/logo-stripe.svg",
+  "assets/images/icon-type-info.svg": "assets/images/icon-type-info.svg",
+  "assets/images/icon-type-notice.svg": "assets/images/icon-type-notice.svg"
 }

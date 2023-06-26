@@ -8,10 +8,12 @@ import formFields from "../views/data/formFields.js"
 import ErrorList from "./ErrorList.vue";
 import MessageList from "./MessageList.vue";
 import RoleSwitcher from "./RoleSwitcher.vue";
+import Notifications from "./Notifications.vue";
 
 export default {
   name: 'Profile',
   components: {
+    Notifications,
     ErrorList,
     FormItemText,
     Heading,
@@ -158,6 +160,10 @@ export default {
         role: this.$store.state.authentication.currentRole === 'coach' ? 'parent' : 'coach',
       }).then(() => {
         this.fetchData();
+        this.$store.dispatch('getNotifications', {
+          token: this.$store.state.authentication.token,
+          currentRole: this.$store.state.authentication.currentRole,
+        });
       });
     }
   },
@@ -221,6 +227,7 @@ export default {
         <span class="board__role"
               :class="{active: this.$store.state.authentication.currentRole === 'parent'}">Parent</span>
       </div>
+      <Notifications :type="`new`" v-if="this.$store.state.notification.newNotifications" />
       <div class="board__entities">
         <div v-for="(entity, key) in entities" class="board__entity">
           <h3 class="board__entity-title">{{ key }}

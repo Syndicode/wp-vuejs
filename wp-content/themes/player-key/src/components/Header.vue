@@ -45,8 +45,11 @@ export default {
                       :class="`header__cta`"/>
         </div>
         <div v-else-if="isLoaded && this.$store.state.authentication.isUserLoggedIn" class="header__actions">
-          <ButtonLink :href="{name: 'board'}" :button-title="`Board`"
-                      :button-style="`black`" :class="`header__cta`"/>
+          <div class="header__cta-holder">
+            <ButtonLink :href="{name: 'board'}" :button-title="`Board`"
+                        :button-style="`black`" :class="`header__cta`"/>
+            <span v-if="this.$store.state.notification.newNotifications" class="header__notifications-counter">{{ this.$store.state.notification.newNotifications }}</span>
+          </div>
           <button @click="this.logout" class="header__action-logout">Logout</button>
         </div>
       </div>
@@ -104,5 +107,26 @@ export default {
   border: none;
   border-bottom: 1px dashed var(--rich-black);
   cursor: pointer;
+}
+
+.header__cta-holder {
+  position: relative;
+}
+
+.header__notifications-counter {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: 900;
+  color: white;
+  background-color: red;
+  border-radius: 50%;
 }
 </style>

@@ -457,6 +457,9 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 						// Team coach
 						$coach = get_field( 'coach', $team_id );
 
+						player_key_add_notification( $coach->ID, 'coach', 'New Athlete (' . $data['firstName'] . ' ' . $data['lastName'] . ') was created', 'info' );
+
+
 						//Parent coaches (can be multiple)
 						$parent_coaches   = get_field( 'coaches', 'user_' . $user->ID, true );
 						$parent_coaches[] = $coach;

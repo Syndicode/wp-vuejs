@@ -6,9 +6,11 @@ import Parents from "../components/Parents.vue";
 import Board from "../components/Board.vue";
 import Payments from "../components/Payments.vue";
 import Loader from "../components/Loader.vue";
+import Notifications from "../components/Notifications.vue";
 
 export default {
   components: {
+    Notifications,
     Athletes,
     Board,
     BoardNavigation,
@@ -27,10 +29,12 @@ export default {
           'parents',
           'athletes',
           'payments',
+          'notifications'
         ],
         parent: [
           'athletes',
           'payments',
+          'notifications'
         ],
       },
       isLoaded: this.$store.state.authentication.isUserLoggedIn,
@@ -39,6 +43,18 @@ export default {
   mounted() {
     if (!this.$store.state.authentication.isUserLoggedIn) {
       this.$router.push({name: 'sign-in'});
+    } else {
+      this.$store.dispatch('getNotifications', {
+        token: this.$store.state.authentication.token,
+        currentRole: this.$store.state.authentication.currentRole,
+      });
+
+      setInterval(() => {
+        this.$store.dispatch('getNotifications', {
+          token: this.$store.state.authentication.token,
+          currentRole: this.$store.state.authentication.currentRole,
+        });
+      }, 5000);
     }
   },
 }
@@ -54,6 +70,7 @@ export default {
       <Athletes v-else-if="this.$route.params.entity === 'athletes'"/>
       <Parents v-else-if="this.$route.params.entity === 'parents'"/>
       <Payments v-else-if="this.$route.params.entity === 'payments'"/>
+      <Notifications :type='`all`' v-else-if="this.$route.params.entity === 'notifications'"/>
     </div>
     <Board v-else/>
   </div>

@@ -75,16 +75,18 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 			$user = get_user_by( 'ID', $user_id );
 
 			if ( $user !== false && ! is_wp_error( $user ) && user_can( $user_id, 'create_athlete' ) ) {
-				if ($data['cancellationToken'] === 'aB03Eckqbnwdfqwe233214mwAMomfMewe332') {
-					$payment_id    = $data['payment_id'];
+				if ( $data['cancellationToken'] === 'aB03Eckqbnwdfqwe233214mwAMomfMewe332' ) {
+					$payment_id = $data['payment_id'];
 
 					update_field( 'payment_status', 'canceled', $payment_id );
+					player_key_add_notification( $user_id, get_user_meta( $user_id, 'current-role', true ), 'Payment #' . $payment_id . ' canceled', 'notice' );
+
 
 					delete_post_meta( $payment_id, 'payment_token' );
 					delete_post_meta( $payment_id, 'token_timestamp' );
 				}
 
-				wp_send_json_error('');
+				wp_send_json_error( '' );
 			}
 		}
 	}
@@ -106,6 +108,7 @@ class PKI_REST_Payments_Controller extends WP_REST_Controller {
 
 					$athlete = get_field( 'athlete', $payment_id );
 					update_field( 'payment_status', 'paid', $athlete->ID );
+					player_key_add_notification( $user_id, get_user_meta( $user_id, 'current-role', true ), 'Payment #' . $payment_id . ' for ' . $athlete->post_title . ' successfully paid', 'info' );
 
 					delete_post_meta( $payment_id, 'payment_token' );
 					delete_post_meta( $payment_id, 'token_timestamp' );

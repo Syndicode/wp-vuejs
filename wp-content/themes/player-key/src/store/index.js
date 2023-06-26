@@ -2,6 +2,7 @@ import Vue from 'vue'
 import {createStore} from 'vuex'
 
 import authentication from './modules/authentication.js'
+import notification from './modules/notification.js'
 
 // Vue.use(Vuex)
 
@@ -10,6 +11,7 @@ export default createStore({
     mutations: {},
     actions: {},
     modules: {
-        authentication
+        authentication,
+        notification,
     }
 })

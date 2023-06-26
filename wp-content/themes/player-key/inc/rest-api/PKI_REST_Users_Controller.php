@@ -351,6 +351,8 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 					}
 				}
 				update_field( 'is_activated', 'expired', 'user_' . $data['id'] );
+				$coaches = get_field( 'coaches', $user->ID );
+				player_key_add_notification( $coaches[0]->ID, 'coach', 'Activation link for ' . $user->display_name . ' has expired!', 'notice' );
 				wp_send_json_error( 'Activation link has expired!' );
 			}
 			wp_send_json_error( 'Your account is already activated!' );
