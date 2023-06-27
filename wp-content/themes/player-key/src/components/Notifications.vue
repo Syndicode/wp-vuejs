@@ -1,11 +1,13 @@
 <script>
 import Heading from "./Heading.vue";
+import Loader from "./Loader.vue";
 
 export default {
   name: 'Notifications',
-  components: {Heading},
+  components: {Loader, Heading},
   data() {
     return {
+      isLoading: false,
       notifications: [],
     };
   },
@@ -24,31 +26,39 @@ export default {
   },
   methods: {
     async markAllRead() {
+      this.isLoading = true;
       this.$store.dispatch('markAllRead', {
         token: this.$store.state.authentication.token,
         currentRole: this.$store.state.authentication.currentRole,
+      }).then(() => {
+        this.isLoading = false;
       });
     },
     async removeAll() {
+      this.isLoading = true;
       this.$store.dispatch('removeAll', {
         token: this.$store.state.authentication.token,
         currentRole: this.$store.state.authentication.currentRole,
+      }).then(() => {
+        this.isLoading = false;
       });
     }
   },
   mounted() {
+    this.isLoading = true;
     this.$store.dispatch('getNotifications', {
       token: this.$store.state.authentication.token,
       currentRole: this.$store.state.authentication.currentRole,
-    }).then((response) => {
-      this.notifications = this.type === 'new' ? this.newNotifications : this.$store.state.notification.notifications;
-    });
+    }).then(() => {
+      this.isLoading = false;
+    })
   }
 }
 
 </script>
 
 <template>
+  <Loader :class="{active: isLoading}"/>
   <div class="notifications">
     <div class="wrapper notifications__wrapper" :class="`notifications__wrapper--${type}`">
       <Heading :level="type === 'new' ? 2 : 1" :align="type === 'new' ? 'left' : 'center'">
@@ -73,7 +83,7 @@ export default {
           </div>
         </li>
       </ul>
-      <p v-else class="notifications__note">There are no notifications</p>
+      <p v-else-if="isLoading === false" class="notifications__note">There are no notifications</p>
     </div>
   </div>
 </template>

@@ -324,6 +324,14 @@ export default {
         this.couponResponse.message = result.response.data.data;
         this.isSubmitting = false;
       });
+    },
+    viewAthlete(slug) {
+      this.$router.push({
+        name: 'athlete',
+        params: {
+          slug: slug,
+        },
+      })
     }
   },
   mounted() {
@@ -475,7 +483,7 @@ export default {
           <span class="entities__cell">Actions</span>
         </li>
         <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
-            class="entities__item entities__item--athlete">
+            class="entities__item entities__item--athlete" @click="viewAthlete(entity.slug)">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
           <span class="entities__cell">{{ entity.team.post_title }}</span>
@@ -486,9 +494,9 @@ export default {
                 :class="`entities__cell-status--${entity.payment_status}`">{{ entity.payment_status }}</span>
           <span class="entities__cell entities__cell--actions">
               <button v-if="entity.payment_status === 'unpaid' && entity.status === 'pending'" type="button"
-                      class="entities__action" @click="setupPayment(entity)">Pay</button>
-              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+                      class="entities__action" @click.stop="setupPayment(entity)">Pay</button>
+              <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>
+              <button type="button" class="entities__action" @click.stop="remove(entity.ID)">Remove</button>
             </span>
         </li>
       </ul>

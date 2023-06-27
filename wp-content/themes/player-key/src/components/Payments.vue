@@ -35,7 +35,7 @@ export default {
 </script>
 
 <template>
-  <Loader :class="{active: entities === null || isLoading}"/>
+  <Loader :class="{active: entities === null}"/>
   <Heading :level="1">Payments</Heading>
   <div class="entities">
     <div class="wrapper entities__wrapper">

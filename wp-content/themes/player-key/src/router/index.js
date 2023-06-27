@@ -109,7 +109,7 @@ const router = createRouter({
             name: 'athlete',
             component: AthleteView,
             meta: {
-                title: `Board - ${SITE_TITLE}`
+                title: `Athlete - ${SITE_TITLE}`
             },
         },
         {

@@ -379,6 +379,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				$user_data = $this->get_user_data( $user_id );
 
 				if ( ! empty( $user_data ) ) {
+					player_key_add_notification( $user_id, 'coach', 'Activation link for 11has expired!', 'notice' );
 					wp_send_json_success( $user_data );
 				}
 

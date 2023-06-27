@@ -37,6 +37,7 @@
 
 .entities__item--athlete {
     grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr 2fr;
+    cursor: pointer;
 }
 
 .entities__item--payment {
@@ -52,6 +53,8 @@
 }
 
 .entities__cell--actions {
+    position: relative;
+    z-index: 1;
     display: flex;
     justify-content: flex-end;
     column-gap: 12px;

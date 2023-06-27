@@ -48,6 +48,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
+		register_rest_route( $this->namespace, "/$this->rest_base/get-athlete-by-slug", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'get_athlete_by_slug' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/get-role-statistics", [
 			[
 				'methods'  => 'POST',
@@ -722,6 +730,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 					'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
 					'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),
 					'photo_file_name'       => get_post_meta( $athlete->ID, 'photo_filename', true ),
+					'slug'                  => $athlete->post_name,
 				];
 			}
 		}
@@ -750,7 +759,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		}
 	}
 
-	function get_athlete( WP_REST_Request $request ) {
+	function get_athlete_by_slug( WP_REST_Request $request ) {
 		$data    = json_decode( $request->get_body(), true );
 		$user_id = get_option( $data['token'] );
 
@@ -758,27 +767,69 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			$user = get_user_by( 'ID', $user_id );
 
 			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+				$athlete = get_posts( [
+					'numberposts' => 1,
+					'post_type'   => 'athlete',
+					'name'        => $data['slug'],
+					'meta_query'  => [
+						[
+							'key'   => get_user_meta( $user_id, 'current-role', true ),
+							'value' => $user_id
+						]
+					],
+				] );
+
+				if ( ! empty( $athlete ) ) {
+					wp_send_json_success( $this->get_athlete_data( $athlete[0] ) );
+				}
+
+				wp_send_json_error( 'Athlete not found or You are not allowed to view this Athlete!' );
+			}
+		}
+
+		wp_send_json_error( 'You are not allowed to view this page!' );
+	}
+
+	private function get_athlete_data( \WP_Post $athlete ) {
+		$parent = get_field( 'parent', $athlete->ID );
+		$coach  = get_field( 'coach', $athlete->ID );
+
+		return [
+			'ID'                    => $athlete->ID,
+			'first_name'            => get_field( 'first_name', $athlete->ID ),
+			'last_name'             => get_field( 'last_name', $athlete->ID ),
+			'birthday'              => get_field( 'birthday', $athlete->ID ),
+			'team'                  => get_field( 'team', $athlete->ID ),
+			'parent'                => $parent,
+			'coach'                 => $coach,
+			'parent_name'           => $parent->first_name . ' ' . $parent->last_name,
+			'coach_name'            => $coach->first_name . ' ' . $coach->last_name,
+			'parent_id'             => $parent->ID,
+			'coach_id'              => $coach->ID,
+			'status'                => get_field( 'status', $athlete->ID ),
+			'payment_status'        => get_field( 'payment_status', $athlete->ID ),
+			'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
+			'card_file'             => get_field( 'card', $athlete->ID ),
+			'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),
+			'certificate_file'      => get_field( 'certificate', $athlete->ID ),
+			'photo_file_name'       => get_post_meta( $athlete->ID, 'photo_filename', true ),
+			'slug'                  => $athlete->post_name,
+		];
+	}
+
+	function get_athlete( WP_REST_Request $request ) {
+		$data    = json_decode( $request->get_body(), true );
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( $user !== false && ! is_wp_error( $user ) && user_can( $user_id, 'create_athlete' ) ) {
 				$athlete_id = get_option( $data['athlete_token'] );
 				$athlete    = get_post( $athlete_id );
 
 				if ( $athlete && ! is_wp_error( $athlete ) ) {
-					$parent       = get_field( 'parent', $athlete->ID );
-					$athlete_data = [
-						'ID'                    => $athlete->ID,
-						'first_name'            => get_field( 'first_name', $athlete->ID ),
-						'last_name'             => get_field( 'last_name', $athlete->ID ),
-						'birthday'              => get_field( 'birthday', $athlete->ID ),
-						'team'                  => get_field( 'team', $athlete->ID ),
-						'parent'                => $parent,
-						'parent_name'           => $parent->first_name . ' ' . $parent->last_name,
-						'parent_id'             => $parent->ID,
-						'status'                => get_field( 'status', $athlete->ID ),
-						'payment_status'        => get_field( 'payment_status', $athlete->ID ),
-						'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
-						'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),
-						'photo_file_name'       => get_post_meta( $athlete->ID, 'photo_filename', true ),
-					];
-
+					$athlete_data = $this->get_athlete_data( $athlete );
 					delete_option( $data['athlete_token'] );
 					wp_send_json_success( $athlete_data );
 				}
