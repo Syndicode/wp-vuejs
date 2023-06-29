@@ -64,6 +64,32 @@ export default {
     }
   },
   methods: {
+    checkPasswords() {
+      if (this.form.password !== '') {
+        if (this.form.password !== this.form.passwordRepeat) {
+          this.errors.push('Passwords must match');
+          return false;
+        }
+
+        if (this.form.password.length < 7) {
+          this.errors.push('Password must consist of at least 7 characters');
+          return false;
+        }
+
+        if (this.form.password.length < 7) {
+          this.errors.push('Password must contain at least 7 characters');
+          return false;
+        }
+
+        const regExp = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{7,}$/;
+        if (!regExp.test(this.form.password)) {
+          this.errors.push('Password must contain symbol, upper and lower case letters and a number');
+          return false;
+        }
+      }
+
+      return true
+    },
     closeLayout() {
       this.isLayoutVisible = false;
       this.errors = [];
@@ -93,9 +119,9 @@ export default {
         }
       });
 
-      if (this.form.password !== '' && this.form.password !== this.form.passwordRepeat || (this.form.password === '' && this.form.passwordRepeat !== '')) {
-        isFiled = false;
-      }
+      // if (this.form.password !== '' && this.form.password !== this.form.passwordRepeat || (this.form.password === '' && this.form.passwordRepeat !== '')) {
+      //   isFiled = false;
+      // }
 
       if (this.form.multipleRoles && this.form.roles.length === 1) {
         isFiled = false;
@@ -108,21 +134,25 @@ export default {
       this.errors = [];
       this.messages = [];
 
-      await authApi.editUser({
-        token: this.$store.state.authentication.token,
-        currentRole: this.$store.state.authentication.currentRole,
-        form: this.form
-      }).then((response) => {
-        if (response.data.success) {
-          this.$store.commit('editUserSuccess', response.data.data)
-          this.messages.push('Your data has been updated successfully!');
-          this.isLayoutVisible = false;
-          this.fetchData();
-        } else {
-          this.errors.push(response.data.data)
-        }
+      if (this.checkPasswords()) {
+        await authApi.editUser({
+          token: this.$store.state.authentication.token,
+          currentRole: this.$store.state.authentication.currentRole,
+          form: this.form
+        }).then((response) => {
+          if (response.data.success) {
+            this.$store.commit('editUserSuccess', response.data.data)
+            this.messages.push('Your data has been updated successfully!');
+            this.isLayoutVisible = false;
+            this.fetchData();
+          } else {
+            this.errors.push(response.data.data)
+          }
+          this.isSubmitting = false;
+        });
+      } else {
         this.isSubmitting = false;
-      });
+      }
     },
     async fetchData() {
       await entitiesApi.getRoleStatistics({
