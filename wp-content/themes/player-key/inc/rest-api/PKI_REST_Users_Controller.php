@@ -415,6 +415,8 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				] );
 			} else if ( $user->roles[0] === 'admin' ) {
 				wp_send_json_error( 'Your account has not been activated yet. Please wait for the account to be activated. You will be notified about this to the email you specified.' );
+			} else if ($user->roles[0] === 'administrator') {
+				wp_send_json_error( 'Please use this <a href="/wp-admin/">link</a> to access the Admin panel' );
 			}
 		}
 
