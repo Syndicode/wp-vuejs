@@ -34,13 +34,37 @@ export default {
         if (this.isRequest) {
           this.isFormValid = this.form.login !== '';
         } else {
-          this.isFormValid = this.form.password === this.form.passwordRepeat && (this.form.password !== '' && this.form.passwordRepeat !== '');
+          this.isFormValid = (this.form.password !== '' && this.form.passwordRepeat !== '');
         }
       },
       deep: true
     }
   },
   methods: {
+    checkPasswords() {
+      if (this.form.password !== this.form.passwordRepeat) {
+        this.errors.push('Passwords must match');
+        return false;
+      }
+
+      if (this.form.password.length < 7) {
+        this.errors.push('Password must consist of at least 7 characters');
+        return false;
+      }
+
+      if (this.form.password.length < 7) {
+        this.errors.push('Password must contain at least 7 characters');
+        return false;
+      }
+
+      const regExp = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{7,}$/;
+      if (!regExp.test(this.form.password)) {
+        this.errors.push('Password must contain symbol, upper and lower case letters and a number');
+        return false;
+      }
+
+      return true
+    },
     async formSubmit() {
       this.errors = [];
       this.messages = [];
@@ -56,18 +80,20 @@ export default {
           }
         });
       } else {
-        await authApi.resetPassword({
-          login: this.$route.query.login,
-          token: this.$route.query.token,
-          password: this.form.password,
-          passwordRepeat: this.form.passwordRepeat,
-        }).then((response) => {
-          if (response.data.success) {
-            this.messages.push(response.data.data);
-          } else {
-            this.errors.push(response.data.data);
-          }
-        })
+        if (this.checkPasswords()) {
+          await authApi.resetPassword({
+            login: this.$route.query.login,
+            token: this.$route.query.token,
+            password: this.form.password,
+            passwordRepeat: this.form.passwordRepeat,
+          }).then((response) => {
+            if (response.data.success) {
+              this.messages.push(response.data.data);
+            } else {
+              this.errors.push(response.data.data);
+            }
+          });
+        }
       }
     }
   },

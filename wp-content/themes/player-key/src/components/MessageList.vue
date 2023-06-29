@@ -49,6 +49,10 @@ export default {
 }
 
 .message-list__item /deep/ a{
-  color: inherit
+  color: inherit!important;
+}
+
+.message-list__item :deep(a) {
+  color: inherit!important;
 }
 </style>
