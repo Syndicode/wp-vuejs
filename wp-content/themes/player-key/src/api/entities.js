@@ -43,6 +43,10 @@ const getRoleStatistics = (data) => {
     return axios.post(`${BASE_URL}/entities/get-role-statistics`, data)
 }
 
+const getTeamData = (data) => {
+    return axios.post(`${BASE_URL}/entities/get-team-data`, data)
+}
+
 const removeEntity = (data) => {
     return axios.post(`${BASE_URL}/entities/remove-${data.entityType}`, data)
 }
@@ -55,5 +59,6 @@ export default {
     getAthleteBySlug,
     getEntitles,
     getRoleStatistics,
+    getTeamData,
     removeEntity,
 }

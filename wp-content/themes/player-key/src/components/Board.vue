@@ -208,7 +208,8 @@ export default {
   <Loader :class="{active: entities === null || isLoading}"/>
   <div class="board">
     <div class="wrapper board__wrapper">
-      <ErrorList v-if="this.$store.state.authentication.validationErrors.length" :errors="this.$store.state.authentication.validationErrors"/>
+      <ErrorList v-if="this.$store.state.authentication.validationErrors.length"
+                 :errors="this.$store.state.authentication.validationErrors"/>
       <div class="entities__layout" :class="{active: isLayoutVisible}">
         <Loader :class="{active: isSubmitting}"/>
         <button class="entities__close-button" @click="closeLayout">
@@ -257,12 +258,16 @@ export default {
         <span class="board__role"
               :class="{active: this.$store.state.authentication.currentRole === 'parent'}">Parent</span>
       </div>
-      <Notifications :type="`new`" v-if="this.$store.state.notification.newNotifications" />
+      <Notifications :type="`new`" v-if="this.$store.state.notification.newNotifications"/>
       <div class="board__entities">
         <div v-for="(entity, key) in entities" class="board__entity">
-          <h3 class="board__entity-title">{{ key }}
-            <span>{{ key }}</span></h3>
-          <span class="board__entity-count">{{ entity }}</span>
+          <RouterLink :to="{name: 'board-entity', params: {
+            entity: key,
+        }}">
+            <h3 class="board__entity-title">{{ key }}
+              <span>{{ key }}</span></h3>
+            <span class="board__entity-count">{{ entity }}</span>
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -295,6 +300,16 @@ export default {
   border-radius: 20px;
   background-color: var(--fresh-lime);
   overflow: hidden;
+}
+
+.board__entity:deep(a) {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.4s ease;
+}
+
+.board__entity:deep(a):hover {
+  opacity: 0.7;
 }
 
 .board__entity-title {

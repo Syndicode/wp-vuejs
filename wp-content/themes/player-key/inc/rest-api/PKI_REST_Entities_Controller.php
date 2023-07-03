@@ -64,6 +64,14 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
+		register_rest_route( $this->namespace, "/$this->rest_base/get-team-data", [
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'get_team_data' ],
+
+			],
+		] );
+
 		register_rest_route( $this->namespace, "/$this->rest_base/create-team", [
 			[
 				'methods'  => 'POST',
@@ -135,6 +143,50 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 			],
 		] );
+	}
+
+	function get_team_data( WP_REST_Request $request ) {
+		$data    = $request->get_params();
+		$user_id = get_option( $data['token'] );
+
+		if ( ! empty( $user_id ) ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
+				$team = get_posts( [
+					'numberposts' => 1,
+					'post_type'   => 'team',
+					'name'        => $data['slug'],
+				] );
+
+				if ( ! empty( $team ) ) {
+					$team          = $team[0];
+					$athletes_data = [];
+					$athletes      = get_posts( [
+						'numberposts' => - 1,
+						'post_type'   => 'athlete',
+						'meta_query'  => [
+							[
+								'key'   => 'team',
+								'value' => $team->ID
+							],
+						],
+					] );
+
+					if ( ! empty( $athletes ) ) {
+						foreach ( $athletes as $athlete ) {
+							$athletes_data[] = $this->get_athlete_data( $athlete );
+						}
+					}
+
+					wp_send_json_success( [
+						'title'    => $team->post_title,
+						'athletes' => $athletes_data,
+						'slug'     => $team->post_name
+					] );
+				}
+			}
+		}
 	}
 
 	function edit_parent( WP_REST_Request $request ) {
@@ -653,6 +705,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				'ID'         => $team->ID,
 				'post_title' => $team->post_title,
 				'athletes'   => $athletes_count,
+				'slug'       => $team->post_name
 			];
 		}
 

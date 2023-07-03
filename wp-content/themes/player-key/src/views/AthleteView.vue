@@ -24,7 +24,7 @@ export default {
         unit: 'px',
         format: 'a4',
       });
-      doc.addImage("/wp-content/themes/player-key/dist/assets/images/logo-player-key.png", "JPEG", 140, 40, 187, 110);
+      doc.addImage("/wp-content/themes/player-key/src/assets/images/logo-player-key.png", "JPEG", 140, 40, 187, 110);
       const athleteHtmlContent = document.querySelector('.athlete__content').cloneNode(true);
       athleteHtmlContent.querySelector('.heading').children[0].style.marginRight = '20px';
       athleteHtmlContent.querySelector('.athlete__data-row--report-card').style.display = 'none';

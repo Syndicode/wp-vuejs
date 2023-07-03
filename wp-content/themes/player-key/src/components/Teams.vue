@@ -108,6 +108,15 @@ export default {
       this.isLayoutVisible = true;
       this.form.team = entity.post_title;
       this.editTeamId = entity.ID;
+    },
+    viewTeam(entity) {
+      console.log(entity.slug);
+      this.$router.push({
+        name: 'team',
+        params: {
+          slug: entity.slug
+        }
+      });
     }
   },
   mounted() {
@@ -155,13 +164,13 @@ export default {
           <span class="entities__cell">Athletes</span>
           <span class="entities__cell">Actions</span>
         </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">
+        <li v-for="(entity, index) in entities" :key="entity.ID" @click="viewTeam(entity)" class="entities__item entities__item--team">
           <span class="entities__cell">{{ index + 1 }}.</span>
           <span class="entities__cell">{{ entity.post_title }}</span>
           <span class="entities__cell">{{ entity.athletes }}</span>
           <span class="entities__cell entities__cell--actions">
-              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+              <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>
+              <button type="button" class="entities__action" @click.stop="remove(entity.ID)">Remove</button>
             </span>
         </li>
       </ul>

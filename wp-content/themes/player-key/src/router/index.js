@@ -9,6 +9,7 @@ import CompleteParentView from '../views/CompleteParentView.vue'
 import CompleteAthleteView from '../views/CompleteAthleteView.vue'
 import PasswordResetView from '../views/PasswordResetView.vue'
 import AthleteView from '../views/AthleteView.vue'
+import TeamView from '../views/TeamView.vue'
 import PageView from '../views/PageView.vue'
 import store from '../store/index.js'
 
@@ -113,6 +114,14 @@ const router = createRouter({
             },
         },
         {
+            path: '/team/:slug',
+            name: 'team',
+            component: TeamView,
+            meta: {
+                title: `Team - ${SITE_TITLE}`
+            },
+        },
+        {
             path: '/:slug',
             component: PageView,
         },
@@ -124,6 +133,9 @@ router.beforeEach(async (to, from) => {
         await store.dispatch('check', localStorage.getItem('pki-auth')).then(() => {
             return store.state.authentication.isUserLoggedIn;
         });
+    }
+    if ((to.name === 'sign-in' || to.name === 'sign-up') && store.state.authentication.isUserLoggedIn) {
+        router.push({name: 'board'});
     }
 })
 
