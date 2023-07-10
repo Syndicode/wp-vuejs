@@ -39,6 +39,7 @@ export default {
         :id="inputId"
         class="hide-file-input"
         type="file"
+        capture="user"
         accept="image/jpeg, image/png, application/pdf"
         @change="onFileChange"
     />

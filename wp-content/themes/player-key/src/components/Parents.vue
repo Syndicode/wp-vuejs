@@ -178,32 +178,34 @@ export default {
           Add Parent
         </button>
       </div>
-      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
-        <li class="entities__item entities__item--parent">
-          <span class="entities__cell">#</span>
-          <span class="entities__cell">Name</span>
-          <span class="entities__cell">Athletes</span>
-          <span class="entities__cell">Is Activated</span>
-          <span class="entities__cell">Actions</span>
-        </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
-          <span class="entities__cell">{{ index + 1 }}.</span>
-          <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
-          <span class="entities__cell">{{ entity.athletes }}</span>
-          <div class="entities__cell">
-            <span v-if="entity.is_activated === 'yes'" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
-            <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
-                  class="entities__cell-indicator entities__cell-indicator--false">No</span>
-            <span v-else-if="entity.is_activated === 'expired'"
-                  class="entities__cell-indicator entities__cell-indicator--expired">Expired</span>
-          </div>
-          <div class="entities__cell entities__cell--actions">
-            <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-            <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
-            <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button" class="entities__action" @click="resend(entity.ID)">Resend activation Link</button>
-          </div>
-        </li>
-      </ul>
+      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+        <ul class="entities__list">
+          <li class="entities__item entities__item--parent">
+            <span class="entities__cell">#</span>
+            <span class="entities__cell">Name</span>
+            <span class="entities__cell">Athletes</span>
+            <span class="entities__cell">Is Activated</span>
+            <span class="entities__cell">Actions</span>
+          </li>
+          <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
+            <span class="entities__cell">{{ index + 1 }}.</span>
+            <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
+            <span class="entities__cell">{{ entity.athletes }}</span>
+            <div class="entities__cell">
+              <span v-if="entity.is_activated === 'yes'" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
+              <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
+                    class="entities__cell-indicator entities__cell-indicator--false">No</span>
+              <span v-else-if="entity.is_activated === 'expired'"
+                    class="entities__cell-indicator entities__cell-indicator--expired">Expired</span>
+            </div>
+            <div class="entities__cell entities__cell--actions">
+              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
+              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+              <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button" class="entities__action" @click="resend(entity.ID)">Resend activation Link</button>
+            </div>
+          </li>
+        </ul>
+      </div>
       <p v-else-if="entities !== null && entities.length === 0">You don't have associated parents yet</p>
     </div>
   </div>

@@ -284,16 +284,11 @@ export default {
   font-weight: 900;
 }
 
-.board__entities {
-  display: flex;
-  column-gap: 60px;
-  justify-content: center;
-}
-
 .board__entity {
   flex-shrink: 1;
   position: relative;
   width: 200px;
+  margin: 0 auto 28px;
   height: 300px;
   padding: 24px 20px;
   box-sizing: border-box;
@@ -403,5 +398,17 @@ export default {
 
 .board__role.active {
   color: #fff;
+}
+
+@media (min-width: 1024px) {
+  .board__entities {
+    display: flex;
+    column-gap: 60px;
+    justify-content: center;
+  }
+
+  .board__entity {
+    margin: 0;
+  }
 }
 </style>

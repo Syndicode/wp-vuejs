@@ -35,7 +35,7 @@ export default {
   margin-bottom: 0;
 }
 
-.error-list__item /deep/ a {
+.error-list__item:deep(a) {
   color: #770000 !important;
 }
 </style>

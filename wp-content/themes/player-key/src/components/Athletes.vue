@@ -472,34 +472,36 @@ export default {
           Add Athlete
         </button>
       </div>
-      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
-        <li class="entities__item entities__item--athlete">
-          <span class="entities__cell">#</span>
-          <span class="entities__cell">Athlete</span>
-          <span class="entities__cell">Team</span>
-          <span class="entities__cell">Parent</span>
-          <span class="entities__cell entities__cell--status">Verified Status</span>
-          <span class="entities__cell entities__cell--status">Payment status</span>
-          <span class="entities__cell">Actions</span>
-        </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
-            class="entities__item entities__item--athlete" @click="viewAthlete(entity.slug)">
-          <span class="entities__cell">{{ index + 1 }}.</span>
-          <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
-          <span class="entities__cell">{{ entity.team.post_title }}</span>
-          <span class="entities__cell">{{ entity.parent_name }}</span>
-          <span class="entities__cell entities__cell-status"
-                :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
-          <span class="entities__cell entities__cell-status"
-                :class="`entities__cell-status--${entity.payment_status}`">{{ entity.payment_status }}</span>
-          <span class="entities__cell entities__cell--actions">
+      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+        <ul class="entities__list">
+          <li class="entities__item entities__item--athlete">
+            <span class="entities__cell">#</span>
+            <span class="entities__cell">Athlete</span>
+            <span class="entities__cell">Team</span>
+            <span class="entities__cell">Parent</span>
+            <span class="entities__cell entities__cell--status">Verified Status</span>
+            <span class="entities__cell entities__cell--status">Payment status</span>
+            <span class="entities__cell">Actions</span>
+          </li>
+          <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
+              class="entities__item entities__item--athlete" @click="viewAthlete(entity.slug)">
+            <span class="entities__cell">{{ index + 1 }}.</span>
+            <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
+            <span class="entities__cell">{{ entity.team.post_title }}</span>
+            <span class="entities__cell">{{ entity.parent_name }}</span>
+            <span class="entities__cell entities__cell-status"
+                  :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
+            <span class="entities__cell entities__cell-status"
+                  :class="`entities__cell-status--${entity.payment_status}`">{{ entity.payment_status }}</span>
+            <span class="entities__cell entities__cell--actions">
               <button v-if="entity.payment_status === 'unpaid' && entity.status === 'pending'" type="button"
                       class="entities__action" @click.stop="setupPayment(entity)">Pay</button>
               <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click.stop="remove(entity.ID)">Remove</button>
             </span>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
       <p v-else-if="entities !== null && entities.length === 0">You don't have associated athletes yet</p>
     </div>
   </div>

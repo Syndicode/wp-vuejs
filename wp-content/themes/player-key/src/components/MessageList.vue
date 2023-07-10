@@ -48,11 +48,7 @@ export default {
   margin-bottom: 0;
 }
 
-.message-list__item /deep/ a{
-  color: inherit!important;
-}
-
-.message-list__item :deep(a) {
+.message-list__item:deep(a) {
   color: inherit!important;
 }
 </style>

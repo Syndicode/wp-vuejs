@@ -157,23 +157,25 @@ export default {
           Create team
         </button>
       </div>
-      <ul v-if="entities !== null && entities.length > 0" class="entities__list">
-        <li class="entities__item entities__item--team">
-          <span class="entities__cell">#</span>
-          <span class="entities__cell">Team</span>
-          <span class="entities__cell">Athletes</span>
-          <span class="entities__cell">Actions</span>
-        </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" @click="viewTeam(entity)" class="entities__item entities__item--team">
-          <span class="entities__cell">{{ index + 1 }}.</span>
-          <span class="entities__cell">{{ entity.post_title }}</span>
-          <span class="entities__cell">{{ entity.athletes }}</span>
-          <span class="entities__cell entities__cell--actions">
+      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+        <ul class="entities__list">
+          <li class="entities__item entities__item--team">
+            <span class="entities__cell">#</span>
+            <span class="entities__cell">Team</span>
+            <span class="entities__cell">Athletes</span>
+            <span class="entities__cell">Actions</span>
+          </li>
+          <li v-for="(entity, index) in entities" :key="entity.ID" @click="viewTeam(entity)" class="entities__item entities__item--team">
+            <span class="entities__cell">{{ index + 1 }}.</span>
+            <span class="entities__cell">{{ entity.post_title }}</span>
+            <span class="entities__cell">{{ entity.athletes }}</span>
+            <span class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click.stop="remove(entity.ID)">Remove</button>
             </span>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
       <p v-else-if="entities !== null && entities.length === 0">You haven't created any teams yet</p>
     </div>
   </div>

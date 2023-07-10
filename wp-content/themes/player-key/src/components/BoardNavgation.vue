@@ -29,7 +29,7 @@ export default {
 <style scoped>
 .board-navigation {
   position: relative;
-  top: -100px;
+  top: -60px;
   background-color: var(--rich-black);
 }
 
@@ -40,10 +40,7 @@ export default {
 }
 
 .board-navigation__user {
-  position: relative;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--white);
+  display: none;
 }
 
 .board-navigation__user-role {
@@ -60,7 +57,7 @@ export default {
   list-style-type: none;
   display: flex;
   justify-content: flex-end;
-  column-gap: 20px;
+  column-gap: 16px;
   margin: 0;
   padding: 12px 0;
 }
@@ -69,11 +66,33 @@ export default {
   color: var(--white);
   text-decoration: none;
   text-transform: uppercase;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 300;
 }
 
 .board-navigation__link.router-link-active {
   font-weight: 700;
+}
+
+@media (min-width: 1024px) {
+  .board-navigation {
+    top: -100px;
+  }
+
+  .board-navigation__user {
+    position: relative;
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .board-navigation__list {
+    column-gap: 20px;
+  }
+
+  .board-navigation__link {
+    font-size: 16px;
+  }
 }
 </style>
