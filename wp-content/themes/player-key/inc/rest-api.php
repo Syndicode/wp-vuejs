@@ -1,6 +1,7 @@
 <?php
 require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Entities_Controller.php';
 require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Notifications_Controller.php';
+require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Parents_Controller.php';
 require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Payments_Controller.php';
 require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Teams_Controller.php';
 require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Users_Controller.php';
@@ -8,6 +9,7 @@ require_once TEMPLATE_DIR . '/inc/rest-api/PKI_REST_Wordpress_Controller.php';
 
 use api\PKI_REST_Entities_Controller;
 use api\PKI_REST_Notifications_Controller;
+use api\PKI_REST_Parents_Controller;
 use api\PKI_REST_Payments_Controller;
 use api\PKI_REST_Teams_Controller;
 use api\PKI_REST_Users_Controller;
@@ -22,6 +24,9 @@ function player_key_register_custom_rest_routes(): void {
 
 	$notification_controller = new PKI_REST_Notifications_Controller();
 	$notification_controller->register_routes();
+
+	$parents_controller = new PKI_REST_Parents_Controller();
+	$parents_controller->register_routes();
 
 	$payments_controller = new PKI_REST_Payments_Controller();
 	$payments_controller->register_routes();

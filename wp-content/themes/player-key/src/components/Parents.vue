@@ -1,7 +1,7 @@
 <script>
 import Heading from "./Heading.vue";
 import FormItemText from "./FormItemText.vue";
-import entitiesApi from "../api/entities.js";
+import parentsApi from "../api/parents.js";
 import authApi from "../api/authentication.js";
 import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
@@ -41,19 +41,25 @@ export default {
     }
   },
   methods: {
-    async resend(id) {
-      await authApi.resendActivationLink({
-        token: this.$store.state.authentication.token,
-        parentId: id,
-      }).then((response) => {
-        if (response.data.success) {
-          console.log('yes');
-        }
-      })
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form = {
+        firstName: '',
+        lastName: '',
+        email: '',
+      };
+    },
+    edit(entity) {
+      this.action = 'Edit';
+      this.isLayoutVisible = true;
+      this.form.firstName = entity.first_name;
+      this.form.lastName = entity.last_name;
+      this.form.email = entity.email;
+      this.editParentId = entity.ID;
+      this.isFormValid = true;
     },
     async fetchData() {
-      await entitiesApi.getEntitles({
-        entityType: 'parents',
+      await parentsApi.getParents({
         token: this.$store.state.authentication.token,
       }).then((response) => {
         if (response.data.success) {
@@ -62,6 +68,31 @@ export default {
           this.entities = [];
         }
       });
+    },
+    async formSubmit() {
+      this.isSubmitting = true;
+      if (this.action === 'Add') {
+        await parentsApi.createParent({
+          token: this.$store.state.authentication.token,
+          form: this.form,
+        }).then(this.onFormSubmit);
+      } else if (this.action === 'Edit') {
+        await parentsApi.editParent({
+          token: this.$store.state.authentication.token,
+          parentId: this.editParentId,
+          form: this.form,
+        }).then(this.onFormSubmit);
+      }
+    },
+    isRequiredFieldsFiled() {
+      let isFiled = true;
+      for (let field in this.form) {
+        if (this.form[field] === '') {
+          isFiled = false;
+        }
+      }
+
+      return isFiled;
     },
     onFormSubmit(response) {
       if (response.data.success) {
@@ -78,36 +109,19 @@ export default {
       }
       this.isSubmitting = false;
     },
-    async formSubmit() {
-      this.isSubmitting = true;
-      if (this.action === 'Add') {
-        await entitiesApi.createEntity({
-          entityType: 'parent',
-          token: this.$store.state.authentication.token,
-          form: this.form,
-        }).then(this.onFormSubmit);
-      } else if (this.action === 'Edit') {
-        await entitiesApi.editEntity({
-          entityType: 'parent',
-          token: this.$store.state.authentication.token,
-          parentId: this.editParentId,
-          form: this.form,
-        }).then(this.onFormSubmit);
-      }
-    },
-    edit(entity) {
-      this.action = 'Edit';
-      this.isLayoutVisible = true;
-      this.form.firstName = entity.first_name;
-      this.form.lastName = entity.last_name;
-      this.form.email = entity.email;
-      this.editParentId = entity.ID;
-      this.isFormValid = true;
+    async resend(id) {
+      await authApi.resendActivationLink({
+        token: this.$store.state.authentication.token,
+        parentId: id,
+      }).then((response) => {
+        if (response.data.success) {
+          console.log('yes');
+        }
+      })
     },
     async remove(id) {
       this.isLoading = true;
-      await entitiesApi.removeEntity({
-        entityType: 'parent',
+      await parentsApi.removeParent({
         token: this.$store.state.authentication.token,
         parentId: id,
       }).then((response) => {
@@ -116,24 +130,6 @@ export default {
         }
         this.isLoading = false;
       });
-    },
-    isRequiredFieldsFiled() {
-      let isFiled = true;
-      for (let field in this.form) {
-        if (this.form[field] === '') {
-          isFiled = false;
-        }
-      }
-
-      return isFiled;
-    },
-    closeLayout() {
-      this.isLayoutVisible = false;
-      this.form = {
-        firstName: '',
-        lastName: '',
-        email: '',
-      };
     }
   },
   mounted() {
@@ -192,7 +188,8 @@ export default {
             <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
             <span class="entities__cell">{{ entity.athletes }}</span>
             <div class="entities__cell">
-              <span v-if="entity.is_activated === 'yes'" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
+              <span v-if="entity.is_activated === 'yes'"
+                    class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
               <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
                     class="entities__cell-indicator entities__cell-indicator--false">No</span>
               <span v-else-if="entity.is_activated === 'expired'"
@@ -201,7 +198,9 @@ export default {
             <div class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
               <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
-              <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button" class="entities__action" @click="resend(entity.ID)">Resend activation Link</button>
+              <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button"
+                      class="entities__action" @click="resend(entity.ID)">Resend activation Link
+              </button>
             </div>
           </li>
         </ul>

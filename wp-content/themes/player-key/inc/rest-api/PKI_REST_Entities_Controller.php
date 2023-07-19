@@ -16,14 +16,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 	public function register_routes(): void {
 
-		register_rest_route( $this->namespace, "/$this->rest_base/parents", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'get_parents' ],
-
-			],
-		] );
-
 		register_rest_route( $this->namespace, "/$this->rest_base/athletes", [
 			[
 				'methods'  => 'POST',
@@ -56,15 +48,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
-
-		register_rest_route( $this->namespace, "/$this->rest_base/create-parent", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'create_parent' ],
-
-			],
-		] );
-
 		register_rest_route( $this->namespace, "/$this->rest_base/create-athlete", [
 			[
 				'methods'  => 'POST',
@@ -73,26 +56,10 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/remove-parent", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'remove_parent' ],
-
-			],
-		] );
-
 		register_rest_route( $this->namespace, "/$this->rest_base/remove-athlete", [
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'remove_athlete' ],
-
-			],
-		] );
-
-		register_rest_route( $this->namespace, "/$this->rest_base/edit-parent", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'edit_parent' ],
 
 			],
 		] );
@@ -106,34 +73,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		] );
 	}
 
-	function edit_parent( WP_REST_Request $request ) {
-		$data     = json_decode( $request->get_body(), true );
-		$coach_id = get_option( $data['token'] );
-
-		if ( ! empty( $coach_id ) ) {
-			$coach = get_user_by( 'ID', $coach_id );
-
-			if ( ! is_wp_error( $coach ) && $coach !== false && user_can( $coach_id, 'create_team' ) ) {
-
-				$parent_id = wp_update_user( [
-					'ID'         => $data['parentId'],
-					'user_email' => $data['form']['email'],
-					'first_name' => $data['form']['firstName'],
-					'last_name'  => $data['form']['lastName'],
-				] );
-
-				if ( ! is_wp_error( $parent_id ) ) {
-					$parents = $this->get_parents_list( $coach_id );
-
-					if ( ! empty( $parents ) ) {
-						wp_send_json_success( $parents );
-					}
-				}
-
-				wp_send_json_error( $parent_id->get_error_message() );
-			}
-		}
-	}
 
 	function edit_athlete( WP_REST_Request $request ) {
 		$data    = $request->get_params();
@@ -195,55 +134,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		wp_send_json_error();
 	}
 
-	function remove_parent( WP_REST_Request $request ) {
-		$data      = json_decode( $request->get_body(), true );
-		$coach_id  = get_option( $data['token'] );
-		$parent_id = $data['parentId'];
-
-		if ( ! empty( $coach_id ) ) {
-			$coach = get_user_by( 'ID', $coach_id );
-
-			if ( ! is_wp_error( $coach ) && $coach !== false && user_can( $coach_id, 'create_team' ) ) {
-
-				$parent_coaches = get_field( 'coaches', 'user_' . $parent_id );
-				$parent_coaches = array_map( function ( $coach ) {
-					return $coach->ID;
-				}, $parent_coaches );
-
-				if ( in_array( $coach_id, $parent_coaches ) ) {
-
-					$athletes = get_posts( [
-						'numberposts' => - 1,
-						'post_type'   => 'athlete',
-						'meta_query'  => [
-							'relation' => 'AND',
-							[
-								'key'   => 'coach',
-								'value' => $coach_id,
-							],
-							[
-								'key'   => 'parent',
-								'value' => $parent_id,
-							]
-						]
-					] );
-
-					if ( ! empty( $athletes ) ) {
-						foreach ( $athletes as $athlete ) {
-							wp_delete_post( $athlete->ID );
-						}
-					}
-
-					$key = array_search( $coach_id, $parent_coaches );
-					unset( $parent_coaches[ $key ] );
-					update_field( 'coaches', $parent_coaches, 'user_' . $parent_id );
-					wp_send_json_success();
-				}
-			}
-		}
-		wp_send_json_error();
-	}
-
 	function remove_athlete( WP_REST_Request $request ) {
 		$data    = json_decode( $request->get_body(), true );
 		$user_id = get_option( $data['token'] );
@@ -267,56 +157,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			}
 		}
 		wp_send_json_error();
-	}
-
-	function create_parent( WP_REST_Request $request ) {
-		$data     = json_decode( $request->get_body(), true );
-		$coach_id = get_option( $data['token'] );
-
-		if ( ! empty( $coach_id ) ) {
-			$coach = get_user_by( 'ID', $coach_id );
-
-			if ( ! is_wp_error( $coach ) && $coach !== false && user_can( $coach_id, 'create_team' ) ) {
-
-				$parent_id = wp_insert_user( [
-					'user_login' => $data['form']['email'],
-					'user_pass'  => wp_generate_password(),
-					'user_email' => $data['form']['email'],
-					'first_name' => $data['form']['firstName'],
-					'last_name'  => $data['form']['lastName'],
-					'role'       => 'parent',
-				] );
-
-				if ( ! is_wp_error( $parent_id ) ) {
-					add_user_meta( $parent_id, 'initial_coach', $coach_id );
-					update_field( 'coaches', [ $coach_id ], 'user_' . $parent_id );
-					update_field( 'is_activated', 'no', 'user_' . $parent_id );
-
-					$activation_token = wp_hash( $parent_id . $data['form']['firstName'] . $data['form']['lastName'] . $data['form']['email'] );
-					$url              = get_site_url() . '/complete/parent/' . '?id=' . $parent_id . '&token=' . $activation_token;
-					$message          = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/complete-parent-information.php' );
-					$message          = str_replace( [ '{{url}}', '{{coach}}' ], [
-						$url,
-						$coach->first_name . ' ' . $coach->last_name
-					], $message );
-
-					wp_mail( $data['form']['email'], 'Activate your account on PlayerKey ID', $message, [
-						'content-type: text/html',
-					] );
-
-					add_user_meta( $parent_id, 'activation_token', $activation_token, true );
-					add_option( $activation_token, time() );
-
-					$parents = $this->get_parents_list( $coach_id );
-
-					if ( ! empty( $parents ) ) {
-						wp_send_json_success( $parents );
-					}
-				}
-
-				wp_send_json_error( $parent_id->get_error_message() );
-			}
-		}
 	}
 
 	function create_athlete( WP_REST_Request $request ) {
@@ -412,91 +252,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		}
 	}
 
-	function get_parents( WP_REST_Request $request ) {
-		$data     = json_decode( $request->get_body(), true );
-		$coach_id = get_option( $data['token'] );
-
-		if ( ! empty( $coach_id ) ) {
-			$coach = get_user_by( 'ID', $coach_id );
-
-			if ( ! is_wp_error( $coach ) && $coach !== false && user_can( $coach_id, 'create_team' ) ) {
-
-				$parents = $this->get_parents_list( $coach_id );
-
-				if ( ! empty( $parents ) ) {
-					wp_send_json_success( $parents );
-				}
-
-				wp_send_json_error( 'Parents not found' );
-			}
-
-			wp_send_json_error( 'There are not enough permissions to perform this action' );
-		}
-	}
-
-	/**
-	 * @param int $coach_id
-	 *
-	 * @return array
-	 */
-	private function get_parents_list( int $coach_id ): array {
-		$parents_data = [];
-		$parents      = get_users( [
-			'role'       => 'parent',
-			'orderby'    => 'display_name',
-			'meta_query' => [
-				[
-					'key'     => 'coaches',
-					'value'   => $coach_id,
-					'compare' => 'LIKE'
-				]
-			],
-		] );
-
-		if ( ! empty( $parents ) ) {
-			foreach ( $parents as $parent ) {
-				if ( $parent->ID !== $coach_id ) {
-					$is_activated = get_field( 'is_activated', 'user_' . $parent->ID );
-					if ( $is_activated === 'no' ) {
-						$activation_token = get_user_meta( $parent->ID, 'activation_token', true );
-
-						if ( ! empty( $activation_token ) && time() - (int) get_option( $activation_token, true ) > self::DAY_IN_SECONDS ) {
-							$is_activated = 'expired';
-							update_field( 'is_activated', $is_activated, 'user_' . $parent->ID );
-						}
-					}
-
-					$athletes = get_posts( [
-						'numberposts' => - 1,
-						'post_type'   => 'athlete',
-						'meta_query'  => [
-							'relation' => 'AND',
-							[
-								'key'   => 'coach',
-								'value' => $coach_id,
-							],
-							[
-								'key'   => 'parent',
-								'value' => $parent->ID,
-							]
-						]
-					] );
-
-					$parents_data[] = [
-						'ID'           => $parent->ID,
-						'first_name'   => $parent->first_name,
-						'last_name'    => $parent->last_name,
-						'email'        => $parent->user_email,
-						'login'        => $parent->user_login,
-						'is_activated' => $is_activated,
-						'athletes'     => count( $athletes ),
-					];
-				}
-			}
-		}
-
-		return $parents_data;
-	}
 
 	/**
 	 * @param string $role
