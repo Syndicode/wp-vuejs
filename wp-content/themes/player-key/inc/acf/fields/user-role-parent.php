@@ -12,21 +12,24 @@ function acf_add_user_role_parent_fields(): void {
 		'role'          => 'coach',
 		'return_format' => 'object',
 		'multiple'      => 1,
-		'allow_null' => 0,
+		'allow_null'    => 0,
 	] );
 
-	$fields
-		->addSelect( 'is_activated', [
-			'label'         => __( 'Is account activated?', 'player-key' ),
-			'required'      => 0,
-			'choices'       => [
-				'yes'     => __( 'Yes', 'player-key' ),
-				'no'      => __( 'No', 'player-key' ),
-				'expired' => __( 'Expired', 'player-key' ),
-			],
-			'default_value' => [ 'no' ],
-			'allow_null'    => 0,
-		] );
+	$fields->addSelect( 'is_activated', [
+		'label'         => __( 'Is account activated?', 'player-key' ),
+		'required'      => 0,
+		'choices'       => [
+			'yes'     => __( 'Yes', 'player-key' ),
+			'no'      => __( 'No', 'player-key' ),
+			'expired' => __( 'Expired', 'player-key' ),
+		],
+		'default_value' => [ 'no' ],
+		'allow_null'    => 0,
+	] );
+
+	$fields->addUrl( 'social_link', [
+		'label' => __( 'Social link', 'player-key' ),
+	] );
 
 	$fields->setLocation( 'user_role', '==', 'parent' );
 

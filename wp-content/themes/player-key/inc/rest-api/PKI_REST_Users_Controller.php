@@ -4,6 +4,7 @@ namespace api;
 
 use WP_REST_Controller;
 use WP_REST_Request;
+use api\PKI_REST_Parents_Controller;
 
 class PKI_REST_Users_Controller extends WP_REST_Controller {
 
@@ -283,7 +284,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				$token  = wp_hash( $parent->ID . $parent->first_name . $parent->last_name . $parent->user_email );
 
 				$url     = get_site_url() . '/complete/parent/' . '?id=' . $parent->ID . '&token=' . $token;
-				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/parent-activation-email.php' );
+				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/complete-parent-information.php' );
 				$message = str_replace( [
 					'{{url}}',
 					'{{coach}}'
@@ -297,9 +298,10 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				] );
 
 				if ( $is_mail_sent ) {
-					add_user_meta( $parent->ID, 'activation_token', $token, true );
-					add_option( $token, time() );
-					wp_send_json_success();
+					update_user_meta( $parent->ID, 'activation_token', $token, true );
+					update_option( $token, time() );
+					update_field( 'is_activated', 'no', 'user_' . $parent->ID );
+					wp_send_json_success( PKI_REST_Parents_Controller::get_parents_list_by_coach( $user->ID ) );
 				}
 			}
 		}

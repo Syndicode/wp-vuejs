@@ -140,6 +140,7 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 			add_user_meta( $parent_id, 'initial_coach', $user->ID );
 			update_field( 'coaches', [ $user->ID ], 'user_' . $parent_id );
 			update_field( 'is_activated', 'no', 'user_' . $parent_id );
+			update_field( 'social_link', $data['form']['socialLink'], 'user_' . $parent_id );
 
 			$activation_token = wp_hash( $parent_id . $data['form']['firstName'] . $data['form']['lastName'] . $data['form']['email'] );
 			$url              = get_site_url() . '/complete/parent/' . '?id=' . $parent_id . '&token=' . $activation_token;
@@ -156,7 +157,7 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 			add_user_meta( $parent_id, 'activation_token', $activation_token, true );
 			add_option( $activation_token, time() );
 
-			wp_send_json_success( $this->get_parents_list_by_coach( $user->ID ) );
+			wp_send_json_success( self::get_parents_list_by_coach( $user->ID ) );
 		}
 
 		wp_send_json_error( $parent_id->get_error_message() );
@@ -184,7 +185,9 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 		] );
 
 		if ( ! is_wp_error( $parent_id ) ) {
-			wp_send_json_success( $this->get_parents_list_by_coach( $user->ID ) );
+			update_field( 'social_link', $data['form']['socialLink'], 'user_' . $parent_id );
+
+			wp_send_json_success( self::get_parents_list_by_coach( $user->ID ) );
 		}
 
 		wp_send_json_error( $parent_id->get_error_message() );
@@ -200,7 +203,7 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
-		wp_send_json_success( $this->get_parents_list_by_coach( $user->ID ) );
+		wp_send_json_success( self::get_parents_list_by_coach( $user->ID ) );
 	}
 
 	/**
@@ -208,7 +211,7 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 	 *
 	 * @return array
 	 */
-	private function get_parents_list_by_coach( int $coach_id ): array {
+	public static function get_parents_list_by_coach( int $coach_id ): array {
 		$parents_data = [];
 		$parents      = get_users( [
 			'role'       => 'parent',
@@ -232,6 +235,8 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 						if ( ! empty( $activation_token ) && time() - (int) get_option( $activation_token, true ) > self::DAY_IN_SECONDS ) {
 							$is_activated = 'expired';
 							update_field( 'is_activated', $is_activated, 'user_' . $parent->ID );
+							delete_user_meta( $parent->ID, 'activation_token' );
+							delete_option( $activation_token );
 						}
 					}
 
@@ -259,6 +264,7 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 						'login'        => $parent->user_login,
 						'is_activated' => $is_activated,
 						'athletes'     => count( $athletes ),
+						'social_link'  => get_field( 'social_link', 'user_' . $parent->ID ),
 					];
 				}
 			}

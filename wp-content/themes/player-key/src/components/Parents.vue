@@ -5,10 +5,12 @@ import parentsApi from "../api/parents.js";
 import authApi from "../api/authentication.js";
 import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
+import MessageList from "./MessageList.vue";
 
 export default {
   name: 'Parents',
   components: {
+    MessageList,
     Loader,
     ErrorList,
     FormItemText,
@@ -24,11 +26,13 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
+        socialLink: '',
       },
       isLoading: false,
       isLayoutVisible: false,
       isSubmitting: false,
       isFormValid: false,
+      messages: [],
     };
   },
   watch: {
@@ -47,6 +51,7 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
+        socialLink: '',
       };
     },
     edit(entity) {
@@ -55,6 +60,7 @@ export default {
       this.form.firstName = entity.first_name;
       this.form.lastName = entity.last_name;
       this.form.email = entity.email;
+      this.form.socialLink = entity.social_link;
       this.editParentId = entity.ID;
       this.isFormValid = true;
     },
@@ -85,8 +91,14 @@ export default {
       }
     },
     isRequiredFieldsFiled() {
+      const formRequiredFields = {
+        firstName: '',
+        lastName: '',
+        email: '',
+      };
+
       let isFiled = true;
-      for (let field in this.form) {
+      for (let field in formRequiredFields) {
         if (this.form[field] === '') {
           isFiled = false;
         }
@@ -101,6 +113,7 @@ export default {
           firstName: '',
           lastName: '',
           email: '',
+          socialLink: '',
         }
         this.isLayoutVisible = false;
         this.isFormValid = false;
@@ -110,14 +123,20 @@ export default {
       this.isSubmitting = false;
     },
     async resend(id) {
+      this.isLoading = true;
       await authApi.resendActivationLink({
         token: this.$store.state.authentication.token,
         parentId: id,
       }).then((response) => {
         if (response.data.success) {
-          console.log('yes');
+          this.messages.push('The link to activate the account has been successfully sent.');
+          this.entities = response.data.data;
+          setTimeout(() => {
+            this.messages = [];
+          }, 10000);
         }
-      })
+        this.isLoading = false;
+      });
     },
     async remove(id) {
       this.isLoading = true;
@@ -160,6 +179,8 @@ export default {
                         v-model="form.lastName"/>
           <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                         v-model="form.email"/>
+          <FormItemText :name="`social-link`" :label="`Social link`" :input-type="`text`" :is-required="false"
+                        v-model="form.socialLink"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -169,6 +190,7 @@ export default {
       </div>
     </div>
     <div class="wrapper entities__wrapper">
+      <MessageList v-if="messages.length" :messages="messages" :type="`success`"/>
       <div class="entities__actions">
         <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Add'">
           Add Parent
