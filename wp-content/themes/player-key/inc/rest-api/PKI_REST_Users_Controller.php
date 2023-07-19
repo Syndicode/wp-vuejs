@@ -364,6 +364,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 	function logout_user( WP_REST_Request $request ) {
 		$token = $request->get_body();
 		if ( delete_option( $token ) ) {
+			wp_logout();
 			wp_send_json_success();
 		}
 
@@ -407,6 +408,9 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 					add_user_meta( $user->ID, 'current-role', $user->roles[0] );
 				}
 
+				wp_set_current_user( $user->ID );
+				wp_set_auth_cookie( $user->ID );
+
 				$user_data = $this->get_user_data( $user->ID );
 				wp_send_json_success( [
 					'token' => $token,
@@ -414,7 +418,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				] );
 			} else if ( $user->roles[0] === 'admin' ) {
 				wp_send_json_error( 'Your account has not been activated yet. Please wait for the account to be activated. You will be notified about this to the email you specified.' );
-			} else if ($user->roles[0] === 'administrator') {
+			} else if ( $user->roles[0] === 'administrator' ) {
 				wp_send_json_error( 'Please use this <a href="/wp-admin/">link</a> to access the Admin panel' );
 			}
 		}

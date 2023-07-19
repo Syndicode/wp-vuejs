@@ -16,14 +16,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 	public function register_routes(): void {
 
-		register_rest_route( $this->namespace, "/$this->rest_base/teams", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'get_teams' ],
-
-			],
-		] );
-
 		register_rest_route( $this->namespace, "/$this->rest_base/parents", [
 			[
 				'methods'  => 'POST',
@@ -64,21 +56,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/get-team-data", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'get_team_data' ],
-
-			],
-		] );
-
-		register_rest_route( $this->namespace, "/$this->rest_base/create-team", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'create_team' ],
-
-			],
-		] );
 
 		register_rest_route( $this->namespace, "/$this->rest_base/create-parent", [
 			[
@@ -92,14 +69,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'create_athlete' ],
-
-			],
-		] );
-
-		register_rest_route( $this->namespace, "/$this->rest_base/remove-team", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'remove_team' ],
 
 			],
 		] );
@@ -120,14 +89,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/edit-team", [
-			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'edit_team' ],
-
-			],
-		] );
-
 		register_rest_route( $this->namespace, "/$this->rest_base/edit-parent", [
 			[
 				'methods'  => 'POST',
@@ -143,50 +104,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 
 			],
 		] );
-	}
-
-	function get_team_data( WP_REST_Request $request ) {
-		$data    = $request->get_params();
-		$user_id = get_option( $data['token'] );
-
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
-
-			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_athlete' ) ) {
-				$team = get_posts( [
-					'numberposts' => 1,
-					'post_type'   => 'team',
-					'name'        => $data['slug'],
-				] );
-
-				if ( ! empty( $team ) ) {
-					$team          = $team[0];
-					$athletes_data = [];
-					$athletes      = get_posts( [
-						'numberposts' => - 1,
-						'post_type'   => 'athlete',
-						'meta_query'  => [
-							[
-								'key'   => 'team',
-								'value' => $team->ID
-							],
-						],
-					] );
-
-					if ( ! empty( $athletes ) ) {
-						foreach ( $athletes as $athlete ) {
-							$athletes_data[] = $this->get_athlete_data( $athlete );
-						}
-					}
-
-					wp_send_json_success( [
-						'title'    => $team->post_title,
-						'athletes' => $athletes_data,
-						'slug'     => $team->post_name
-					] );
-				}
-			}
-		}
 	}
 
 	function edit_parent( WP_REST_Request $request ) {
@@ -216,42 +133,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				wp_send_json_error( $parent_id->get_error_message() );
 			}
 		}
-	}
-
-	function edit_team( WP_REST_Request $request ) {
-		$data    = json_decode( $request->get_body(), true );
-		$user_id = get_option( $data['token'] );
-
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
-
-			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
-				if ( get_field( 'coach', $data['teamId'] )->ID == $user_id ) {
-					$team_id = wp_update_post( wp_slash( [
-						'ID'         => $data['teamId'],
-						'post_title' => $data['form']['team']
-					] ) );
-
-					if ( ! is_wp_error( $team_id ) ) {
-						$teams = get_posts( [
-							'numberposts' => - 1,
-							'post_type'   => 'team',
-							'meta_query'  => [
-								[
-									'key'   => 'coach',
-									'value' => $user_id,
-								]
-							],
-						] );
-						if ( ! empty( $teams ) ) {
-							wp_send_json_success( $this->get_teams_data( $teams ) );
-						}
-					}
-				}
-			}
-		}
-
-		wp_send_json_error();
 	}
 
 	function edit_athlete( WP_REST_Request $request ) {
@@ -311,29 +192,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 			}
 		}
 
-		wp_send_json_error();
-	}
-
-	function remove_team( WP_REST_Request $request ) {
-		$data    = json_decode( $request->get_body(), true );
-		$user_id = get_option( $data['token'] );
-
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
-
-			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
-
-				if ( get_field( 'coach', $data['teamId'] )->ID == $user_id ) {
-
-					if ( $this->get_athletes_count_by_team( $data['teamId'] ) === 0 ) {
-						wp_delete_post( $data['teamId'] );
-						wp_send_json_success();
-					}
-
-					wp_send_json_error( 'You cannot delete a team while it has athletes.' );
-				}
-			}
-		}
 		wp_send_json_error();
 	}
 
@@ -554,44 +412,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		}
 	}
 
-	function create_team( WP_REST_Request $request ) {
-		$data    = json_decode( $request->get_body(), true );
-		$user_id = get_option( $data['token'] );
-
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
-
-			if ( ! is_wp_error( $user ) && $user !== false && user_can( $user_id, 'create_team' ) ) {
-				$team_data = [
-					'post_title'  => sanitize_text_field( $data['form']['team'] ),
-					'post_status' => 'publish',
-					'post_author' => $user_id,
-					'post_type'   => 'team'
-				];
-
-				$team_id = wp_insert_post( $team_data );
-
-				if ( ! is_wp_error( $team_id ) ) {
-					update_field( 'coach', $user_id, $team_id );
-					$teams = get_posts( [
-						'numberposts' => - 1,
-						'post_type'   => 'team',
-						'meta_query'  => [
-							[
-								'key'   => 'coach',
-								'value' => $user_id,
-							]
-						],
-					] );
-
-					if ( ! empty( $teams ) ) {
-						wp_send_json_success( $this->get_teams_data( $teams ) );
-					}
-				}
-			}
-		}
-	}
-
 	function get_parents( WP_REST_Request $request ) {
 		$data     = json_decode( $request->get_body(), true );
 		$coach_id = get_option( $data['token'] );
@@ -676,74 +496,6 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		}
 
 		return $parents_data;
-	}
-
-	private function get_athletes_count_by_team( int $team_id ): int {
-		$athletes = get_posts( [
-			'numberposts' => - 1,
-			'post_type'   => 'athlete',
-			'meta_query'  => [
-				[
-					[
-						'key'   => 'team',
-						'value' => $team_id
-					]
-				],
-			],
-		] );
-
-		return count( $athletes );
-	}
-
-	private function get_teams_data( array $teams ): array {
-		$teams_data = [];
-
-		foreach ( $teams as $team ) {
-			$athletes_count = $this->get_athletes_count_by_team( $team->ID );
-
-			$teams_data[] = [
-				'ID'         => $team->ID,
-				'post_title' => $team->post_title,
-				'athletes'   => $athletes_count,
-				'slug'       => $team->post_name
-			];
-		}
-
-		return $teams_data;
-	}
-
-	function get_teams( WP_REST_Request $request ) {
-		$data    = json_decode( $request->get_body(), true );
-		$user_id = get_option( $data['token'] );
-
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
-
-			if ( $user !== false && ! is_wp_error( $user ) && ( user_can( $user_id, 'create_team' ) || user_can( $user_id, 'create_athlete' ) ) ) {
-				$args = [
-					'numberposts' => - 1,
-					'post_type'   => 'team',
-				];
-
-				if ( isset( $data['currentRole'] ) && $data['currentRole'] === 'coach' ) {
-					$args['meta_query'] = [
-						[
-							'key'   => 'coach',
-							'value' => $user_id,
-						]
-					];
-				}
-
-				$teams = get_posts( $args );
-				if ( ! empty( $teams ) ) {
-					wp_send_json_success( $this->get_teams_data( $teams ) );
-				}
-
-				wp_send_json_error( 'Teams not found' );
-			}
-
-			wp_send_json_error( 'There are not enough permissions to perform this action' );
-		}
 	}
 
 	/**
@@ -833,7 +585,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				] );
 
 				if ( ! empty( $athlete ) ) {
-					wp_send_json_success( $this->get_athlete_data( $athlete[0] ) );
+					wp_send_json_success( self::get_athlete_data( $athlete[0] ) );
 				}
 
 				wp_send_json_error( 'Athlete not found or You are not allowed to view this Athlete!' );
@@ -843,7 +595,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 		wp_send_json_error( 'You are not allowed to view this page!' );
 	}
 
-	private function get_athlete_data( \WP_Post $athlete ) {
+	public static function get_athlete_data( \WP_Post $athlete ): array {
 		$parent = get_field( 'parent', $athlete->ID );
 		$coach  = get_field( 'coach', $athlete->ID );
 
@@ -882,7 +634,7 @@ class PKI_REST_Entities_Controller extends WP_REST_Controller {
 				$athlete    = get_post( $athlete_id );
 
 				if ( $athlete && ! is_wp_error( $athlete ) ) {
-					$athlete_data = $this->get_athlete_data( $athlete );
+					$athlete_data = self::get_athlete_data( $athlete );
 					delete_option( $data['athlete_token'] );
 					wp_send_json_success( $athlete_data );
 				}

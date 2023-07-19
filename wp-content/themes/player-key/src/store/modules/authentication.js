@@ -1,16 +1,16 @@
 import authApi, {registerUser} from '../../api/authentication.js'
 
 const state = {
-    isCheckDataReceived: false,
-    isSubmitting: false,
-    validationErrors: [],
-    isUserLoggedIn: null,
-    currentUser: null,
-    token: null,
-    currentRole: null,
-    messages: [],
     athleteToken: null,
     athleteParentId: null,
+    currentUser: null,
+    currentRole: null,
+    isCheckDataReceived: false,
+    isSubmitting: false,
+    isUserLoggedIn: null,
+    messages: [],
+    token: null,
+    validationErrors: [],
 }
 
 const mutations = {
@@ -115,7 +115,6 @@ const actions = {
             authApi
                 .loginUser(userData)
                 .then((response) => {
-                    console.log(response);
                     if (response.data.success) {
                         context.commit('loginSuccess', response.data.data)
                         resolve(response.data.data)

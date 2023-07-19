@@ -76,7 +76,7 @@ export default {
           </li>
         </ul>
       </div>
-      <button v-if="team.athletes.length > 0" @click="printOut" class="button button--lime team__printout">PrintOut</button>s
+      <button v-if="team.athletes.length > 0" @click="printOut" class="button button--lime team__printout">PrintOut</button>
     </div>
   </div>
 </template>

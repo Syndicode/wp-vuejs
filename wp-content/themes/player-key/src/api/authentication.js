@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://playerkeyid.wpengine.com/wp-json/pki/v1';
-// const BASE_URL = 'http://127.0.0.1:3477/wp-json/pki/v1';
+const BASE_URL = `${document.location.protocol}//${document.location.host}/wp-json/pki/v1`;
 
 
 const activationCheck = (data) => {

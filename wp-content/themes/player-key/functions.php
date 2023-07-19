@@ -35,6 +35,6 @@ require_once TEMPLATE_DIR . '/inc/utils.php';
 /**
  * API
  */
-require_once TEMPLATE_DIR . '/inc/api.php';
+require_once TEMPLATE_DIR . '/inc/rest-api.php';
 
 

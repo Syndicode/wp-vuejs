@@ -14,6 +14,10 @@ function acf_add_post_type_team_fields(): void {
 		'return_format' => 'object',
 	] );
 
+	$fields->addUrl('social_link', [
+		'label'         => __( 'Social link', 'player-key' ),
+	]);
+
 	$fields->setLocation( 'post_type', '==', 'team' );
 
 	acf_add_local_field_group( $fields->build() );
