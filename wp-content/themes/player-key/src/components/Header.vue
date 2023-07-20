@@ -228,6 +228,7 @@ export default {
     left: auto;
     width: auto;
     display: block;
+    z-index: 1;
   }
 
   .header__actions {
