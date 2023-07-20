@@ -19,18 +19,18 @@ export default {
   },
   methods: {
     async printOut() {
-      var doc = new jsPDF({
+      let doc = new jsPDF({
         unit: 'px',
         format: 'a4',
       });
-      doc.addImage("/wp-content/themes/player-key/src/assets/images/logo-player-key.png", "JPEG", 140, 40, 187, 110);
+      doc.addImage("/wp-content/themes/player-key/src/assets/images/logo-player-key.png", "JPEG", 160, 40, 147, 87);
       doc.html(document.querySelector('.team__holder'), {
         callback: (doc) => {
           doc.save(this.team.title,);
         },
-        x: 15,
-        y: 190,
-        width: 400,
+        x: 5,
+        y: 140,
+        width: 360,
         windowWidth: 760,
       });
     },
@@ -69,9 +69,12 @@ export default {
             <RouterLink :to="{name: 'athlete', params: {
             slug: athlete.slug
           }}">
+              <img v-if="athlete.headshot_file" :src="athlete.headshot_file.sizes['athlete-headshot']"
+                   :alt="`${athlete.first_name} ${athlete.last_name}`" class="team__athlete-headshot">
               <h3 class="team__athlete-name">{{ `${athlete.first_name} ${athlete.last_name}` }}</h3>
               <span class="team__athlete-birthday">{{ athlete.birthday }}</span>
               <span class="team__athlete-parent">{{ athlete.parent_name }}</span>
+              <span v-if="athlete.current_grade" class="team__athlete-current-grade">{{ athlete.current_grade }}</span>
             </RouterLink>
           </li>
         </ul>
@@ -108,6 +111,7 @@ export default {
   box-sizing: border-box;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
+  text-align: center;
 }
 
 .team__athlete:nth-child(3n) {
@@ -119,12 +123,25 @@ export default {
   text-decoration: none;
 }
 
+.team__athlete-headshot {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 12px;
+}
+
 .team__athlete-birthday {
   display: block;
 }
 
 .team__athlete-parent {
   display: block;
+}
+
+.team__athlete-current-grade {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .team__printout {

@@ -36,13 +36,16 @@ export default {
       errors: [],
       filePreview: '',
       form: {
+        headshotFileName: '',
         firstName: '',
         lastName: '',
         team: '',
         parent: '',
         birthday: '',
+        currentGrade: '',
         cardFileName: '',
         certificateFileName: '',
+        socialLink: '',
       },
       isLoading: false,
       isSubmitting: false,
@@ -65,10 +68,13 @@ export default {
   methods: {
     closeLayout() {
       this.isLayoutVisible = false;
+      this.form.headshotFileName = '';
       this.form.firstName = '';
       this.form.lastName = '';
       this.form.team = '';
       this.form.birthday = '';
+      this.form.currentGrade = '';
+      this.form.socialLink = '';
 
       if (this.$store.state.authentication.currentRole === 'coach') {
         this.form.parent = '';
@@ -78,6 +84,23 @@ export default {
         this.form.cardFileName = '';
         this.form.certificateFileName = '';
       }
+    },
+    edit(entity) {
+      this.action = 'Edit';
+      this.isLayoutVisible = true;
+      this.form.headshotFileName = entity.headshot_file_name;
+      this.form.firstName = entity.first_name;
+      this.form.lastName = entity.last_name;
+      this.form.team = {label: entity.team.post_title, code: entity.team.ID};
+      this.form.parent = {label: entity.parent_name, code: entity.parent.ID};
+      this.form.cardFileName = entity.card_file_name;
+      this.form.certificateFileName = entity.certificate_file_name;
+      this.editAthleteId = entity.ID;
+
+      let birthday = new Date(entity.birthday);
+      this.form.birthday = `${birthday.getFullYear()}-${birthday.getMonth() < 10 ? '0' + (birthday.getMonth() + 1) : birthday.getMonth() + 1}-${birthday.getDate()}`;
+      this.form.currentGrade = entity.current_grade;
+      this.form.socialLink = entity.social_link;
     },
     async fetchData() {
       await athletesApi.getAthletes({
@@ -105,6 +128,11 @@ export default {
         formData.append('certificate', this.form.certificate);
       }
 
+
+      if (this.form.headshotFileName) {
+        formData.append('headshot', this.form.headshot);
+      }
+
       for (let field in this.form) {
         formData.append(field, this.form[field]);
       }
@@ -114,42 +142,9 @@ export default {
 
 
       if (this.action === 'Add') {
-        await athletesApi.createAthlete(formData).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              team: '',
-              parent: this.$store.state.authentication.currentRole === 'coach' ? '' : this.form.parent,
-              birthday: '',
-            }
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
+        await athletesApi.createAthlete(formData).then(this.onFormSubmit);
       } else if (this.action === 'Edit') {
-        await athletesApi.editAthlete(formData)
-            .then((response) => {
-              if (response.data.success) {
-                this.entities = response.data.data;
-                this.form = {
-                  firstName: '',
-                  lastName: '',
-                  team: '',
-                  parent: this.$store.state.authentication.currentRole === 'coach' ? '' : this.form.parent,
-                  birthday: '',
-                }
-                this.isLayoutVisible = false;
-                this.isFormValid = false;
-              } else {
-                this.errors.push(response.data.data)
-              }
-              this.isSubmitting = false;
-            });
+        await athletesApi.editAthlete(formData).then(this.onFormSubmit);
       }
     },
     async getCost() {
@@ -167,7 +162,7 @@ export default {
         if (response.data.success && response.data.data.length) {
           this.teams = response.data.data.map((team) => {
             return {
-              label: team.post_title,
+              label: team.title,
               code: team.ID
             };
           });
@@ -209,6 +204,7 @@ export default {
           'birthday',
         ],
         parent: [
+          'headshot',
           'firstName',
           'lastName',
           'team',
@@ -229,19 +225,27 @@ export default {
 
       return isFiled;
     },
-    edit(entity) {
-      this.action = 'Edit';
-      this.isLayoutVisible = true;
-      this.form.firstName = entity.first_name;
-      this.form.lastName = entity.last_name;
-      this.form.team = {label: entity.team.post_title, code: entity.team.ID};
-      this.form.parent = {label: entity.parent_name, code: entity.parent.ID};
-      this.form.cardFileName = entity.card_file_name;
-      this.form.certificateFileName = entity.certificate_file_name;
-      this.editAthleteId = entity.ID;
-
-      let birthday = new Date(entity.birthday);
-      this.form.birthday = `${birthday.getFullYear()}-${birthday.getMonth() < 10 ? '0' + (birthday.getMonth() + 1) : birthday.getMonth() + 1}-${birthday.getDate()}`;
+    onFormSubmit(response) {
+      if (response.data.success) {
+        this.entities = response.data.data;
+        this.form = {
+          firstName: '',
+          lastName: '',
+          team: '',
+          parent: this.$store.state.authentication.currentRole === 'coach' ? '' : this.form.parent,
+          birthday: '',
+          currentGrade: '',
+          socialLink: '',
+          headshotFileName: '',
+          cardFileName: '',
+          certificateFileName: '',
+        }
+        this.isLayoutVisible = false;
+        this.isFormValid = false;
+      } else {
+        this.errors.push(response.data.data)
+      }
+      this.isSubmitting = false;
     },
     async remove(id) {
       this.isLoading = true;
@@ -298,6 +302,10 @@ export default {
     uploadCertificate(file) {
       this.form.certificate = file;
       this.form.certificateFileName = file.name;
+    },
+    uploadHeadshot(file) {
+      this.form.headshot = file;
+      this.form.headshotFileName = file.name;
     },
     async useCoupon() {
       this.isSubmitting = true;
@@ -403,12 +411,22 @@ export default {
         <ErrorList v-if="errors.length" :errors="errors"/>
         <form v-if="teams.length > 0 && parents.length > 0 && (action === 'Edit' || action === 'Add')"
               @submit.prevent="formSubmit">
+          <div class="form-item-file">
+            <span class="form__label">Headshot <sup v-if="this.$store.state.authentication.currentRole === 'parent'">*</sup></span>
+            <FormItemFile @file-updated="uploadHeadshot"
+                          :input-id="`headshot`"
+                          :file-title="`Headshot`"
+                          :file-name="this.form.headshotFileName"
+                          :required="this.$store.state.authentication.currentRole === 'parent'"/>
+          </div>
           <FormItemText :name="`first-name`" :label="`First Name`" :input-type="`text`" :is-required="true"
                         v-model="form.firstName"/>
           <FormItemText :name="`last-name`" :label="`Last Name`" :input-type="`text`" :is-required="true"
                         v-model="form.lastName"/>
           <FormItemText :name="`birthday`" :label="`Birthday`" :input-type="`date`" :is-required="true"
                         v-model="form.birthday"/>
+          <FormItemText :name="`current-grade`" :label="`Current grade`" :input-type="`text`" :is-required="false"
+                        v-model="form.currentGrade"/>
           <label class="form-item-select">
             <span class="form__label">Team <sup>*</sup></span>
             <vSelect :options="teams"
@@ -439,6 +457,8 @@ export default {
                           :file-name="this.form.certificateFileName"
                           :required="true"/>
           </div>
+          <FormItemText :name="`social-link`" :label="`Social link`" :input-type="`text`" :is-required="false"
+                        v-model="form.socialLink"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"

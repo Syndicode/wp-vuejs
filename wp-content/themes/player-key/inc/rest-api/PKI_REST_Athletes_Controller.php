@@ -96,10 +96,9 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 	 * @param WP_REST_Request $request
 	 *
 	 * @return void
-	 * @throws JsonException
 	 */
 	public function create_athlete( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$data = $request->get_params();
 		$user = wp_get_current_user();
 
 		if ( $user === null ) {
@@ -119,9 +118,21 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			update_field( 'first_name', $data['firstName'], $athlete_id );
 			update_field( 'last_name', $data['lastName'], $athlete_id );
 			update_field( 'birthday', $data['birthday'], $athlete_id );
+			update_field( 'current_grade', $data['currentGrade'], $athlete_id );
 			update_field( 'parent', $data['parent'], $athlete_id );
 			update_field( 'team', $data['team'], $athlete_id );
+			update_field( 'social_link', $data['socialLink'], $athlete_id );
 			update_field( 'payment_status', 'unpaid', $athlete_id );
+
+			require_once( ABSPATH . 'wp-admin/includes/image.php' );
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			require_once( ABSPATH . 'wp-admin/includes/media.php' );
+
+			$headshot_attachment_id = media_handle_upload( 'headshot', $athlete_id );
+			if ( ! is_wp_error( $headshot_attachment_id ) ) {
+				update_field( 'headshot', $headshot_attachment_id, $athlete_id );
+				update_post_meta( $athlete_id, 'headshot_filename', $data['headshotFileName'] );
+			}
 
 			// If current Role COACH
 			if ( $data['currentRole'] === 'coach' ) {
@@ -164,10 +175,6 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 				update_field( 'coach', $coach, $athlete_id );
 				update_field( 'status', 'pending', $athlete_id );
 
-				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-				require_once( ABSPATH . 'wp-admin/includes/file.php' );
-				require_once( ABSPATH . 'wp-admin/includes/media.php' );
-
 				$card_attachment_id = media_handle_upload( 'card', $athlete_id );
 				if ( ! is_wp_error( $card_attachment_id ) ) {
 					update_field( 'card', $card_attachment_id, $athlete_id );
@@ -192,10 +199,9 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 	 * @param WP_REST_Request $request
 	 *
 	 * @return void
-	 * @throws JsonException
 	 */
-	public function edit_athlete( WP_REST_Request $request ):void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+	public function edit_athlete( WP_REST_Request $request ): void {
+		$data = $request->get_params();
 		$user = wp_get_current_user();
 
 		if ( $user === null ) {
@@ -216,13 +222,21 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 				update_field( 'first_name', $data['firstName'], $athlete_id );
 				update_field( 'last_name', $data['lastName'], $athlete_id );
 				update_field( 'birthday', $data['birthday'], $athlete_id );
+				update_field( 'current_grade', $data['currentGrade'], $athlete_id );
 				update_field( 'parent', $data['parent'], $athlete_id );
 				update_field( 'team', $data['team'], $athlete_id );
+				update_field( 'social_link', $data['socialLink'], $athlete_id );
 				update_field( 'status', 'pending', $athlete_id );
 
 				require_once( ABSPATH . 'wp-admin/includes/image.php' );
 				require_once( ABSPATH . 'wp-admin/includes/file.php' );
 				require_once( ABSPATH . 'wp-admin/includes/media.php' );
+
+				$headshot_attachment_id = media_handle_upload( 'headshot', $athlete_id );
+				if ( ! is_wp_error( $headshot_attachment_id ) ) {
+					update_field( 'headshot', $headshot_attachment_id, $athlete_id );
+					update_post_meta( $athlete_id, 'headshot_filename', $data['headshotFileName'] );
+				}
 
 				$card_attachment_id = media_handle_upload( 'card', $athlete_id );
 				if ( ! is_wp_error( $card_attachment_id ) ) {
@@ -312,6 +326,7 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			'first_name'            => get_field( 'first_name', $athlete->ID ),
 			'last_name'             => get_field( 'last_name', $athlete->ID ),
 			'birthday'              => get_field( 'birthday', $athlete->ID ),
+			'current_grade'         => get_field( 'current_grade', $athlete->ID ),
 			'team'                  => get_field( 'team', $athlete->ID ),
 			'parent'                => $parent,
 			'coach'                 => $coach,
@@ -319,8 +334,11 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			'coach_name'            => $coach->first_name . ' ' . $coach->last_name,
 			'parent_id'             => $parent->ID,
 			'coach_id'              => $coach->ID,
+			'social_link'           => get_field( 'social_link', $athlete->ID ),
 			'status'                => get_field( 'status', $athlete->ID ),
 			'payment_status'        => get_field( 'payment_status', $athlete->ID ),
+			'headshot_file_name'    => get_post_meta( $athlete->ID, 'headshot_filename', true ),
+			'headshot_file'         => get_field( 'headshot', $athlete->ID ),
 			'card_file_name'        => get_post_meta( $athlete->ID, 'card_filename', true ),
 			'card_file'             => get_field( 'card', $athlete->ID ),
 			'certificate_file_name' => get_post_meta( $athlete->ID, 'certificate_filename', true ),

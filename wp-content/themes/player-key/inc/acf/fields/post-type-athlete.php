@@ -5,8 +5,9 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
 function acf_add_post_type_athlete_fields(): void {
 	$fields = new FieldsBuilder( 'athlete' );
 
-	$fields->addImage( 'photo', [
-		'label' => __( 'Photo', 'player-key' ),
+	$fields->addImage( 'headshot', [
+		'label'    => __( 'Headshot', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addText( 'first_name', [
@@ -24,6 +25,11 @@ function acf_add_post_type_athlete_fields(): void {
 		'display_format' => 'm/d/Y',
 		'return_format'  => 'm/d/Y',
 		'first_day'      => 1,
+	] );
+
+	$fields->addText( 'current_grade', [
+		'label'    => __( 'Current grade', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addUser( 'coach', [
@@ -53,11 +59,17 @@ function acf_add_post_type_athlete_fields(): void {
 	] );
 
 	$fields->addFile( 'card', [
-		'label' => __( 'Report card', 'player-key' ),
+		'label'    => __( 'Report card', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addFile( 'certificate', [
-		'label' => __( 'Birth certificate/ID', 'player-key' ),
+		'label'    => __( 'Birth certificate/ID', 'player-key' ),
+		'required' => 1,
+	] );
+
+	$fields->addUrl( 'social_link', [
+		'label' => __( 'Social link', 'player-key' ),
 	] );
 
 	$fields->addSelect( 'status', [
