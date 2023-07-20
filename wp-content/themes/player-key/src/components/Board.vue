@@ -1,6 +1,5 @@
 <script>
 import Heading from "./Heading.vue";
-import entitiesApi from "../api/entities.js";
 import authApi from "../api/authentication.js";
 import FormItemText from "./FormItemText.vue";
 import Loader from "./Loader.vue";
@@ -155,7 +154,7 @@ export default {
       }
     },
     async fetchData() {
-      await entitiesApi.getRoleStatistics({
+      await authApi.getRoleStatistics({
         currentRole: this.$store.state.authentication.currentRole,
         token: this.$store.state.authentication.token,
       }).then((response) => {

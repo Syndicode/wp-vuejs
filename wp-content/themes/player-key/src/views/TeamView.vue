@@ -2,7 +2,7 @@
 
 import Heading from "../components/Heading.vue";
 import {jsPDF} from "jspdf";
-import entitiesApi from "../api/entities.js";
+import teamsApi from "../api/teams.js";
 import Loader from "../components/Loader.vue";
 
 export default {
@@ -35,7 +35,7 @@ export default {
       });
     },
     async fetchData() {
-      await entitiesApi.getTeamData({
+      await teamsApi.getTeamData({
         token: this.$store.state.authentication.token,
         slug: this.$route.params.slug
       }).then((response) => {

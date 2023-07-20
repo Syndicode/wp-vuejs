@@ -23,6 +23,10 @@ const editUser = (data) => {
     return axios.post(`${BASE_URL}/users/edit-user`, data);
 }
 
+const getRoleStatistics = (data) => {
+    return axios.post(`${BASE_URL}/users/get-role-statistics`, data)
+}
+
 const loginUser = (data) => {
     return axios.post(`${BASE_URL}/users/login`, data)
 }
@@ -53,6 +57,7 @@ export default {
     checkUser,
     changeUserRole,
     editUser,
+    getRoleStatistics,
     loginUser,
     logoutUser,
     resendActivationLink,

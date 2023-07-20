@@ -1,7 +1,7 @@
 <script>
 import {jsPDF} from "jspdf";
 import Heading from "../components/Heading.vue";
-import entitiesApi from "../api/entities.js";
+import athletesApi from "../api/athletes.js";
 import Loader from "../components/Loader.vue";
 import ErrorList from "../components/ErrorList.vue";
 
@@ -40,7 +40,8 @@ export default {
       });
     },
     async fetchData() {
-      await entitiesApi.getAthleteBySlug({
+      await athletesApi.getAthleteBy({
+        field: 'slug',
         token: this.$store.state.authentication.token,
         slug: this.$route.params.slug
       }).then((response) => {

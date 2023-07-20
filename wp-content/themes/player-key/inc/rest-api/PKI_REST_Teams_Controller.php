@@ -286,7 +286,7 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 
 			if ( ! empty( $athletes ) ) {
 				foreach ( $athletes as $athlete ) {
-					$athletes_data[] = PKI_REST_Entities_Controller::get_athlete_data( $athlete );
+					$athletes_data[] = PKI_REST_Athletes_Controller::get_athlete_data( $athlete );
 				}
 			}
 

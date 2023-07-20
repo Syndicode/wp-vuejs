@@ -2,7 +2,9 @@
 import Heading from "./Heading.vue";
 import Loader from "./Loader.vue";
 import FormItemText from "./FormItemText.vue";
-import entitiesApi from "../api/entities.js";
+import athletesApi from "../api/athletes.js";
+import teamsApi from "../api/teams.js";
+import parentsApi from "../api/parents.js";
 import paymentsApi from "../api/payments.js";
 import vSelect from 'vue-select';
 import ErrorList from "./ErrorList.vue";
@@ -78,8 +80,7 @@ export default {
       }
     },
     async fetchData() {
-      await entitiesApi.getEntitles({
-        entityType: 'athletes',
+      await athletesApi.getAthletes({
         token: this.$store.state.authentication.token,
         currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
@@ -113,7 +114,7 @@ export default {
 
 
       if (this.action === 'Add') {
-        await entitiesApi.createAthlete(formData).then((response) => {
+        await athletesApi.createAthlete(formData).then((response) => {
           if (response.data.success) {
             this.entities = response.data.data;
             this.form = {
@@ -131,7 +132,7 @@ export default {
           this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
-        await entitiesApi.editAthlete(formData)
+        await athletesApi.editAthlete(formData)
             .then((response) => {
               if (response.data.success) {
                 this.entities = response.data.data;
@@ -159,8 +160,7 @@ export default {
       })
     },
     async getTeams() {
-      await entitiesApi.getEntitles({
-        entityType: 'teams',
+      await teamsApi.getTeams({
         token: this.$store.state.authentication.token,
         currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
@@ -177,8 +177,7 @@ export default {
       });
     },
     async getParents() {
-      await entitiesApi.getEntitles({
-        entityType: 'parents',
+      await parentsApi.getParents({
         token: this.$store.state.authentication.token,
       }).then((response) => {
         if (response.data.success && response.data.data.length) {
@@ -246,8 +245,7 @@ export default {
     },
     async remove(id) {
       this.isLoading = true;
-      await entitiesApi.removeEntity({
-        entityType: 'athlete',
+      await athletesApi.removeAthlete({
         token: this.$store.state.authentication.token,
         athleteId: id,
       }).then((response) => {
@@ -345,7 +343,8 @@ export default {
     }
 
     if (this.$store.state.authentication.athleteToken !== null) {
-      entitiesApi.getAthlete({
+      athletesApi.getAthleteBy({
+        field: 'token',
         token: this.$store.state.authentication.token,
         athlete_token: this.$store.state.authentication.athleteToken,
       }).then((response) => {
