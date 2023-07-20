@@ -49,3 +49,17 @@ function player_key_delete_intermediate_image_sizes( array $sizes ): array {
 }
 
 add_filter( 'intermediate_image_sizes', 'player_key_delete_intermediate_image_sizes' );
+
+/**
+ * @param string $redirect_url
+ *
+ * @return string
+ */
+function player_key_disable_redirect_canonical(string $redirect_url): string {
+	if (is_404()) {
+		return false;
+	}
+	return $redirect_url;
+}
+
+add_filter('redirect_canonical', 'player_key_disable_redirect_canonical');
