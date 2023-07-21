@@ -16,7 +16,7 @@ function acf_add_user_role_parent_fields(): void {
 	] );
 
 	$fields->addSelect( 'is_activated', [
-		'label'         => __( 'Is account activated?', 'player-key' ),
+		'label'         => __( 'Is the account activated?', 'player-key' ),
 		'required'      => 0,
 		'choices'       => [
 			'yes'     => __( 'Yes', 'player-key' ),

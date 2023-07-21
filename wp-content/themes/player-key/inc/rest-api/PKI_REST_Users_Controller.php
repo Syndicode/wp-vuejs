@@ -2,6 +2,7 @@
 
 namespace api;
 
+use JsonException;
 use WP_REST_Controller;
 use WP_REST_Request;
 use api\PKI_REST_Parents_Controller;
@@ -32,14 +33,18 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/register", [
+		/**
+		 * Register new User (Coach, Parent or Admin)
+		 */
+		register_rest_route( $this->namespace, "/$this->rest_base/register-user", [
 			[
-				'methods'  => 'POST',
-				'callback' => [ $this, 'register_user' ],
+				'callback'            => [ $this, 'register_user' ],
+				'methods'             => 'POST',
+				'permission_callback' => [ $this, 'check_permissions' ],
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/login", [
+		register_rest_route( $this->namespace, "/$this->rest_base/login-user", [
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'login_user' ],
@@ -60,7 +65,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 			],
 		] );
 
-		register_rest_route( $this->namespace, "/$this->rest_base/logout", [
+		register_rest_route( $this->namespace, "/$this->rest_base/logout-user", [
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'logout_user' ],
@@ -102,6 +107,17 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 			],
 		] );
+	}
+
+	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool
+	 */
+	public function check_permissions( WP_REST_Request $request ): bool {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+
+		return $nonce !== null && wp_verify_nonce( $nonce, 'wp_rest' );
 	}
 
 	function change_user_role( WP_REST_Request $request ) {
@@ -400,11 +416,21 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		wp_send_json_error();
 	}
 
-	function login_user( WP_REST_Request $request ) {
-		$data = json_decode( $request->get_body(), true );
+	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return void
+	 * @throws JsonException
+	 */
+	public function login_user( WP_REST_Request $request ): void {
+		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
 		$user = wp_authenticate( $data['email'], $data['password'] );
 
 		if ( ! is_wp_error( $user ) ) {
+
+			if ( ! get_field( 'is_valid', 'user_' . $user->ID ) ) {
+				wp_send_json_error( 'Your account has not been validated yet. We will validate your account and get back to you when you are set up.' );
+			}
 
 			if ( ! get_user_meta( $user->ID, 'initial-role', true ) ) {
 				update_user_meta( $user->ID, 'initial-role', $user->roles[0] );
@@ -440,11 +466,16 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 		wp_send_json_error( $user->get_error_message() );
 	}
 
-	function register_user( WP_REST_Request $request ) {
-		$data = json_decode( $request->get_body(), true );
-		if ( isset( $data['role'] )
-		     && ! empty( $data['role'] )
-		     && in_array( $data['role'], [ 'coach', 'parent', 'admin' ] ) ) {
+	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return void
+	 * @throws JsonException
+	 */
+	public function register_user( WP_REST_Request $request ): void {
+		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+
+		if ( ! empty( $data['role'] ) && in_array( $data['role'], [ 'coach', 'parent', 'admin' ] ) ) {
 
 			if ( apply_filters( 'pre_user_email', $data['email'] ) === '' ) {
 				wp_send_json_error( 'Please use valid email address!' );
@@ -461,6 +492,7 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 
 			if ( ! is_wp_error( $user_id ) ) {
 				update_user_meta( $user_id, 'initial-role', $data['role'] );
+				update_field( 'is_valid', 0, 'user_' . $user_id );
 
 				if ( $data['role'] === 'coach' ) {
 					update_field( 'birthday', $data['birthday'], 'user_' . $user_id );
@@ -471,6 +503,20 @@ class PKI_REST_Users_Controller extends WP_REST_Controller {
 				} else if ( $data['role'] === 'parent' ) {
 					update_field( 'is_activated', 'yes', 'user_' . $user_id );
 				}
+
+				$url     = get_site_url();
+				$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/register-user.php' );
+				$message = str_replace( [
+					'{{url}}',
+					'{{user}}',
+				], [
+					$url,
+					$data['firstName'] . ' ' . $data['lastName']
+				], $message );
+
+				wp_mail( $data['email'], 'Thank you for signing up with Player Key!', $message, [
+					'content-type: text/html',
+				] );
 
 				wp_send_json_success( $user_id );
 			}

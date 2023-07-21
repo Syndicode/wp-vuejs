@@ -28,11 +28,15 @@ const getRoleStatistics = (data) => {
 }
 
 const loginUser = (data) => {
-    return axios.post(`${BASE_URL}/users/login`, data)
+    return axios.post(`${BASE_URL}/users/login-user`, data, {
+        headers: {
+            'X-WP-Nonce': window.pkiNonce
+        }
+    });
 }
 
 const logoutUser = (data) => {
-    return axios.post(`${BASE_URL}/users/logout`, data);
+    return axios.post(`${BASE_URL}/users/logout-user`, data);
 }
 
 const resendActivationLink = (data) => {
@@ -48,7 +52,11 @@ const resetPassword = (data) => {
 }
 
 const registerUser = (data) => {
-    return axios.post(`${BASE_URL}/users/register`, data)
+    return axios.post(`${BASE_URL}/users/register-user`, data, {
+        headers: {
+            'X-WP-Nonce': window.pkiNonce
+        }
+    });
 }
 
 export default {

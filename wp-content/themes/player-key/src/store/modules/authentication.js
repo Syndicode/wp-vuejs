@@ -82,7 +82,7 @@ const mutations = {
     registerSuccess(state, payload) {
         state.validationErrors = [];
         state.isSubmitting = false;
-        state.messages.push('You have successfully registered!');
+        state.messages.push('Thank you for signing up with Player Key! We will validate your account and get back to you when you are set up.');
     },
     registerFailure(state, payload) {
         state.validationErrors.push(payload);
