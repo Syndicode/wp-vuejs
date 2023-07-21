@@ -63,7 +63,7 @@ export default {
   <Loader :class="{active: athlete === null && errors.length === 0}"/>
   <div class="athlete">
     <div class="wrapper athlete__wrapper">
-      <RouterLink :to="{name: 'board-entity', params: {
+      <RouterLink v-if="this.$store.state.authentication.currentRole === 'parent' || this.$store.state.authentication.currentRole === 'coach'" :to="{name: 'board-entity', params: {
         entity: 'athletes',
       }}" class="athlete__back-link">All athletes
       </RouterLink>
@@ -74,6 +74,10 @@ export default {
           <img v-if="athlete.headshot_file" :src="athlete.headshot_file.sizes['athlete-headshot']"
                :alt="`${athlete.first_name} ${athlete.last_name}`" class="athlete__headshot">
           <div class="athlete__data">
+            <div class="athlete__data-row">
+              <div class="athlete__data-indicator">ID</div>
+              <div class="athlete__data-value">{{ athlete.ID }}</div>
+            </div>
             <div class="athlete__data-row">
               <div class="athlete__data-indicator">Birthday</div>
               <div class="athlete__data-value">{{ athlete.birthday }}</div>

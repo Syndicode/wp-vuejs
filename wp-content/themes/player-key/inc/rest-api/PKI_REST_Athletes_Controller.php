@@ -89,7 +89,7 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 		$user    = wp_get_current_user();
 		$user_id = get_option( $request->get_param( 'token' ) );
 
-		return ! empty( $user_id ) && $user !== null && $user->ID !== 0 && $user->ID === (int) $user_id;
+		return ( $user !== null && $user->roles[0] === 'administrator' ) || ( ! empty( $user_id ) && $user !== null && $user->ID !== 0 && $user->ID === (int) $user_id );
 	}
 
 	/**
@@ -293,12 +293,6 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 					'numberposts' => 1,
 					'post_type'   => 'athlete',
 					'name'        => $data['slug'],
-					'meta_query'  => [
-						[
-							'key'   => get_user_meta( $user->ID, 'current-role', true ),
-							'value' => $user->ID
-						]
-					],
 				] )[0];
 				break;
 		}
