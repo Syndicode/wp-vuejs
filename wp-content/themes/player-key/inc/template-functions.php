@@ -55,11 +55,41 @@ add_filter( 'intermediate_image_sizes', 'player_key_delete_intermediate_image_si
  *
  * @return string
  */
-function player_key_disable_redirect_canonical(string $redirect_url): string {
-	if (is_404()) {
+function player_key_disable_redirect_canonical( string $redirect_url ): string {
+	if ( is_404() ) {
 		return false;
 	}
+
 	return $redirect_url;
 }
 
-add_filter('redirect_canonical', 'player_key_disable_redirect_canonical');
+add_filter( 'redirect_canonical', 'player_key_disable_redirect_canonical' );
+
+
+/**
+ * Function for `profile_update` action-hook.
+ *
+ * @param int $user_id User ID.
+ * @param WP_User $old_user_data Object containing user's data prior to update.
+ * @param array $userdata The raw array of data passed to wp_insert_user().
+ *
+ * @return void
+ */
+function player_key_profile_update_action( int $user_id, WP_User $old_user_data, array $userdata ): void {
+	global $current_screen;
+
+	if ( $current_screen->id === 'user-edit'
+	     && $userdata['role'] !== 'administrator'
+	     && ! is_array( $userdata['role'] )
+	     && count( $old_user_data->roles ) > 1
+	     && ( in_array( 'coach', $old_user_data->roles ) || in_array( 'parent', $old_user_data->roles ) ) ) {
+
+		$user = get_user_by( 'ID', $user_id );
+
+		foreach ( $old_user_data->roles as $role ) {
+			$user->add_role( $role );
+		}
+	}
+}
+
+add_action( 'profile_update', 'player_key_profile_update_action', 10, 3 );
