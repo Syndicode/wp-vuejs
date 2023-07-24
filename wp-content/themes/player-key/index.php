@@ -43,6 +43,6 @@
 </head>
 <body>
 <div id="app"></div>
-<script src="/wp-content/themes/player-key/dist/js/main.js"></script>
+<script src="/wp-content/themes/player-key/dist/js/main.js?v=1.0.100"></script>
 </body>
 </html>
