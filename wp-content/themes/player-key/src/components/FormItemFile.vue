@@ -1,10 +1,6 @@
 <script>
 export default {
-  // data() {
-  //   return {
-  //     fileName: '',
-  //   };
-  // },
+  name: 'FormItemFile',
   props: {
     fileName: {
       type: String,
@@ -43,7 +39,7 @@ export default {
         :id="inputId"
         class="hide-file-input"
         type="file"
-        accept="image/*"
+        accept="image/jpeg, image/png, application/pdf"
         @change="onFileChange"
     />
     <label class="file-label" :for="inputId">

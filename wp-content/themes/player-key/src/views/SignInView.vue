@@ -70,7 +70,8 @@ export default {
     <form class="form" @submit.prevent="formSubmit">
       <div class="form__fieldset">
         <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true" v-model="form.email"/>
-        <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true" v-model="form.password"/>
+        <FormItemText :name="`password`" :label="`Password`" :input-type="`password`" :is-required="true"
+                      v-model="form.password"/>
       </div>
       <div class="form__links">
         <RouterLink :to="{name: 'sign-up'}">Not registered?</RouterLink>

@@ -24,6 +24,7 @@ export default {
     formData.role = this.$route.params.role;
 
     return {
+      errors: [],
       messages: [],
       form: formData,
       formFields: formFields,
@@ -61,11 +62,35 @@ export default {
       });
       return isFiled;
     },
-    isPasswordsMatch() {
-      return this.form.password === this.form.passwordRepeat
+    checkPasswords() {
+      if (this.form.password !== this.form.passwordRepeat) {
+        this.errors.push('Passwords must match');
+        return false;
+      }
+
+      if (this.form.password.length < 7) {
+        this.errors.push('Password must consist of at least 7 characters');
+        return false;
+      }
+
+      if (this.form.password.length < 7) {
+        this.errors.push('Password must contain at least 7 characters');
+        return false;
+      }
+
+      const regExp = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{7,}$/;
+      if (!regExp.test(this.form.password)) {
+        this.errors.push('Password must contain symbol, upper and lower case letters and a number');
+        return false;
+      }
+
+      return true
     },
     async formSubmit() {
-      if (this.isPasswordsMatch()) {
+      this.errors = [];
+      this.$store.commit('registerStart');
+
+      if (this.checkPasswords()) {
         this.$store.dispatch('register', this.form)
             .then(() => {
               if (this.$route.params.role !== 'admin') {
@@ -76,8 +101,7 @@ export default {
 
             });
       } else {
-        this.$store.commit('registerStart')
-        this.$store.commit('registerFailure', 'Passwords must match')
+        this.$store.commit('registerFailure', this.errors)
       }
     }
   },

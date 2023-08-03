@@ -32,8 +32,8 @@ export default {
 }
 
 .heading--1 {
-    font-size: 60px;
-    margin-bottom: 72px;
+    font-size: 44px;
+    margin-bottom: 60px;
 }
 
 .heading--center {
@@ -46,5 +46,12 @@ export default {
 
 .heading--right {
     text-align: right;
+}
+
+@media (min-width: 1024px) {
+  .heading--1 {
+    font-size: 60px;
+    margin-bottom: 72px;
+  }
 }
 </style>

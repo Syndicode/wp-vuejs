@@ -26,21 +26,13 @@ export default {
         {
           title: 'Coach',
           benefits: [
-            'Lorem ipsum',
-            'Dolor sit amet',
-            'Consectetur adipiscing elit',
-            'In gravida semper maximus',
-            'Curabitur tincidunt',
-            'Nisl eget libero convallis, at vestibulum',
+            'Coach or Team Admin verifying athletes for a team or club',
           ]
         },
         {
           title: 'Parent',
           benefits: [
-            'Lorem ipsum',
-            'Dolor sit amet',
-            'Curabitur tincidunt',
-            'Nisl eget libero convallis, at vestibulum',
+            'Parent verifying individual athlete',
           ]
         },
       ],

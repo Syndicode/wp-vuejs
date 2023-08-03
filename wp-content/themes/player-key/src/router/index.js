@@ -8,6 +8,7 @@ import CompleteParentView from '../views/CompleteParentView.vue'
 import CompleteAthleteView from '../views/CompleteAthleteView.vue'
 import PasswordResetView from '../views/PasswordResetView.vue'
 import AthleteView from '../views/AthleteView.vue'
+import TeamView from '../views/TeamView.vue'
 import PageView from '../views/PageView.vue'
 import store from '../store/index.js'
 
@@ -88,19 +89,19 @@ const router = createRouter({
             },
         },
         {
-            path: '/complete/athlete',
-            name: 'complete-athlete',
-            component: CompleteAthleteView,
-            meta: {
-                title: `Complete Athlete information - ${SITE_TITLE}`
-            },
-        },
-        {
             path: '/athlete/:slug',
             name: 'athlete',
             component: AthleteView,
             meta: {
-                title: `Board - ${SITE_TITLE}`
+                title: `Athlete - ${SITE_TITLE}`
+            },
+        },
+        {
+            path: '/team/:slug',
+            name: 'team',
+            component: TeamView,
+            meta: {
+                title: `Team - ${SITE_TITLE}`
             },
         },
         {
@@ -112,9 +113,12 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
     if (!store.state.authentication.isUserLoggedIn && localStorage.getItem('pki-auth')) {
-        await store.dispatch('check', localStorage.getItem('pki-auth')). then(() => {
+        await store.dispatch('check', localStorage.getItem('pki-auth')).then(() => {
             return store.state.authentication.isUserLoggedIn;
         });
+    }
+    if ((to.name === 'sign-in' || to.name === 'sign-up') && store.state.authentication.isUserLoggedIn) {
+        router.push({name: 'board'});
     }
 })
 

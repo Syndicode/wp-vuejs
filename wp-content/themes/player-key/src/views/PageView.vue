@@ -48,7 +48,7 @@ export default {
   text-align: left;
 }
 
-.article__content /deep/ a {
+.article__content:deep(a) {
   color: inherit;
 }
 

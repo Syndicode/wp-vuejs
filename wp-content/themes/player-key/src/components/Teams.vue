@@ -1,11 +1,12 @@
 <script>
 import Heading from "./Heading.vue";
-import entitiesApi from "../api/entities.js";
+import teamsApi from "../api/teams.js";
 import FormItemText from "./FormItemText.vue";
 import Loader from "./Loader.vue";
 import MessageList from "./MessageList.vue";
 
 export default {
+  name: 'Teams',
   components: {
     MessageList,
     Loader,
@@ -20,76 +21,85 @@ export default {
       deep: true
     }
   },
-  props: {
-    currentUserId: {
-      type: Number,
-    },
-    currentRole: {
-      type: Boolean,
-    }
-  },
   data() {
     return {
-      messages: [],
-      isSubmitting: false,
-      editTeamId: null,
       action: '',
-      isLayoutVisible: false,
       entities: null,
-      isFormValid: false,
+      editTeamId: null,
       form: {
-        team: ''
-      }
+        team: '',
+        socialLink: ''
+      },
+      isFormValid: false,
+      isLayoutVisible: false,
+      isLoading: false,
+      isSubmitting: false,
+      messages: [],
     };
   },
   methods: {
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form.team = '';
+      this.form.socialLink = '';
+    },
+    edit(entity) {
+      this.action = 'Edit';
+      this.isLayoutVisible = true;
+      this.form.team = entity.title;
+      this.form.socialLink = entity.social_link;
+      this.editTeamId = entity.ID;
+    },
     async fetchData() {
-      await entitiesApi.getEntitles({
-        entityType: 'teams',
+      await teamsApi.getTeams({
         token: this.$store.state.authentication.token,
-        currentRole: this.currentRole,
+        currentRole: this.$store.state.authentication.currentRole,
       }).then((response) => {
         if (response.data.success) {
           this.entities = response.data.data
+        } else {
+          this.entities = [];
         }
       });
     },
     async formSubmit() {
       this.isSubmitting = true;
       if (this.action === 'Create') {
-        await entitiesApi.createEntity({
-          entityType: 'team',
+        await teamsApi.createTeam({
           token: this.$store.state.authentication.token,
           form: this.form,
         }).then((response) => {
           if (response.data.success) {
-            this.entities = response.data.data;
-            this.form.team = ''
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
+            this.onFormSubmitSuccess(response.data.data);
           }
           this.isSubmitting = false;
         });
       } else if (this.action === 'Edit') {
-        await entitiesApi.editEntity({
-          entityType: 'team',
+        await teamsApi.editTeam({
           token: this.$store.state.authentication.token,
           teamId: this.editTeamId,
           form: this.form,
         }).then((response) => {
           if (response.data.success) {
-            this.entities = response.data.data;
-            this.form.team = ''
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
+            this.onFormSubmitSuccess(response.data.data);
           }
           this.isSubmitting = false;
+        }).catch((result) => {
+          this.isSubmitting = false;
+          console.log(result);
         });
       }
     },
+    onFormSubmitSuccess(data) {
+      this.entities = data;
+      this.form.team = ''
+      this.form.socialLink = ''
+      this.isLayoutVisible = false;
+      this.isFormValid = false;
+    },
     async remove(id) {
-      await entitiesApi.removeEntity({
-        entityType: 'team',
+      this.isLoading = true;
+      await teamsApi.removeTeam({
         token: this.$store.state.authentication.token,
         teamId: id,
       }).then((response) => {
@@ -98,26 +108,27 @@ export default {
         } else {
           this.messages.push(response.data.data);
         }
+
+        this.isLoading = false;
       });
     },
-    closeLayout() {
-      this.isLayoutVisible = false;
-      this.form.team = '';
-    },
-    edit(entity) {
-      this.action = 'Edit';
-      this.isLayoutVisible = true;
-      this.form.team = entity.post_title;
-      this.editTeamId = entity.ID;
+    viewTeam(entity) {
+      this.$router.push({
+        name: 'team',
+        params: {
+          slug: entity.slug
+        }
+      });
     }
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   }
 }
 </script>
 
 <template>
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Teams</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
@@ -132,7 +143,9 @@ export default {
         <Heading :level="2">{{ action }} Team</Heading>
         <form @submit.prevent="formSubmit">
           <FormItemText :name="`team-name`" :label="`Team`" :input-type="`text`" :is-required="true"
-                    v-model="form.team"/>
+                        v-model="form.team"/>
+          <FormItemText :name="`social-link`" :label="`Social link`" :input-type="`text`" :is-required="false"
+                        v-model="form.socialLink"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -144,28 +157,31 @@ export default {
     <div class="wrapper entities__wrapper">
       <MessageList v-if="messages.length" :messages="messages" :type="`error`"/>
       <div class="entities__actions">
-        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">Create
-          team
+        <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Create'">
+          Create team
         </button>
       </div>
-      <ul v-if="entities" class="entities__list">
-        <li class="entities__item entities__item--team">
-          <span class="entities__cell">#</span>
-          <span class="entities__cell">Team</span>
-          <span class="entities__cell">Athletes</span>
-          <span class="entities__cell">Actions</span>
-        </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--team">
-          <span class="entities__cell">{{ index + 1 }}.</span>
-          <span class="entities__cell">{{ entity.post_title }}</span>
-          <span class="entities__cell">{{ entity.athletes }}</span>
-          <span class="entities__cell entities__cell--actions">
-              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+        <ul class="entities__list">
+          <li class="entities__item entities__item--team">
+            <span class="entities__cell">#</span>
+            <span class="entities__cell">Team</span>
+            <span class="entities__cell">Athletes</span>
+            <span class="entities__cell">Actions</span>
+          </li>
+          <li v-for="(entity, index) in entities" :key="entity.ID" @click="viewTeam(entity)"
+              class="entities__item entities__item--team">
+            <span class="entities__cell">{{ index + 1 }}.</span>
+            <span class="entities__cell">{{ entity.title }}</span>
+            <span class="entities__cell">{{ entity.athletes_count }}</span>
+            <span class="entities__cell entities__cell--actions">
+              <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>
+              <button type="button" class="entities__action" @click.stop="remove(entity.ID)">Remove</button>
             </span>
-        </li>
-      </ul>
-      <p v-else>You haven't created any teams yet</p>
+          </li>
+        </ul>
+      </div>
+      <p v-else-if="entities !== null && entities.length === 0">You haven't created any teams yet</p>
     </div>
   </div>
 </template>

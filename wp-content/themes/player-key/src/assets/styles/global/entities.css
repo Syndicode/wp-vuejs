@@ -8,10 +8,15 @@
     margin-bottom: 40px;
 }
 
+.entities__list-holder {
+    overflow: auto;
+}
+
 .entities__list {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    min-width: 1000px;
 }
 
 .entities__item {
@@ -29,6 +34,7 @@
 
 .entities__item--team {
     grid-template-columns: 40px 1fr 1fr 2fr;
+    cursor: pointer;
 }
 
 .entities__item--parent {
@@ -36,7 +42,15 @@
 }
 
 .entities__item--athlete {
-    grid-template-columns: 40px 2fr 1fr 2fr 1fr 2fr;
+    grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr 2fr;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.4s ease;
+}
+
+.entities__item--team:hover,
+.entities__item--athlete:hover {
+    background-color: rgba(236, 255, 229, 0.3);
 }
 
 .entities__item--payment {
@@ -52,6 +66,8 @@
 }
 
 .entities__cell--actions {
+    position: relative;
+    z-index: 1;
     display: flex;
     justify-content: flex-end;
     column-gap: 12px;
@@ -78,22 +94,6 @@
     text-align: right;
 }
 
-.entities__cell-indicator {
-    display: block;
-    width: 36px;
-    margin: auto;
-    padding: 4px 8px;
-    box-sizing: border-box;
-    font-size: 14px;
-    text-align: center;
-    border-radius: 8px;
-}
-
-.entities__cell-indicator--true {
-    color: green;
-    background-color: rgba(0, 183, 43, 0.22);
-}
-
 .entities__cell-indicator--false {
     color: #9d0000;
     background-color: rgba(255, 0, 0, 0.11);
@@ -105,6 +105,7 @@
     background-color: rgba(93, 93, 93, 0.11);
 }
 
+.entities__cell-indicator,
 .entities__payment-status,
 .entities__cell-status {
     display: block;
@@ -138,13 +139,15 @@
     background-color: rgba(200, 250, 0, 0.3);
 }
 
+.entities__cell-indicator--true,
 .entities__payment-status--paid,
+.entities__cell-status--paid,
 .entities__cell-status--verified {
     color: var(--rich-black);
     background-color: var(--fresh-lime);
 }
 
-
+.entities__cell-indicator--false,
 .entities__payment-status--canceled,
 .entities__cell-status--rejected {
     color: var(--white);
@@ -174,9 +177,9 @@
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 2;
+    z-index: 100;
     display: block;
-    width: 700px;
+    width: 100%;
     height: 100vh;
     overflow: hidden;
     padding: 100px 40px;
@@ -217,4 +220,10 @@
     display: block;
     width: 100%;
     height: 100%;
+}
+
+@media (min-width: 1024px) {
+    .entities__layout {
+        width: 700px;
+    }
 }

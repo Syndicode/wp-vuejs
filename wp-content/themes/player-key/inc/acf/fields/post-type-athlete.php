@@ -5,8 +5,9 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
 function acf_add_post_type_athlete_fields(): void {
 	$fields = new FieldsBuilder( 'athlete' );
 
-	$fields->addImage( 'photo', [
-		'label' => __( 'Photo', 'player-key' ),
+	$fields->addImage( 'headshot', [
+		'label'    => __( 'Headshot', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addText( 'first_name', [
@@ -24,6 +25,11 @@ function acf_add_post_type_athlete_fields(): void {
 		'display_format' => 'm/d/Y',
 		'return_format'  => 'm/d/Y',
 		'first_day'      => 1,
+	] );
+
+	$fields->addText( 'current_grade', [
+		'label'    => __( 'Current grade', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addUser( 'coach', [
@@ -53,11 +59,17 @@ function acf_add_post_type_athlete_fields(): void {
 	] );
 
 	$fields->addFile( 'card', [
-		'label' => __( 'Report card', 'player-key' ),
+		'label'    => __( 'Report card', 'player-key' ),
+		'required' => 1,
 	] );
 
 	$fields->addFile( 'certificate', [
-		'label' => __( 'Birth certificate/ID', 'player-key' ),
+		'label'    => __( 'Birth certificate/ID', 'player-key' ),
+		'required' => 1,
+	] );
+
+	$fields->addUrl( 'social_link', [
+		'label' => __( 'Social link', 'player-key' ),
 	] );
 
 	$fields->addSelect( 'status', [
@@ -88,3 +100,63 @@ function acf_add_post_type_athlete_fields(): void {
 }
 
 add_action( 'acf/init', 'acf_add_post_type_athlete_fields' );
+
+/**
+ * @param mixed $value
+ * @param string $post_id
+ * @param array $field
+ *
+ * @return mixed
+ */
+function acf_update_status_field( mixed $value, string $post_id, array $field ): mixed {
+
+	$previous_value = get_field( 'status', $post_id );
+
+	if ( $value === 'verified' && $previous_value !== 'verified' ) {
+		$athlete_first_name = get_field( 'first_name', $post_id );
+		$athlete_last_name  = get_field( 'last_name', $post_id );
+
+		$coach  = get_field( 'coach', $post_id );
+		$parent = get_field( 'parent', $post_id );
+
+		$url = get_site_url() . '/sign-in';
+
+		// Email for Coach
+		$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/athlete-verified.php' );
+		$message = str_replace( [
+			'{{url}}',
+			'{{user}}',
+			'{{athlete}}',
+		], [
+			$url,
+			$coach->first_name . ' ' . $coach->last_name,
+			$athlete_first_name . ' ' . $athlete_last_name,
+
+		], $message );
+
+		wp_mail( $coach->user_email, 'Your account has been successfully validated!', $message, [
+			'content-type: text/html',
+		] );
+
+		// Email for PArent
+		$message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/athlete-verified.php' );
+		$message = str_replace( [
+			'{{url}}',
+			'{{user}}',
+			'{{athlete}}',
+		], [
+			$url,
+			$parent->first_name . ' ' . $parent->last_name,
+			$athlete_first_name . ' ' . $athlete_last_name,
+
+		], $message );
+
+		wp_mail( $parent->user_email, 'Your athlete has been verified!', $message, [
+			'content-type: text/html',
+		] );
+	}
+
+	return $value;
+}
+
+add_filter( 'acf/update_value/key=field_athlete_status', 'acf_update_status_field', 10, 3 );

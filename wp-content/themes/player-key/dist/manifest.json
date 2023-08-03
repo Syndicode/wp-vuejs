@@ -1,5 +1,12 @@
 {
   "main.css": "css/main.css",
   "main.js": "js/main.js",
-  "assets/images/logo-player-key.svg": "assets/images/logo-player-key.svg"
+  "admin.js": "js/admin.js",
+  "js/dynamic/865.chunk.js": "js/dynamic/865.chunk.js",
+  "js/dynamic/699.chunk.js": "js/dynamic/699.chunk.js",
+  "js/dynamic/356.chunk.js": "js/dynamic/356.chunk.js",
+  "assets/images/logo-player-key.svg": "assets/images/logo-player-key.svg",
+  "assets/images/logo-stripe.svg": "assets/images/logo-stripe.svg",
+  "assets/images/icon-type-info.svg": "assets/images/icon-type-info.svg",
+  "assets/images/icon-type-notice.svg": "assets/images/icon-type-notice.svg"
 }

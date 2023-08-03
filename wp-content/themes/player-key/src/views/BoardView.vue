@@ -3,26 +3,24 @@ import BoardNavigation from "../components/BoardNavgation.vue";
 import Teams from "../components/Teams.vue";
 import Athletes from "../components/Athletes.vue";
 import Parents from "../components/Parents.vue";
-import Coaches from "../components/Coaches.vue";
 import Board from "../components/Board.vue";
 import Payments from "../components/Payments.vue";
 import Loader from "../components/Loader.vue";
+import Notifications from "../components/Notifications.vue";
 
 export default {
   components: {
-    Loader,
-    Payments,
-    Board,
-    Teams,
-    BoardNavigation,
+    Notifications,
     Athletes,
+    Board,
+    BoardNavigation,
+    Loader,
     Parents,
-    Coaches,
+    Payments,
+    Teams,
   },
   data() {
     return {
-      isLoaded: this.$store.state.authentication.isUserLoggedIn,
-      currentRole: this.$store.state.authentication.currentRole,
       currentEntity: this.$route.params.entity,
       entities: null,
       entitiesScheme: {
@@ -31,23 +29,32 @@ export default {
           'parents',
           'athletes',
           'payments',
-        ],
-        administrator: [
-          'teams',
-          'parents',
-          'athletes',
-          'payments',
+          'notifications'
         ],
         parent: [
           'athletes',
           'payments',
+          'notifications'
         ],
       },
+      isLoaded: this.$store.state.authentication.isUserLoggedIn,
     }
   },
   mounted() {
     if (!this.$store.state.authentication.isUserLoggedIn) {
       this.$router.push({name: 'sign-in'});
+    } else {
+      this.$store.dispatch('getNotifications', {
+        token: this.$store.state.authentication.token,
+        currentRole: this.$store.state.authentication.currentRole,
+      });
+
+      setInterval(() => {
+        this.$store.dispatch('getNotifications', {
+          token: this.$store.state.authentication.token,
+          currentRole: this.$store.state.authentication.currentRole,
+        });
+      }, 5000);
     }
   },
 }
@@ -56,30 +63,15 @@ export default {
 <template>
   <Loader :class="{active: !this.$store.state.authentication.isUserLoggedIn}"/>
   <div v-if="this.$store.state.authentication.isUserLoggedIn" class="board">
-    <BoardNavigation :user="this.$store.state.authentication.currentUser" :entities="entitiesScheme[currentRole]"/>
-    <div v-if="entitiesScheme[currentRole].includes(this.$route.params.entity)" class="board__view">
-      <Teams v-if="this.$route.params.entity === 'teams'"
-             :user-id="this.$store.state.authentication.currentUserId"
-             :current-role="currentRole"/>
-      <Athletes v-else-if="this.$route.params.entity === 'athletes'"
-                :current-user-id="this.$store.state.authentication.currentUserId"
-                :current-role="currentRole"/>
-      <Parents v-else-if="this.$route.params.entity === 'parents'"
-               :user-id="this.$store.state.authentication.currentUserId"
-               :current-role="currentRole"/>
-      <Coaches v-else-if="this.$route.params.entity === 'coaches'"
-               :user-id="this.$store.state.authentication.currentUserId"
-               :current-role="currentRole"/>
-      <Payments v-else-if="this.$route.params.entity === 'payments'"
-                :user-id="this.$store.state.authentication.currentUserId"
-                :current-role="currentRole"/>
+    <BoardNavigation :entities="entitiesScheme[this.$store.state.authentication.currentRole]"/>
+    <div v-if="entitiesScheme[this.$store.state.authentication.currentRole].includes(this.$route.params.entity)"
+         class="board__view">
+      <Teams v-if="this.$route.params.entity === 'teams'"/>
+      <Athletes v-else-if="this.$route.params.entity === 'athletes'"/>
+      <Parents v-else-if="this.$route.params.entity === 'parents'"/>
+      <Payments v-else-if="this.$route.params.entity === 'payments'"/>
+      <Notifications :type='`all`' v-else-if="this.$route.params.entity === 'notifications'"/>
     </div>
-    <Board v-else
-           :user="this.$store.state.authentication.currentUser"
-           :current-role="currentRole"/>
+    <Board v-else/>
   </div>
 </template>
-
-<style scoped>
-
-</style>

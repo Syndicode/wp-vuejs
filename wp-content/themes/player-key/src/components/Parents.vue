@@ -1,14 +1,16 @@
 <script>
 import Heading from "./Heading.vue";
 import FormItemText from "./FormItemText.vue";
-import entitiesApi from "../api/entities.js";
+import parentsApi from "../api/parents.js";
 import authApi from "../api/authentication.js";
 import ErrorList from "./ErrorList.vue";
 import Loader from "./Loader.vue";
+import MessageList from "./MessageList.vue";
 
 export default {
-  name: "Parents",
+  name: 'Parents',
   components: {
+    MessageList,
     Loader,
     ErrorList,
     FormItemText,
@@ -16,18 +18,21 @@ export default {
   },
   data() {
     return {
-      isSubmitting: false,
-      errors: [],
-      editParentId: null,
       action: '',
-      isLayoutVisible: false,
+      editParentId: null,
       entities: null,
-      isFormValid: false,
+      errors: [],
       form: {
         firstName: '',
         lastName: '',
         email: '',
-      }
+        socialLink: '',
+      },
+      isLoading: false,
+      isLayoutVisible: false,
+      isSubmitting: false,
+      isFormValid: false,
+      messages: [],
     };
   },
   watch: {
@@ -40,70 +45,14 @@ export default {
     }
   },
   methods: {
-    async resend(id) {
-      await authApi.resendActivationLink({
-        token: this.$store.state.authentication.token,
-        parentId: id,
-      }).then((response) => {
-        if (response.data.success) {
-          console.log('yes');
-        }
-      })
-    },
-    async fetchData() {
-      await entitiesApi.getEntitles({
-        entityType: 'parents',
-        token: this.$store.state.authentication.token,
-      }).then((response) => {
-        if (response.data.success) {
-          this.entities = response.data.data
-        }
-      });
-    },
-    async formSubmit() {
-      this.isSubmitting = true;
-      if (this.action === 'Add') {
-        await entitiesApi.createEntity({
-          entityType: 'parent',
-          token: this.$store.state.authentication.token,
-          form: this.form,
-        }).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              email: '',
-            }
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
-      } else if (this.action === 'Edit') {
-        await entitiesApi.editEntity({
-          entityType: 'parent',
-          token: this.$store.state.authentication.token,
-          parentId: this.editParentId,
-          form: this.form,
-        }).then((response) => {
-          if (response.data.success) {
-            this.entities = response.data.data;
-            this.form = {
-              firstName: '',
-              lastName: '',
-              email: '',
-            };
-            this.isLayoutVisible = false;
-            this.isFormValid = false;
-          } else {
-            this.errors.push(response.data.data)
-          }
-          this.isSubmitting = false;
-        });
-      }
+    closeLayout() {
+      this.isLayoutVisible = false;
+      this.form = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        socialLink: '',
+      };
     },
     edit(entity) {
       this.action = 'Edit';
@@ -111,23 +60,45 @@ export default {
       this.form.firstName = entity.first_name;
       this.form.lastName = entity.last_name;
       this.form.email = entity.email;
+      this.form.socialLink = entity.social_link;
       this.editParentId = entity.ID;
       this.isFormValid = true;
     },
-    async remove(id) {
-      await entitiesApi.removeEntity({
-        entityType: 'parent',
+    async fetchData() {
+      await parentsApi.getParents({
         token: this.$store.state.authentication.token,
-        parentId: id,
       }).then((response) => {
         if (response.data.success) {
-          this.entities = this.entities.filter((entity) => entity.ID !== id)
+          this.entities = response.data.data
+        } else {
+          this.entities = [];
         }
       });
     },
+    async formSubmit() {
+      this.isSubmitting = true;
+      if (this.action === 'Add') {
+        await parentsApi.createParent({
+          token: this.$store.state.authentication.token,
+          form: this.form,
+        }).then(this.onFormSubmit);
+      } else if (this.action === 'Edit') {
+        await parentsApi.editParent({
+          token: this.$store.state.authentication.token,
+          parentId: this.editParentId,
+          form: this.form,
+        }).then(this.onFormSubmit);
+      }
+    },
     isRequiredFieldsFiled() {
+      const formRequiredFields = {
+        firstName: '',
+        lastName: '',
+        email: '',
+      };
+
       let isFiled = true;
-      for (let field in this.form) {
+      for (let field in formRequiredFields) {
         if (this.form[field] === '') {
           isFiled = false;
         }
@@ -135,23 +106,59 @@ export default {
 
       return isFiled;
     },
-    closeLayout() {
-      this.isLayoutVisible = false;
-      this.form = {
-        firstName: '',
-        lastName: '',
-        email: '',
-      };
+    onFormSubmit(response) {
+      if (response.data.success) {
+        this.entities = response.data.data;
+        this.form = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          socialLink: '',
+        }
+        this.isLayoutVisible = false;
+        this.isFormValid = false;
+      } else {
+        this.errors.push(response.data.data)
+      }
+      this.isSubmitting = false;
+    },
+    async resend(id) {
+      this.isLoading = true;
+      await authApi.resendActivationLink({
+        token: this.$store.state.authentication.token,
+        parentId: id,
+      }).then((response) => {
+        if (response.data.success) {
+          this.messages.push('The link to activate the account has been successfully sent.');
+          this.entities = response.data.data;
+          setTimeout(() => {
+            this.messages = [];
+          }, 10000);
+        }
+        this.isLoading = false;
+      });
+    },
+    async remove(id) {
+      this.isLoading = true;
+      await parentsApi.removeParent({
+        token: this.$store.state.authentication.token,
+        parentId: id,
+      }).then((response) => {
+        if (response.data.success) {
+          this.entities = this.entities.filter((entity) => entity.ID !== id)
+        }
+        this.isLoading = false;
+      });
     }
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   }
 }
 </script>
 
 <template>
-
+  <Loader :class="{active: entities === null || isLoading}"/>
   <Heading :level="1">Parents</Heading>
   <div class="entities">
     <div class="entities__layout" :class="{active: isLayoutVisible}">
@@ -172,6 +179,8 @@ export default {
                         v-model="form.lastName"/>
           <FormItemText :name="`email`" :label="`Email`" :input-type="`email`" :is-required="true"
                         v-model="form.email"/>
+          <FormItemText :name="`social-link`" :label="`Social link`" :input-type="`text`" :is-required="false"
+                        v-model="form.socialLink"/>
           <div class="form__actions">
             <button type="submit" class="button button--lime" :disabled="!isFormValid">Submit</button>
             <span v-if="!isFormValid"
@@ -181,38 +190,44 @@ export default {
       </div>
     </div>
     <div class="wrapper entities__wrapper">
+      <MessageList v-if="messages.length" :messages="messages" :type="`success`"/>
       <div class="entities__actions">
         <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Add'">
           Add Parent
         </button>
       </div>
-      <ul v-if="entities" class="entities__list">
-        <li class="entities__item entities__item--parent">
-          <span class="entities__cell">#</span>
-          <span class="entities__cell">Name</span>
-          <span class="entities__cell">Athletes</span>
-          <span class="entities__cell">Is Activated</span>
-          <span class="entities__cell">Actions</span>
-        </li>
-        <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
-          <span class="entities__cell">{{ index + 1 }}.</span>
-          <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
-          <span class="entities__cell">{{ entity.athletes }}</span>
-          <div class="entities__cell">
-            <span v-if="entity.is_activated === 'yes'" class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
-            <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
-                  class="entities__cell-indicator entities__cell-indicator--false">No</span>
-            <span v-else-if="entity.is_activated === 'expired'"
-                  class="entities__cell-indicator entities__cell-indicator--expired">Expired</span>
-          </div>
-          <div class="entities__cell entities__cell--actions">
-            <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
-            <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
-            <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button" class="entities__action" @click="resend(entity.ID)">Resend activation Link</button>
-          </div>
-        </li>
-      </ul>
-      <p v-else>You don't have associated parents yet</p>
+      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+        <ul class="entities__list">
+          <li class="entities__item entities__item--parent">
+            <span class="entities__cell">#</span>
+            <span class="entities__cell">Name</span>
+            <span class="entities__cell">Athletes</span>
+            <span class="entities__cell">Is Activated</span>
+            <span class="entities__cell">Actions</span>
+          </li>
+          <li v-for="(entity, index) in entities" :key="entity.ID" class="entities__item entities__item--parent">
+            <span class="entities__cell">{{ index + 1 }}.</span>
+            <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
+            <span class="entities__cell">{{ entity.athletes }}</span>
+            <div class="entities__cell">
+              <span v-if="entity.is_activated === 'yes'"
+                    class="entities__cell-indicator entities__cell-indicator--true">Yes</span>
+              <span v-else-if="entity.is_activated === 'no' || !entity.is_activated"
+                    class="entities__cell-indicator entities__cell-indicator--false">No</span>
+              <span v-else-if="entity.is_activated === 'expired'"
+                    class="entities__cell-indicator entities__cell-indicator--expired">Expired</span>
+            </div>
+            <div class="entities__cell entities__cell--actions">
+              <button type="button" class="entities__action" @click="edit(entity)">Edit</button>
+              <button type="button" class="entities__action" @click="remove(entity.ID)">Remove</button>
+              <button v-if="entity.is_activated === 'expired' || !entity.is_activated" type="button"
+                      class="entities__action" @click="resend(entity.ID)">Resend activation Link
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <p v-else-if="entities !== null && entities.length === 0">You don't have associated parents yet</p>
     </div>
   </div>
 
