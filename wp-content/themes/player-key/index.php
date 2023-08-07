@@ -35,11 +35,7 @@
     <link rel="manifest" href="<?= $favicon_path ?>manifest.json">
     <meta name="theme-color" content="#ffffff">
     <!-- Favicon end -->
-    <!-- WP nonce start -->
-    <script>
-        window.pkiNonce = '<?php echo wp_create_nonce( 'wp_rest' ); ?>';
-    </script>
-    <!-- WP nonce end -->
+
 </head>
 <body>
 <div id="app"></div>

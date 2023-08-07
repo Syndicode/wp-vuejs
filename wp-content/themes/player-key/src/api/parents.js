@@ -8,11 +8,7 @@ const BASE_URL = `${document.location.protocol}//${document.location.host}/wp-js
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const createParent = (data) => {
-    return axios.post(`${BASE_URL}/parents/create-parent`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    });
+    return axios.post(`${BASE_URL}/parents/create-parent`, data);
 }
 
 /**
@@ -21,11 +17,7 @@ const createParent = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const editParent = (data) => {
-    return axios.post(`${BASE_URL}/parents/edit-parent`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    })
+    return axios.post(`${BASE_URL}/parents/edit-parent`, data)
 }
 
 /**
@@ -34,11 +26,7 @@ const editParent = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const getParents = (data) => {
-    return axios.post(`${BASE_URL}/parents/get-parents`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    });
+    return axios.post(`${BASE_URL}/parents/get-parents`, data);
 }
 
 /**
@@ -47,11 +35,7 @@ const getParents = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const removeParent = (data) => {
-    return axios.post(`${BASE_URL}/parents/remove-parent`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    });
+    return axios.post(`${BASE_URL}/parents/remove-parent`, data);
 }
 
 export default {

@@ -6,10 +6,8 @@ use WP_REST_Controller;
 use WP_REST_Request;
 
 class PKI_REST_Wordpress_Controller extends WP_REST_Controller {
-	const WEEK_IN_SECONDS = 604800;
-	const DAY_IN_SECONDS = 86400;
 
-	function __construct() {
+	public function __construct() {
 		$this->namespace = 'wp/v2';
 	}
 
@@ -17,8 +15,8 @@ class PKI_REST_Wordpress_Controller extends WP_REST_Controller {
 
 		register_rest_route( $this->namespace, "/menus/get-menu", [
 			[
-				'methods'  => 'GET',
 				'callback' => [ $this, 'get_menu' ],
+				'methods'  => 'GET',
 				'args'     => [
 					'menu-id' => [
 						'required' => true,

@@ -139,10 +139,10 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_permissions( WP_REST_Request $request ): bool {
-		$user    = wp_get_current_user();
 		$user_id = get_option( $request->get_param( 'token' ) );
+		$user    = get_user_by( 'ID', $user_id );
 
-		return ! empty( $user_id ) && $user !== null && $user->ID !== 0 && $user->ID === (int) $user_id;
+		return ! empty( $user_id ) && $user !== null && $user->ID !== 0;
 	}
 
 	/**
@@ -152,8 +152,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function create_team( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
 		if ( $user === null ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
@@ -196,8 +197,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function edit_team( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
 		if ( $user === null ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
@@ -257,8 +259,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function get_team_data( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
 		if ( $user === null ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
@@ -331,8 +334,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function get_teams( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
 		if ( $user === null || $user->ID === 0 ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
@@ -371,18 +375,14 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
 		$user_id = get_option( $data['token'] );
 
-		if ( ! empty( $user_id ) ) {
-			$user = get_user_by( 'ID', $user_id );
+		if ( (int) get_field( 'coach', $data['teamId'] )->ID === (int) $user_id ) {
 
-			if ( $user !== false && ! is_wp_error( $user ) && user_can( $user_id, 'create_team' ) && (int) get_field( 'coach', $data['teamId'] )->ID === (int) $user_id ) {
-
-				if ( $this->get_athletes_count_by_team( $data['teamId'] ) === 0 ) {
-					wp_delete_post( $data['teamId'] );
-					wp_send_json_success();
-				}
-
-				wp_send_json_error( 'You cannot delete a team while it has athletes.' );
+			if ( $this->get_athletes_count_by_team( $data['teamId'] ) === 0 ) {
+				wp_delete_post( $data['teamId'] );
+				wp_send_json_success();
 			}
+
+			wp_send_json_error( 'You cannot delete a team while it has athletes.' );
 		}
 
 		wp_send_json_error();

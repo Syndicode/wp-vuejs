@@ -8,11 +8,7 @@ const BASE_URL = `${document.location.protocol}//${document.location.host}/wp-js
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const createTeam = (data) => {
-    return axios.post(`${BASE_URL}/teams/create-team`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    })
+    return axios.post(`${BASE_URL}/teams/create-team`, data)
 }
 
 /**
@@ -21,11 +17,7 @@ const createTeam = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const editTeam = (data) => {
-    return axios.post(`${BASE_URL}/teams/edit-team`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    });
+    return axios.post(`${BASE_URL}/teams/edit-team`, data);
 }
 
 /**
@@ -34,11 +26,7 @@ const editTeam = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const getTeams = (data) => {
-    return axios.post(`${BASE_URL}/teams/get-teams`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    });
+    return axios.post(`${BASE_URL}/teams/get-teams`, data);
 }
 
 /**
@@ -47,11 +35,7 @@ const getTeams = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const getTeamData = (data) => {
-    return axios.post(`${BASE_URL}/teams/get-team-data`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    })
+    return axios.post(`${BASE_URL}/teams/get-team-data`, data)
 }
 
 /**
@@ -60,11 +44,7 @@ const getTeamData = (data) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 const removeTeam = (data) => {
-    return axios.post(`${BASE_URL}/teams/remove-team`, data, {
-        headers: {
-            'X-WP-Nonce': window.pkiNonce
-        }
-    })
+    return axios.post(`${BASE_URL}/teams/remove-team`, data)
 }
 
 export default {

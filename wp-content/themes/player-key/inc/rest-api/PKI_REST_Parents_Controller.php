@@ -100,17 +100,17 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 		] );
 	}
 
-	/*
-	*
+
+	/**
 	 * @param WP_REST_Request $request
 	 *
 	 * @return bool
 	 */
 	public function check_permissions( WP_REST_Request $request ): bool {
-		$user    = wp_get_current_user();
 		$user_id = get_option( $request->get_param( 'token' ) );
+		$user    = get_user_by( 'ID', $user_id );
 
-		return ! empty( $user_id ) && $user !== null && $user->ID !== 0 && $user->ID === (int) $user_id;
+		return ! empty( $user_id ) && $user !== null && $user->ID !== 0;
 	}
 
 	/**
@@ -120,10 +120,11 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function create_parent( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
-		if ( $user === null ) {
+		if ( $user === false ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
@@ -170,10 +171,11 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 	 * @throws JsonException
 	 */
 	public function edit_parent( WP_REST_Request $request ): void {
-		$data = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user = wp_get_current_user();
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
-		if ( $user === null ) {
+		if ( $user === false ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
@@ -194,12 +196,17 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * @param WP_REST_Request $request
+	 *
 	 * @return void
+	 * @throws JsonException
 	 */
-	public function get_parents(): void {
-		$user = wp_get_current_user();
+	public function get_parents( WP_REST_Request $request ): void {
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
 
-		if ( $user === null ) {
+		if ( $user === false ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
@@ -281,10 +288,11 @@ class PKI_REST_Parents_Controller extends WP_REST_Controller {
 	 */
 	public function remove_parent( WP_REST_Request $request ): void {
 		$data      = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
-		$user      = wp_get_current_user();
+		$user_id   = get_option( $data['token'] );
+		$user      = get_user_by( 'ID', $user_id );
 		$parent_id = $data['parentId'];
 
-		if ( $user === null ) {
+		if ( $user === false ) {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
