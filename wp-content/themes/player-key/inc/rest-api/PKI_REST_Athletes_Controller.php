@@ -87,7 +87,22 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 	 */
 	public function check_permissions( WP_REST_Request $request ): bool {
 		$user_id = get_option( $request->get_param( 'token' ) );
-		$user    = get_user_by( 'ID', $user_id );
+		$user    = null;
+
+		if ( $user_id ) {
+			$user = get_user_by( 'ID', $user_id );
+		} else {
+			$site_url = get_site_option( 'siteurl' );
+			if ( $site_url ) {
+				$cookie_hash  = 'wordpress_logged_in_' . md5( $site_url );
+				$cookie       = $_COOKIE[ $cookie_hash ];
+				$cookie_parts = explode( '|', $cookie );
+
+				if ( count( $cookie_parts ) === 4 ) {
+					$user = get_user_by( 'login', $cookie_parts[0] );
+				}
+			}
+		}
 
 		return ( $user !== null && $user->roles[0] === 'administrator' ) || ( ! empty( $user_id ) && $user !== null && $user->ID !== 0 );
 	}
@@ -280,10 +295,6 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
 		$user_id = get_option( $data['token'] );
 		$user    = get_user_by( 'ID', $user_id );
-
-		if ( $user === false ) {
-			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
-		}
 
 		$athlete = null;
 		switch ( $data['field'] ) {
