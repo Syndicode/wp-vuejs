@@ -40,7 +40,6 @@ export default {
       });
     },
     async fetchData() {
-      console.log(this.$route);
       await athletesApi.getAthleteBy({
         field: 'slug',
         token: this.$store.state.authentication.token,
