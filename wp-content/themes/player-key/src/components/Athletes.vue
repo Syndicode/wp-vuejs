@@ -199,6 +199,7 @@ export default {
         coach: [
           'firstName',
           'lastName',
+          'currentGrade',
           'team',
           'parent',
           'birthday',
@@ -207,6 +208,7 @@ export default {
           'headshot',
           'firstName',
           'lastName',
+          'currentGrade',
           'team',
           'parent',
           'birthday',
@@ -412,7 +414,8 @@ export default {
         <form v-if="teams.length > 0 && parents.length > 0 && (action === 'Edit' || action === 'Add')"
               @submit.prevent="formSubmit">
           <div class="form-item-file">
-            <span class="form__label">Headshot <sup v-if="this.$store.state.authentication.currentRole === 'parent'">*</sup></span>
+            <span class="form__label">Headshot <sup
+                v-if="this.$store.state.authentication.currentRole === 'parent'">*</sup></span>
             <FormItemFile @file-updated="uploadHeadshot"
                           :input-id="`headshot`"
                           :file-title="`Headshot`"
@@ -425,7 +428,7 @@ export default {
                         v-model="form.lastName"/>
           <FormItemText :name="`birthday`" :label="`Birthday`" :input-type="`date`" :is-required="true"
                         v-model="form.birthday"/>
-          <FormItemText :name="`current-grade`" :label="`Current grade`" :input-type="`text`" :is-required="false"
+          <FormItemText :name="`current-grade`" :label="`Current grade`" :input-type="`text`" :is-required="true"
                         v-model="form.currentGrade"/>
           <label class="form-item-select">
             <span class="form__label">Team <sup>*</sup></span>
