@@ -28,6 +28,9 @@ export default {
       editTeamId: null,
       form: {
         team: '',
+        sport: '',
+        grade: '',
+        gender: '',
         socialLink: ''
       },
       isFormValid: false,
@@ -41,12 +44,18 @@ export default {
     closeLayout() {
       this.isLayoutVisible = false;
       this.form.team = '';
+      this.form.sport = '';
+      this.form.grade = '';
+      this.form.gender = '';
       this.form.socialLink = '';
     },
     edit(entity) {
       this.action = 'Edit';
       this.isLayoutVisible = true;
       this.form.team = entity.title;
+      this.form.sport = entity.sport;
+      this.form.grade = entity.grade;
+      this.form.gender = entity.gender;
       this.form.socialLink = entity.social_link;
       this.editTeamId = entity.ID;
     },
@@ -92,8 +101,11 @@ export default {
     },
     onFormSubmitSuccess(data) {
       this.entities = data;
-      this.form.team = ''
-      this.form.socialLink = ''
+      this.form.team = '';
+      this.form.sport = '';
+      this.form.grade = '';
+      this.form.gender = '';
+      this.form.socialLink = '';
       this.isLayoutVisible = false;
       this.isFormValid = false;
     },
@@ -144,6 +156,12 @@ export default {
         <form @submit.prevent="formSubmit">
           <FormItemText :name="`team-name`" :label="`Team`" :input-type="`text`" :is-required="true"
                         v-model="form.team"/>
+          <FormItemText :name="`sport`" :label="`Sport`" :input-type="`text`" :is-required="false"
+                        v-model="form.sport"/>
+          <FormItemText :name="`grade`" :label="`Grade`" :input-type="`text`" :is-required="false"
+                        v-model="form.grade"/>
+          <FormItemText :name="`gender`" :label="`Gender`" :input-type="`text`" :is-required="false"
+                        v-model="form.gender"/>
           <FormItemText :name="`social-link`" :label="`Social link`" :input-type="`text`" :is-required="false"
                         v-model="form.socialLink"/>
           <div class="form__actions">
@@ -166,6 +184,9 @@ export default {
           <li class="entities__item entities__item--team">
             <span class="entities__cell">#</span>
             <span class="entities__cell">Team</span>
+            <span class="entities__cell">Sport</span>
+            <span class="entities__cell">Grade</span>
+            <span class="entities__cell">Gender</span>
             <span class="entities__cell">Athletes</span>
             <span class="entities__cell">Actions</span>
           </li>
@@ -173,6 +194,9 @@ export default {
               class="entities__item entities__item--team">
             <span class="entities__cell">{{ index + 1 }}.</span>
             <span class="entities__cell">{{ entity.title }}</span>
+            <span class="entities__cell">{{ entity.sport }}</span>
+            <span class="entities__cell">{{ entity.grade }}</span>
+            <span class="entities__cell">{{ entity.gender }}</span>
             <span class="entities__cell">{{ entity.athletes_count }}</span>
             <span class="entities__cell entities__cell--actions">
               <button type="button" class="entities__action" @click.stop="edit(entity)">Edit</button>

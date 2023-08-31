@@ -171,6 +171,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 
 		if ( ! is_wp_error( $team_id ) ) {
 			update_field( 'coach', $user->ID, $team_id );
+			update_field( 'sport', $data['form']['sport'], $team_id );
+			update_field( 'grade', $data['form']['grade'], $team_id );
+			update_field( 'gender', $data['form']['gender'], $team_id );
 			update_field( 'social_link', $data['form']['socialLink'], $team_id );
 
 			$teams = get_posts( [
@@ -211,6 +214,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 		] ) );
 
 		if ( ! is_wp_error( $team_id ) ) {
+			update_field( 'sport', $data['form']['sport'], $team_id );
+			update_field( 'grade', $data['form']['grade'], $team_id );
+			update_field( 'gender', $data['form']['gender'], $team_id );
 			update_field( 'social_link', $data['form']['socialLink'], $team_id );
 
 			$teams = get_posts( [
@@ -297,6 +303,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 				'title'       => $team->post_title,
 				'athletes'    => $athletes_data,
 				'slug'        => $team->post_name,
+				'sport'       => get_field( 'sport', $team->ID ),
+				'grade'       => get_field( 'grade', $team->ID ),
+				'gender'      => get_field( 'gender', $team->ID ),
 				'social_link' => get_field( 'social_link', $team->ID ),
 			] );
 		}
@@ -320,6 +329,9 @@ class PKI_REST_Teams_Controller extends WP_REST_Controller {
 				'title'          => $team->post_title,
 				'athletes_count' => $athletes_count,
 				'slug'           => $team->post_name,
+				'sport'          => get_field( 'sport', $team->ID ),
+				'grade'          => get_field( 'grade', $team->ID ),
+				'gender'         => get_field( 'gender', $team->ID ),
 				'social_link'    => get_field( 'social_link', $team->ID ),
 			];
 		}

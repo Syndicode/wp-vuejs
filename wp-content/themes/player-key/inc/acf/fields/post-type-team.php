@@ -14,9 +14,21 @@ function acf_add_post_type_team_fields(): void {
 		'return_format' => 'object',
 	] );
 
-	$fields->addUrl('social_link', [
-		'label'         => __( 'Social link', 'player-key' ),
-	]);
+	$fields->addText( 'sport', [
+		'label' => __( 'Sport', 'player-key' ),
+	] );
+
+	$fields->addText( 'grade', [
+		'label' => __( 'Grade', 'player-key' ),
+	] );
+
+	$fields->addText( 'gender', [
+		'label' => __( 'Gender', 'player-key' ),
+	] );
+
+	$fields->addUrl( 'social_link', [
+		'label' => __( 'Social link', 'player-key' ),
+	] );
 
 	$fields->setLocation( 'post_type', '==', 'team' );
 
