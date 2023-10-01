@@ -1,15 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import SignUpView from '../views/SignUpView.vue'
-import SignUpRoleView from '../views/SignUpRoleView.vue'
-import SignInView from '../views/SignInView.vue'
-import BoardView from '../views/BoardView.vue'
-import CompleteParentView from '../views/CompleteParentView.vue'
-import CompleteAthleteView from '../views/CompleteAthleteView.vue'
-import PasswordResetView from '../views/PasswordResetView.vue'
-import AthleteView from '../views/AthleteView.vue'
-import TeamView from '../views/TeamView.vue'
-import PageView from '../views/PageView.vue'
 import store from '../store/index.js'
 
 const SITE_TITLE = 'Player Key ID';
@@ -27,7 +17,7 @@ const router = createRouter({
         {
             path: '/sign-up',
             name: 'sign-up',
-            component: SignUpView,
+            component: () => import('../views/SignUpView.vue'),
             meta: {
                 title: `Sign up - ${SITE_TITLE}`
             },
@@ -35,7 +25,7 @@ const router = createRouter({
         {
             path: '/password-reset',
             name: 'password-reset',
-            component: PasswordResetView,
+            component: () => import('../views/PasswordResetView.vue'),
             meta: {
                 title: `Password reset - ${SITE_TITLE}`
             },
@@ -43,7 +33,7 @@ const router = createRouter({
         {
             path: '/sign-up/:role',
             name: 'sign-up-role',
-            component: SignUpRoleView,
+            component: () => import('../views/SignUpRoleView.vue'),
             meta: {
                 title: `Sign up - ${SITE_TITLE}`
             },
@@ -51,7 +41,7 @@ const router = createRouter({
         {
             path: '/sign-in',
             name: 'sign-in',
-            component: SignInView,
+            component: () => import('../views/SignInView.vue'),
             meta: {
                 title: `Sign in - ${SITE_TITLE}`
             },
@@ -59,7 +49,7 @@ const router = createRouter({
         {
             path: '/board',
             name: 'board',
-            component: BoardView,
+            component: () => import('../views/BoardView.vue'),
             meta: {
                 title: `Board - ${SITE_TITLE}`
             },
@@ -67,7 +57,7 @@ const router = createRouter({
         {
             path: '/board/:entity',
             name: 'board-entity',
-            component: BoardView,
+            component: () => import('../views/BoardView.vue'),
             meta: {
                 title: `Board - ${SITE_TITLE}`
             },
@@ -75,7 +65,7 @@ const router = createRouter({
         {
             path: '/complete/parent',
             name: 'complete-parent',
-            component: CompleteParentView,
+            component: () => import('../views/CompleteParentView.vue'),
             meta: {
                 title: `Complete Parent information - ${SITE_TITLE}`
             },
@@ -83,7 +73,7 @@ const router = createRouter({
         {
             path: '/complete/athlete',
             name: 'complete-athlete',
-            component: CompleteAthleteView,
+            component: () => import('../views/CompleteAthleteView.vue'),
             meta: {
                 title: `Complete Athlete information - ${SITE_TITLE}`
             },
@@ -91,7 +81,7 @@ const router = createRouter({
         {
             path: '/athlete/:slug',
             name: 'athlete',
-            component: AthleteView,
+            component: () => import('../views/AthleteView.vue'),
             meta: {
                 title: `Athlete - ${SITE_TITLE}`
             },
@@ -99,14 +89,14 @@ const router = createRouter({
         {
             path: '/team/:slug',
             name: 'team',
-            component: TeamView,
+            component: () => import('../views/TeamView.vue'),
             meta: {
                 title: `Team - ${SITE_TITLE}`
             },
         },
         {
             path: '/:slug',
-            component: PageView,
+            component: () => import('../views/PageView.vue'),
         },
     ]
 });
@@ -118,7 +108,7 @@ router.beforeEach(async (to, from) => {
         });
     }
     if ((to.name === 'sign-in' || to.name === 'sign-up') && store.state.authentication.isUserLoggedIn) {
-        router.push({name: 'board'});
+        await router.push({name: 'board'});
     }
 })
 

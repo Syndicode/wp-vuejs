@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import {createStore} from 'vuex'
 
 import authentication from './modules/authentication.js'

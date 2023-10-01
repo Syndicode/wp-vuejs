@@ -245,7 +245,7 @@ export default {
         </div>
       </div>
       <MessageList v-if="messages.length > 0" :messages="messages" :type="`success`"/>
-      <Heading :level="1">Board {{ test }}</Heading>
+      <Heading :level="1">Board</Heading>
       <h2 class="board__account-name">{{ user.display_name }}
         <button class="board__account-edit" @click="() => {this.isLayoutVisible = true;}">Edit</button>
       </h2>

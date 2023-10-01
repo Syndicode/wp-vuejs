@@ -1,6 +1,7 @@
 <script>
 import ButtonLink from "./ButtonLink.vue";
 import MainNavigation from "./MainNavigation.vue";
+import Logo from '../assets/images/logo-player-key.svg';
 
 export default {
   components: {
@@ -11,6 +12,7 @@ export default {
     return {
       isLoaded: false,
       isMainNavigationActive: false,
+      logo: Logo,
     };
   },
   watch: {
@@ -43,7 +45,7 @@ export default {
   <header class="header">
     <div class="wrapper header__wrapper">
       <RouterLink :to="{name: 'home'}" :class="`header__logo-holder`">
-        <img src="../assets/images/logo-player-key.svg" alt="Player Key ID" class="header__logo">
+        <img :src="logo" alt="Player Key ID" class="header__logo">
       </RouterLink>
       <MainNavigation :is-active="isMainNavigationActive"/>
       <button class="hamburger hamburger--3dx" :class="{'is-active': isMainNavigationActive}" @click="toggleMainNavigation">

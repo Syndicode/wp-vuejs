@@ -1,4 +1,4 @@
-import authApi, {registerUser} from '../../api/authentication.js'
+import authApi from '../../api/authentication.js'
 
 const state = {
     athleteToken: null,

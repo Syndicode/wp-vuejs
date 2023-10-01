@@ -13,9 +13,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <!-- Google fonts end -->
 
-    <!-- Main styles start -->
-    <link rel="stylesheet" href="/wp-content/themes/player-key/dist/css/main.css">
-    <!-- Main styles end -->
+    <?php if ( STYLE_URL ) : ?>
+        <!-- Main styles start -->
+        <link rel="stylesheet" href="<?php echo STYLE_URL; ?>">
+        <!-- Main styles end -->
+    <?php endif ?>
 
     <!-- Favicon start -->
 	<?php $favicon_path = '/wp-content/themes/player-key/src/assets/favicon/'; ?>
@@ -39,6 +41,6 @@
 </head>
 <body>
 <div id="app"></div>
-<script src="/wp-content/themes/player-key/dist/js/main.js?v=1.0.100"></script>
+<script src="<?php echo SCRIPT_URL; ?>" type="module"></script>
 </body>
 </html>

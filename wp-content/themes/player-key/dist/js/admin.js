@@ -1,1 +1,0 @@
-(()=>{"use strict";(()=>{window.addEventListener("load",(()=>{const t=document.querySelector('.post-new-php.post-type-coupon input[name="post_title"]'),e=document.querySelector("#title-prompt-text");if(t){e.classList.add("screen-reader-text");let o=Date.now().toString();o=`pki${o.slice(6)}`,t.value=o}}))})()})();

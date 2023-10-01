@@ -1,9 +1,12 @@
-
+<script setup>
+import Logo from '../assets/images/logo-player-key.svg'
+import ButtonLink from "../components/ButtonLink.vue";
+</script>
 
 <template>
   <div class="home">
     <div class="home__content-holder">
-      <img src="../assets/images/logo-player-key.svg" alt="Player Key ID" class="home__logo">
+      <img :src="Logo" alt="Player Key ID" class="home__logo">
       <div class="home__content-actions">
         <ButtonLink :href="{name: 'sign-in'}" :button-title="`Sign In`"
                              :button-style="`black`" :class="`header__cta`"/>
@@ -32,6 +35,3 @@
   padding-top: 20px;
 }
 </style>
-<script setup>
-import ButtonLink from "../components/ButtonLink.vue";
-</script>
