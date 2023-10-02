@@ -3,12 +3,8 @@
  * @return void
  */
 function player_key_admin_scripts(): void {
-	$theme_version = wp_get_theme()->get( 'Version' );
-
-	wp_enqueue_style( 'admin-styles', TEMPLATE_DIR_URI . '/src/assets/styles/admin-panel.css', [], $theme_version, 'all' );
-
-	wp_enqueue_script( 'admin-scripts', TEMPLATE_DIR_URI . '/dist/js/admin.js', [], $theme_version );
-
+	wp_enqueue_style( 'admin-styles', player_key_vite_asset( 'src/admin-panel.css' ), [], null );
+	wp_enqueue_script( 'admin-scripts', player_key_vite_asset( 'src/admin-panel.js' ), [], null );
 }
 
 add_action( 'admin_enqueue_scripts', 'player_key_admin_scripts' );

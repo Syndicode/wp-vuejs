@@ -4,6 +4,7 @@
 
 .entities__actions {
     display: flex;
+    gap: 8px;
     justify-content: flex-end;
     margin-bottom: 40px;
 }

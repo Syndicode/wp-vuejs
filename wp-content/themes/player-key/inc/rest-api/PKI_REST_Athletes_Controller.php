@@ -68,6 +68,18 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 		] );
 
 		/**
+		 * Get Athletes list without team
+		 */
+		register_rest_route( $this->namespace, "/$this->rest_base/get-athletes-without-team", [
+			[
+				'callback'            => [ $this, 'get_athletes_without_team' ],
+				'methods'             => 'POST',
+				'permission_callback' => [ $this, 'check_permissions' ],
+
+			],
+		] );
+
+		/**
 		 * Remove Athlete
 		 */
 		register_rest_route( $this->namespace, "/$this->rest_base/remove-athlete", [
@@ -136,7 +148,6 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			update_field( 'birthday', $data['birthday'], $athlete_id );
 			update_field( 'current_grade', $data['currentGrade'], $athlete_id );
 			update_field( 'parent', $data['parent'], $athlete_id );
-			update_field( 'team', $data['team'], $athlete_id );
 			update_field( 'social_link', $data['socialLink'], $athlete_id );
 			update_field( 'payment_status', 'unpaid', $athlete_id );
 
@@ -152,6 +163,7 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 
 			// If current Role COACH
 			if ( $data['currentRole'] === 'coach' ) {
+				update_field( 'team', $data['team'], $athlete_id );
 				update_field( 'coach', $user->ID, $athlete_id );
 				update_field( 'status', 'incomplete', $athlete_id );
 
@@ -177,18 +189,6 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 
 				// If current Role PARENT
 			} else if ( $data['currentRole'] === 'parent' ) {
-				$team_id = $data['team'];
-				// Team coach
-				$coach = get_field( 'coach', $team_id );
-
-				player_key_add_notification( $coach->ID, 'coach', 'New Athlete (' . $data['firstName'] . ' ' . $data['lastName'] . ') was created', 'info' );
-
-				//Parent coaches (can be multiple)
-				$parent_coaches   = get_field( 'coaches', 'user_' . $user->ID );
-				$parent_coaches[] = $coach;
-
-				update_field( 'coaches', $parent_coaches, 'user_' . $user->ID );
-				update_field( 'coach', $coach, $athlete_id );
 				update_field( 'status', 'pending', $athlete_id );
 
 				$card_attachment_id = media_handle_upload( 'card', $athlete_id );
@@ -225,10 +225,9 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
 		}
 
-		$coach  = get_field( 'coach', $data['athleteId'] );
 		$parent = get_field( 'parent', $data['athleteId'] );
 
-		if ( $coach->ID === $user->ID || $parent->ID === $user->ID ) {
+		if ( $data['currentRole'] === 'coach' || $parent->ID === $user->ID ) {
 
 			$athlete_id = wp_update_post( wp_slash( [
 				'ID'         => $data['athleteId'],
@@ -267,9 +266,15 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 					update_post_meta( $athlete_id, 'certificate_filename', $data['certificateFileName'] );
 				}
 
-				if ( $data['currentRole'] === 'parent' ) {
+				if ( $data['currentRole'] === 'coach' ) {
 					$team_id = $data['team'];
 					$coach   = get_field( 'coach', $team_id );
+
+					//Parent coaches (can be multiple)
+					$parent_coaches   = get_field( 'coaches', 'user_' . $parent->ID );
+					$parent_coaches[] = $coach;
+
+					update_field( 'coaches', $parent_coaches, 'user_' . $parent->ID );
 					update_field( 'coach', $coach, $athlete_id );
 				}
 
@@ -339,9 +344,9 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 			'parent'                => $parent,
 			'coach'                 => $coach,
 			'parent_name'           => $parent->first_name . ' ' . $parent->last_name,
-			'coach_name'            => $coach->first_name . ' ' . $coach->last_name,
+			'coach_name'            => $coach ? $coach->first_name . ' ' . $coach->last_name : 'No Coach',
 			'parent_id'             => $parent->ID,
-			'coach_id'              => $coach->ID,
+			'coach_id'              => $coach ? $coach->ID : null,
 			'social_link'           => get_field( 'social_link', $athlete->ID ),
 			'status'                => get_field( 'status', $athlete->ID ),
 			'payment_status'        => get_field( 'payment_status', $athlete->ID ),
@@ -381,23 +386,66 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return void
+	 * @throws JsonException
+	 */
+	public function get_athletes_without_team( WP_REST_Request $request ): void {
+		$data    = json_decode( $request->get_body(), true, 512, JSON_THROW_ON_ERROR );
+		$user_id = get_option( $data['token'] );
+		$user    = get_user_by( 'ID', $user_id );
+
+		if ( $user === false ) {
+			wp_send_json_error( 'User not found. You are not authorized to perform this action.' );
+		}
+
+		if ( get_user_meta( $user->ID, 'current-role', true ) !== 'coach' ) {
+			wp_send_json_error( 'You are not authorized to perform this action.' );
+		}
+
+		$athletes = $this->get_athletes_list();
+
+		if ( ! empty( $athletes ) ) {
+			wp_send_json_success( $athletes );
+		}
+
+		wp_send_json_error( 'Athletes not found' );
+	}
+
+	/**
 	 * @param string $role
 	 * @param int $id
 	 *
 	 * @return array
 	 */
-	private function get_athletes_list( string $role, int $id ): array {
+	private function get_athletes_list( string $role = '', int $id = 0 ): array {
 		$athletes_data = [];
-		$athletes      = get_posts( [
+		$athletes_args = [
 			'numberposts' => - 1,
 			'post_type'   => 'athlete',
 			'meta_query'  => [
 				[
-					'key'   => $role,
-					'value' => $id,
+					'key' => 'coach',
+					'compare' => 'NOT EXISTS',
+				],
+				[
+					'key' => 'team',
+					'compare' => 'NOT EXISTS',
 				]
 			],
-		] );
+		];
+
+		if ( ! empty( $role ) && $id ) {
+			$athletes_args['meta_query'] = [
+				[
+					'key'   => $role,
+					'value' => $id,
+				],
+			];
+		}
+
+		$athletes = get_posts( $athletes_args );
 
 		if ( ! empty( $athletes ) ) {
 

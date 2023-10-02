@@ -34,7 +34,6 @@ function acf_add_post_type_athlete_fields(): void {
 
 	$fields->addUser( 'coach', [
 		'label'         => __( 'Coach', 'player-key' ),
-		'required'      => 1,
 		'role'          => 'coach',
 		'allow_null'    => 0,
 		'multiple'      => 0,
@@ -52,7 +51,6 @@ function acf_add_post_type_athlete_fields(): void {
 
 	$fields->addPostObject( 'team', [
 		'label'         => __( 'Team', 'player-key' ),
-		'required'      => 1,
 		'post_type'     => [ 'team' ],
 		'return_format' => 'object',
 		'ui'            => 1,

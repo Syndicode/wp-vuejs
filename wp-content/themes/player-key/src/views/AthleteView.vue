@@ -92,7 +92,7 @@ export default {
             </div>
             <div class="athlete__data-row">
               <div class="athlete__data-indicator">Team</div>
-              <div class="athlete__data-value">{{ athlete.team.post_title }}</div>
+              <div class="athlete__data-value">{{ athlete.team ? athlete.team?.post_title : 'No Team' }}</div>
             </div>
             <div class="athlete__data-row">
               <div class="athlete__data-indicator">Coach</div>

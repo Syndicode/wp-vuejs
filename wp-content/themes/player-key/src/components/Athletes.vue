@@ -33,6 +33,7 @@ export default {
       currentEntity: null,
       editAthleteId: null,
       entities: null,
+      entitiesWithoutTeam: null,
       errors: [],
       filePreview: '',
       form: {
@@ -51,10 +52,20 @@ export default {
       isSubmitting: false,
       isLayoutVisible: false,
       isFormValid: false,
+      isSearch: false,
       parents: [],
       paidAthlete: null,
       teams: [],
     };
+  },
+  computed: {
+    filteredEntities() {
+      if (this.isSearch) {
+        return this.entitiesWithoutTeam;
+      } else {
+        return this.entities;
+      }
+    }
   },
   watch: {
     form: {
@@ -71,13 +82,13 @@ export default {
       this.form.headshotFileName = '';
       this.form.firstName = '';
       this.form.lastName = '';
-      this.form.team = '';
       this.form.birthday = '';
       this.form.currentGrade = '';
       this.form.socialLink = '';
 
       if (this.$store.state.authentication.currentRole === 'coach') {
         this.form.parent = '';
+        this.form.team = '';
       }
 
       if (this.$store.state.authentication.currentRole === 'parent') {
@@ -91,14 +102,14 @@ export default {
       this.form.headshotFileName = entity.headshot_file_name;
       this.form.firstName = entity.first_name;
       this.form.lastName = entity.last_name;
-      this.form.team = {label: entity.team.post_title, code: entity.team.ID};
+      this.form.team = {label: entity.team ? entity.team.post_title : 'No Team', code: entity.team ? entity.team.ID : null};
       this.form.parent = {label: entity.parent_name, code: entity.parent.ID};
       this.form.cardFileName = entity.card_file_name;
       this.form.certificateFileName = entity.certificate_file_name;
       this.editAthleteId = entity.ID;
 
       let birthday = new Date(entity.birthday);
-      this.form.birthday = `${birthday.getFullYear()}-${birthday.getMonth() < 10 ? '0' + (birthday.getMonth() + 1) : birthday.getMonth() + 1}-${birthday.getDate()}`;
+      this.form.birthday = `${birthday.getFullYear()}-${birthday.getMonth() + 1 < 10 ? '0' + (birthday.getMonth() + 1) : birthday.getMonth() + 1}-${birthday.getDate() < 10 ? '0' + birthday.getDate() : birthday.getDate()}`;
       this.form.currentGrade = entity.current_grade;
       this.form.socialLink = entity.social_link;
     },
@@ -113,6 +124,19 @@ export default {
           this.entities = [];
         }
       });
+
+      if (this.$store.state.authentication.currentRole === 'coach') {
+        await athletesApi.getAthletesWithoutTeam({
+          token: this.$store.state.authentication.token,
+          currentRole: this.$store.state.authentication.currentRole,
+        }).then((response) => {
+          if (response.data.success) {
+            this.entitiesWithoutTeam = response.data.data;
+          } else {
+            this.entitiesWithoutTeam = [];
+          }
+        });
+      }
     },
     async formSubmit() {
       this.isSubmitting = true;
@@ -200,7 +224,6 @@ export default {
           'firstName',
           'lastName',
           'currentGrade',
-          'team',
           'parent',
           'birthday',
         ],
@@ -209,7 +232,6 @@ export default {
           'firstName',
           'lastName',
           'currentGrade',
-          'team',
           'parent',
           'birthday',
           'cardFileName',
@@ -248,6 +270,7 @@ export default {
         this.errors.push(response.data.data)
       }
       this.isSubmitting = false;
+      this.isSearch = false;
     },
     async remove(id) {
       this.isLoading = true;
@@ -411,7 +434,7 @@ export default {
       <div class="entities__layout-inner">
         <Heading :level="2">{{ action }} Athlete</Heading>
         <ErrorList v-if="errors.length" :errors="errors"/>
-        <form v-if="teams.length > 0 && parents.length > 0 && (action === 'Edit' || action === 'Add')"
+        <form v-if="teams.length > 0 && (action === 'Edit' || action === 'Add')"
               @submit.prevent="formSubmit">
           <div class="form-item-file">
             <span class="form__label">Headshot <sup
@@ -430,12 +453,11 @@ export default {
                         v-model="form.birthday"/>
           <FormItemText :name="`current-grade`" :label="`Current grade`" :input-type="`text`" :is-required="true"
                         v-model="form.currentGrade"/>
-          <label class="form-item-select">
-            <span class="form__label">Team <sup>*</sup></span>
+          <label v-if="this.$store.state.authentication.currentRole === 'coach'" class="form-item-select">
+            <span class="form__label">Team</span>
             <vSelect :options="teams"
                      v-model="form.team"
-                     :class="`form-item-select__field`"
-                     :required="true"/>
+                     :class="`form-item-select__field`"/>
           </label>
           <label class="form-item-select">
             <span class="form__label">Parent <sup>*</sup></span>
@@ -493,8 +515,9 @@ export default {
         <button type="button" class="button button--lime" @click="isLayoutVisible = true; action = 'Add';">
           Add Athlete
         </button>
+        <Button v-if="this.$store.state.authentication.currentRole === 'coach'" @click="isSearch = !isSearch" type="button" class="button button--lime">{{ !isSearch ? 'Search for Athlete' : 'Close' }}</Button>
       </div>
-      <div v-if="entities !== null && entities.length > 0" class="entities__list-holder">
+      <div v-if="filteredEntities !== null && filteredEntities.length > 0" class="entities__list-holder">
         <ul class="entities__list">
           <li class="entities__item entities__item--athlete">
             <span class="entities__cell">#</span>
@@ -505,11 +528,11 @@ export default {
             <span class="entities__cell entities__cell--status">Payment status</span>
             <span class="entities__cell">Actions</span>
           </li>
-          <li v-for="(entity, index) in entities" :key="entity.ID" :id="entity.ID"
+          <li v-for="(entity, index) in filteredEntities" :key="entity.ID" :id="entity.ID"
               class="entities__item entities__item--athlete" @click="viewAthlete(entity.slug)">
             <span class="entities__cell">{{ index + 1 }}.</span>
             <span class="entities__cell">{{ entity.first_name }} {{ entity.last_name }}</span>
-            <span class="entities__cell">{{ entity.team.post_title }}</span>
+            <span class="entities__cell">{{ entity.team ? entity.team.post_title : 'No Team' }}</span>
             <span class="entities__cell">{{ entity.parent_name }}</span>
             <span class="entities__cell entities__cell-status"
                   :class="`entities__cell-status--${entity.status}`">{{ entity.status }}</span>
@@ -525,6 +548,7 @@ export default {
         </ul>
       </div>
       <p v-else-if="entities !== null && entities.length === 0">You don't have associated athletes yet</p>
+      <p v-else-if="isSearch && entitiesWithoutTeam !== null && entitiesWithoutTeam.length === 0">No Athletes found</p>
     </div>
   </div>
 </template>

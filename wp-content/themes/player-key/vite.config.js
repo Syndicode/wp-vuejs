@@ -31,6 +31,7 @@ export default ({ mode }) => {
       rollupOptions: {
         input: {
           main: normalizePath(join(__dirname, process.env.VITE_ENTRY_POINT ? `.${process.env.VITE_ENTRY_POINT}` : './src/main.js')),
+          admin: normalizePath(join(__dirname, './src/admin-panel.js')),
         },
         output: {
           assetFileNames: '[name].[hash][extname]',

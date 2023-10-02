@@ -1,1 +1,0 @@
-import{_ as s,o as _,c as a,p as t,j as c,b as o}from"./main.91e8f9e7.js";const d={name:"Loader"},p=e=>(t("data-v-04127369"),e=e(),c(),e),r={class:"loader"},n=p(()=>o("div",{class:"loader__layouts"},[o("div"),o("div"),o("div")],-1)),i=[n];function l(e,v,u,h,f,m){return _(),a("div",r,i)}const I=s(d,[["render",l],["__scopeId","data-v-04127369"]]);export{I as L};

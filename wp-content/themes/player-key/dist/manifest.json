@@ -22,70 +22,70 @@
   "__chunk.23102255.js": {
     "file": "_chunk.23102255.js"
   },
-  "__chunk.3293e5cc.js": {
+  "__chunk.2d418ff2.js": {
     "css": [
       "ErrorList.6dfe5613.css"
     ],
-    "file": "_chunk.3293e5cc.js",
+    "file": "_chunk.2d418ff2.js",
     "imports": [
       "src/main.js"
     ]
   },
-  "__chunk.42a4e4d6.js": {
-    "file": "_chunk.42a4e4d6.js",
-    "imports": [
-      "src/main.js"
-    ]
-  },
-  "__chunk.614fe72f.js": {
-    "css": [
-      "Loader.72459415.css"
-    ],
-    "file": "_chunk.614fe72f.js",
-    "imports": [
-      "src/main.js"
-    ]
-  },
-  "__chunk.6bec55d4.js": {
+  "__chunk.322796ac.js": {
     "css": [
       "MessageList.530be207.css"
     ],
-    "file": "_chunk.6bec55d4.js",
+    "file": "_chunk.322796ac.js",
     "imports": [
       "src/main.js"
     ]
   },
-  "__chunk.87357101.js": {
+  "__chunk.40950486.js": {
     "dynamicImports": [
       "node_modules/html2canvas/dist/html2canvas.esm.js",
       "node_modules/dompurify/dist/purify.es.js",
       "node_modules/canvg/lib/index.es.js"
     ],
-    "file": "_chunk.87357101.js",
+    "file": "_chunk.40950486.js",
     "imports": [
       "src/main.js"
     ]
   },
-  "__chunk.93f1ef41.js": {
+  "__chunk.43d6d570.js": {
     "css": [
       "Heading.ff9a1217.css"
     ],
-    "file": "_chunk.93f1ef41.js",
+    "file": "_chunk.43d6d570.js",
     "imports": [
       "src/main.js"
     ]
   },
-  "__chunk.9803d0f1.js": {
-    "file": "_chunk.9803d0f1.js",
+  "__chunk.4ec6e6ce.js": {
+    "css": [
+      "Loader.72459415.css"
+    ],
+    "file": "_chunk.4ec6e6ce.js",
     "imports": [
       "src/main.js"
     ]
   },
-  "__chunk.a688dd4c.js": {
+  "__chunk.95ba0f4f.js": {
     "css": [
       "FormItemText.ae510ac9.css"
     ],
-    "file": "_chunk.a688dd4c.js",
+    "file": "_chunk.95ba0f4f.js",
+    "imports": [
+      "src/main.js"
+    ]
+  },
+  "__chunk.baccd3c2.js": {
+    "file": "_chunk.baccd3c2.js",
+    "imports": [
+      "src/main.js"
+    ]
+  },
+  "__chunk.c51eb69f.js": {
+    "file": "_chunk.c51eb69f.js",
     "imports": [
       "src/main.js"
     ]
@@ -94,10 +94,10 @@
     "file": "_chunk.c8b7f1d3.js"
   },
   "node_modules/canvg/lib/index.es.js": {
-    "file": "_chunk.de02bd59.js",
+    "file": "_chunk.038a592b.js",
     "imports": [
       "__chunk.23102255.js",
-      "__chunk.87357101.js",
+      "__chunk.40950486.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
@@ -112,6 +112,18 @@
     "file": "_chunk.f16e60ff.js",
     "isDynamicEntry": true,
     "src": "node_modules/html2canvas/dist/html2canvas.esm.js"
+  },
+  "src/admin-panel.css": {
+    "file": "admin-panel.ce56a58b.css",
+    "src": "src/admin-panel.css"
+  },
+  "src/admin-panel.js": {
+    "css": [
+      "admin-panel.ce56a58b.css"
+    ],
+    "file": "admin.ca3e4673.js",
+    "isEntry": true,
+    "src": "src/admin-panel.js"
   },
   "src/assets/images/icon-type-info.svg": {
     "file": "icon-type-info.e2e79b17.svg",
@@ -130,7 +142,7 @@
     "src": "src/assets/images/logo-stripe.svg"
   },
   "src/main.css": {
-    "file": "main.5bc050d4.css",
+    "file": "main.7bf144a5.css",
     "src": "src/main.css"
   },
   "src/main.js": {
@@ -138,7 +150,7 @@
       "logo-player-key.988491c3.svg"
     ],
     "css": [
-      "main.5bc050d4.css"
+      "main.7bf144a5.css"
     ],
     "dynamicImports": [
       "src/views/SignUpView.vue",
@@ -153,25 +165,25 @@
       "src/views/TeamView.vue",
       "src/views/PageView.vue"
     ],
-    "file": "main.91e8f9e7.js",
+    "file": "main.c6ab2dd8.js",
     "isEntry": true,
     "src": "src/main.js"
   },
   "src/views/AthleteView.css": {
-    "file": "AthleteView.2729cade.css",
+    "file": "AthleteView.83651240.css",
     "src": "src/views/AthleteView.css"
   },
   "src/views/AthleteView.vue": {
     "css": [
-      "AthleteView.2729cade.css"
+      "AthleteView.83651240.css"
     ],
-    "file": "_chunk.9fb95434.js",
+    "file": "_chunk.f38c3f48.js",
     "imports": [
-      "__chunk.87357101.js",
-      "__chunk.93f1ef41.js",
-      "__chunk.9803d0f1.js",
-      "__chunk.614fe72f.js",
-      "__chunk.3293e5cc.js",
+      "__chunk.40950486.js",
+      "__chunk.43d6d570.js",
+      "__chunk.c51eb69f.js",
+      "__chunk.4ec6e6ce.js",
+      "__chunk.2d418ff2.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
@@ -190,16 +202,16 @@
     "css": [
       "BoardView.07f9c57f.css"
     ],
-    "file": "_chunk.d23353a4.js",
+    "file": "_chunk.604acf68.js",
     "imports": [
       "src/main.js",
-      "__chunk.93f1ef41.js",
-      "__chunk.42a4e4d6.js",
-      "__chunk.a688dd4c.js",
-      "__chunk.614fe72f.js",
-      "__chunk.6bec55d4.js",
-      "__chunk.9803d0f1.js",
-      "__chunk.3293e5cc.js",
+      "__chunk.43d6d570.js",
+      "__chunk.baccd3c2.js",
+      "__chunk.95ba0f4f.js",
+      "__chunk.4ec6e6ce.js",
+      "__chunk.322796ac.js",
+      "__chunk.c51eb69f.js",
+      "__chunk.2d418ff2.js",
       "__chunk.23102255.js",
       "__chunk.c8b7f1d3.js"
     ],
@@ -207,23 +219,23 @@
     "src": "src/views/BoardView.vue"
   },
   "src/views/CompleteAthleteView.vue": {
-    "file": "_chunk.5b61f626.js",
+    "file": "_chunk.634eed05.js",
     "imports": [
-      "__chunk.614fe72f.js",
-      "__chunk.3293e5cc.js",
+      "__chunk.4ec6e6ce.js",
+      "__chunk.2d418ff2.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
     "src": "src/views/CompleteAthleteView.vue"
   },
   "src/views/CompleteParentView.vue": {
-    "file": "_chunk.0ab290ef.js",
+    "file": "_chunk.5ed79834.js",
     "imports": [
       "src/main.js",
-      "__chunk.93f1ef41.js",
-      "__chunk.3293e5cc.js",
-      "__chunk.a688dd4c.js",
-      "__chunk.614fe72f.js"
+      "__chunk.43d6d570.js",
+      "__chunk.2d418ff2.js",
+      "__chunk.95ba0f4f.js",
+      "__chunk.4ec6e6ce.js"
     ],
     "isDynamicEntry": true,
     "src": "src/views/CompleteParentView.vue"
@@ -236,34 +248,34 @@
     "css": [
       "PageView.b60cc180.css"
     ],
-    "file": "_chunk.9ec246e2.js",
+    "file": "_chunk.6d87419f.js",
     "imports": [
       "src/main.js",
-      "__chunk.93f1ef41.js"
+      "__chunk.43d6d570.js"
     ],
     "isDynamicEntry": true,
     "src": "src/views/PageView.vue"
   },
   "src/views/PasswordResetView.vue": {
-    "file": "_chunk.b86c79a3.js",
+    "file": "_chunk.7e9658ea.js",
     "imports": [
-      "__chunk.93f1ef41.js",
-      "__chunk.a688dd4c.js",
+      "__chunk.43d6d570.js",
+      "__chunk.95ba0f4f.js",
       "src/main.js",
-      "__chunk.6bec55d4.js",
-      "__chunk.3293e5cc.js",
-      "__chunk.614fe72f.js"
+      "__chunk.322796ac.js",
+      "__chunk.2d418ff2.js",
+      "__chunk.4ec6e6ce.js"
     ],
     "isDynamicEntry": true,
     "src": "src/views/PasswordResetView.vue"
   },
   "src/views/SignInView.vue": {
-    "file": "_chunk.585a713d.js",
+    "file": "_chunk.2bdaff41.js",
     "imports": [
-      "__chunk.93f1ef41.js",
-      "__chunk.a688dd4c.js",
-      "__chunk.3293e5cc.js",
-      "__chunk.6bec55d4.js",
+      "__chunk.43d6d570.js",
+      "__chunk.95ba0f4f.js",
+      "__chunk.2d418ff2.js",
+      "__chunk.322796ac.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
@@ -277,13 +289,13 @@
     "css": [
       "SignUpRoleView.19ca1d3c.css"
     ],
-    "file": "_chunk.1a38c1c4.js",
+    "file": "_chunk.deea64fa.js",
     "imports": [
-      "__chunk.93f1ef41.js",
-      "__chunk.a688dd4c.js",
+      "__chunk.43d6d570.js",
+      "__chunk.95ba0f4f.js",
       "__chunk.c8b7f1d3.js",
-      "__chunk.3293e5cc.js",
-      "__chunk.6bec55d4.js",
+      "__chunk.2d418ff2.js",
+      "__chunk.322796ac.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
@@ -297,9 +309,9 @@
     "css": [
       "SignUpView.d3a7e306.css"
     ],
-    "file": "_chunk.edae8033.js",
+    "file": "_chunk.da772b0a.js",
     "imports": [
-      "__chunk.93f1ef41.js",
+      "__chunk.43d6d570.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,
@@ -313,12 +325,12 @@
     "css": [
       "TeamView.af55d5cb.css"
     ],
-    "file": "_chunk.12fcfd95.js",
+    "file": "_chunk.767f3a8d.js",
     "imports": [
-      "__chunk.93f1ef41.js",
-      "__chunk.87357101.js",
-      "__chunk.42a4e4d6.js",
-      "__chunk.614fe72f.js",
+      "__chunk.43d6d570.js",
+      "__chunk.40950486.js",
+      "__chunk.baccd3c2.js",
+      "__chunk.4ec6e6ce.js",
       "src/main.js"
     ],
     "isDynamicEntry": true,

@@ -51,6 +51,15 @@ const getAthletes = (data) => {
  * @param {Object} data
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
+const getAthletesWithoutTeam = (data) => {
+    return axios.post(`${BASE_URL}/athletes/get-athletes-without-team`, data)
+}
+
+/**
+ *
+ * @param {Object} data
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
 const removeAthlete = (data) => {
     return axios.post(`${BASE_URL}/athletes/remove-athlete`, data)
 }
@@ -60,6 +69,6 @@ export default {
     editAthlete,
     getAthleteBy,
     getAthletes,
+    getAthletesWithoutTeam,
     removeAthlete,
 };
-
