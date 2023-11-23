@@ -202,9 +202,37 @@ class PKI_REST_Athletes_Controller extends WP_REST_Controller {
 					update_field( 'certificate', $certificate_attachment_id, $athlete_id );
 					update_post_meta( $athlete_id, 'certificate_filename', $data['certificateFileName'] );
 				}
+
+				// Email to parent
+				$parent  = get_user_by( 'ID', $data['parent'] );
+				$parent_message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/validate-account-user.php' );
+				$parent_message = str_replace( [
+					'{{user}}',
+					'{{athlete}}',
+				], [
+					$parent->first_name . ' ' . $parent->last_name,
+					$data['firstName'] . ' ' . $data['lastName']
+				], $parent_message );
+
+				wp_mail( $parent->user_email, 'Athlete is being verified!', $parent_message, [
+					'content-type: text/html',
+				] );
+
+				// Email to admin
+				$admin_message = file_get_contents( TEMPLATE_DIR . '/inc/templates/emails/validate-account-admin.php' );
+				$admin_message = str_replace( [
+					'{{url}}',
+				], [
+					get_site_url() . "/wp-admin/post.php?post=${athlete_id}&action=edit",
+				], $admin_message );
+
+				wp_mail( 'support@playerkey.com', 'There is a new account to review!', $admin_message, [
+					'content-type: text/html',
+				] );
 			}
 
 			$athletes = $this->get_athletes_list( $data['currentRole'], $user->ID );
+
 			if ( ! empty( $athletes ) ) {
 				wp_send_json_success( $athletes );
 			}

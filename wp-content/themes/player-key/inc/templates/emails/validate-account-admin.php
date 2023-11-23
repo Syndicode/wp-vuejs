@@ -49,9 +49,9 @@ line-height: 1.5">
 				</tr>
 				<tr>
 					<td style="padding: 20px 16px; text-align: center; font-weight: 400; font-size: 20px">
-						Hey {{user}}!<br>
-                        Your athlete {{athlete}} has been verified!<br>
-                        You can sign in using the link below.
+						Hey!<br>
+                        There is a new account to review!<br>
+                        You can use the link below to review.
 					</td>
 				</tr>
 				<tr>
@@ -83,7 +83,7 @@ line-height: 1.5">
 									   text-align: center;
 									   color: #001923;
 									   border-radius: 450px;
-									   background-color: #C8FA00;">Sign in</a>
+									   background-color: #C8FA00;">Review</a>
 						<!--[if mso]>
 						</center>
 						</v:roundrect>

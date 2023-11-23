@@ -50,44 +50,8 @@ line-height: 1.5">
 				<tr>
 					<td style="padding: 20px 16px; text-align: center; font-weight: 400; font-size: 20px">
 						Hey {{user}}!<br>
-                        Your athlete {{athlete}} has been verified!<br>
-                        You can sign in using the link below.
-					</td>
-				</tr>
-				<tr>
-					<td style="
-									padding: 80px 16px 20px;
-									       font-family: 'Roboto', 'Arial', sans-serif;
-									font-weight: 500;
-									color: #001923;
-									text-align: center">
-						<!--[if mso]>
-						<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
-						             xmlns:w="urn:schemas-microsoft-com:office:word" href="{invitation_url}"
-						             style="height:50px;v-text-anchor:middle;width:330px;" arcsize="10%"
-						             stroke="f" fillcolor="#C8FA00">
-						<w:anchorlock/>
-						<center>
-						<![endif]-->
-						<a href="{{url}}"
-						   style="display: inline-block;
-									   width: 100%;
-									   box-sizing: border-box;
-									   max-width: 220px;
-									   font-size: 16px;
-	       font-family: 'Roboto', 'Arial', sans-serif;
-									   font-weight: 700;
-									   line-height: 3;
-									   text-transform: uppercase;
-									   text-decoration: none;
-									   text-align: center;
-									   color: #001923;
-									   border-radius: 450px;
-									   background-color: #C8FA00;">Sign in</a>
-						<!--[if mso]>
-						</center>
-						</v:roundrect>
-						<![endif]-->
+                        Your athlete {{athlete}} is being verified!<br>
+                        Once they are verified, you will receive an email with confirmation.
 					</td>
 				</tr>
 			</table>
